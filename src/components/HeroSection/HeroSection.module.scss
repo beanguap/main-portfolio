@@ -1,0 +1,216 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+@use 'sass:color';
+
+.hero {
+  min-height: 100vh;
+  background: url(v.$background-texture) v.$color-background;
+  background-size: cover;
+  position: relative;
+}
+
+.heroName {
+  position: absolute;
+  top: 120px;
+  left: 2rem;
+  z-index: 2;
+}
+
+.firstName {
+  font-family: v.$font-heading;
+  font-size: 8rem;
+  font-weight: bold;
+  line-height: 1;
+  color: v.$color-primary;
+  display: block;
+  
+  @include m.respond-to(mobile) {
+    font-size: calc(v.$font-size-xl * 0.7);
+  }
+}
+
+.middleName {
+  font-family: v.$font-heading;
+  font-size: 8rem;
+  font-weight: bold;
+  line-height: 1;
+  color: v.$color-primary;
+  display: block;
+  position: absolute;
+  left: 15rem;
+  top: 7.5rem;
+  transform: translateX(0);
+  
+  @include m.respond-to(mobile) {
+    font-size: calc(v.$font-size-xl * 0.7);
+    left: 4rem;
+    top: 4rem;
+  }
+}
+
+.lastName {
+  font-family: v.$font-heading;
+  font-size: 8rem;
+  font-weight: bold;
+  line-height: 1;
+  color: v.$color-primary;
+  display: block;
+  position: absolute;
+  left: 34.5rem;
+  top: 15rem;
+  
+  @include m.respond-to(mobile) {
+    font-size: calc(v.$font-size-xl * 0.7);
+    left: 4rem;
+    top: 8rem;
+  }
+}
+
+.heroContent {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  height: 100vh;
+  padding-right: 5rem;
+  padding-bottom: 5rem;
+}
+
+.heroText {
+  flex: 1;
+  text-align: center;
+  
+  @include m.respond-to(tablet) {
+    text-align: left;
+    max-width: 60%;
+  }
+}
+
+.heroTitle {
+  font-family: v.$font-heading;
+  font-size: 6rem;
+  font-weight: bold;
+  line-height: 1;
+  color: v.$color-primary;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+  
+  @include m.respond-to(mobile) {
+    font-size: calc(v.$font-size-xl * 0.7);
+  }
+}
+
+.heroSubtitle {
+  font-family: v.$font-tagline;
+  font-size: v.$font-size-tagline;
+  font-weight: v.$font-weight-tagline;
+  line-height: v.$line-height-tagline;
+  color: v.$color-accent;
+  margin-bottom: v.$space-lg;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: v.$space-md;
+  justify-content: center;
+  
+  @include m.respond-to(tablet) {
+    justify-content: flex-start;
+  }
+}
+
+.primaryBtn {
+  @include m.button-base;
+  background-color: v.$color-primary;
+  color: v.$color-text;
+  border: none;
+  
+  &:hover {
+    background-color: color.adjust(v.$color-primary, $lightness: -10%);
+  }
+}
+
+.secondaryBtn {
+  @include m.button-base;
+  background-color: transparent;
+  color: v.$color-text;
+  border: 1px solid v.$color-text;
+  
+  &:hover {
+    background-color: rgba(v.$color-text, 0.1);
+  }
+}
+
+.heroImage {
+  .keyboard {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(v.$color-primary, 0.3));
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+// Styles for Social Links
+.socialLinks {
+  position: absolute;
+  top: 35rem; // Increased top value to lower the icons
+  left: 2rem; // Keep left alignment
+  display: flex;
+  gap: 1.5rem; 
+  z-index: 2; 
+
+  a {
+    color: v.$color-text;
+    font-size: 3rem; // Increased font-size for bigger icons
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: v.$color-primary; 
+    }
+  }
+}
+
+// Styles for Left CTA Buttons
+.ctaButtonsLeft {
+  position: absolute;
+  top: 42rem; // Adjust based on social icons position and desired gap
+  left: 2rem; // Align with social icons
+  display: flex;
+  gap: 1rem; // Space between buttons
+  z-index: 2;
+}
+
+.sayHelloBtn {
+  @include m.button-base;
+  background-color: v.$color-primary;
+  color: v.$color-text; 
+  border: none;
+  padding: 1rem 2.5rem; // Increased padding
+  border-radius: 50px; // Increased border-radius for roundness
+
+  &:hover {
+    background-color: color.adjust(v.$color-primary, $lightness: -10%);
+  }
+}
+
+.downloadCvBtn {
+  @include m.button-base;
+  background-color: v.$color-text; 
+  color: v.$color-background; 
+  border: 1px solid transparent; 
+  padding: 1rem 2.5rem; // Increased padding
+  border-radius: 50px; // Increased border-radius for roundness
+
+  &:hover {
+    background-color: color.adjust(v.$color-text, $lightness: -5%);
+  }
+}

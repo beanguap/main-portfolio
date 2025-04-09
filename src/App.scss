@@ -1,0 +1,28 @@
+@use './styles/variables' as v;
+@use './styles/mixins' as m;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: v.$font-body;
+  font-size: v.$font-size-md;
+  line-height: v.$line-height-body;
+  color: v.$color-text;
+  background-color: v.$color-background;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+} 

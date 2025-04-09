@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+@mixin respond-to($breakpoint) {
+    @if $breakpoint == mobile {
+        @media (max-width: $bp-mobile) {
+            @content;
+        }
+    } @else if $breakpoint == tablet {
+        @media (min-width: $bp-tablet) {
+            @content;
+        }
+    } @else if $breakpoint == desktop {
+        @media (min-width: $bp-desktop) {
+            @content;
+        }
+    }
+}
+
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 $space-md;
+    max-width: $bp-desktop;
+    
+    @include respond-to(tablet) {
+        padding: 0 $space-lg;
+    }
+}
+
+@mixin button-base {
+    font-family: $font-button;
+    font-size: $font-size-button;
+    font-weight: $font-weight-button;
+    line-height: $line-height-button;
+    padding: $space-xs $space-md;
+    border-radius: $radius-button;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}

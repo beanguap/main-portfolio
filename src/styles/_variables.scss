@@ -1,0 +1,67 @@
+// =========================
+// FONTS
+// =========================
+@font-face {
+  font-family: 'Druk Wide Bold';
+  src: url('../assets/fonts/DrukWideBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+// =========================
+// COLORS
+// =========================
+$color-primary: #538CFF;
+$color-text: #ffffff;
+$color-accent: #999999;
+$color-background: #000000;
+$background-texture: '/cloth.png';
+
+// =========================
+// TYPOGRAPHY
+// =========================
+$font-heading: 'Druk Wide Bold', sans-serif;
+$font-subheading: 'Helvetica Neue', sans-serif;
+$font-body: 'Helvetica Neue', sans-serif;
+$font-button: 'Helvetica Neue', sans-serif;
+$font-tagline: 'Helvetica Neue', sans-serif;
+
+$font-weight-heading: 700;
+$font-weight-regular: 400;
+$font-weight-button: 400;
+$font-weight-tagline: 600;
+
+$font-size-xl: 6rem;       // 96px for main heading
+$font-size-lg: 2.5rem;     // 40px for subheadings
+$font-size-md: 0.75rem;    // 12px for body text
+$font-size-sm: 0.75rem;    // 12px for subheading text
+$font-size-button: 0.875rem; // 14px for button text
+$font-size-tagline: 1.5rem; // 24px for skills/tech tags
+
+$line-height-heading: 1.1;
+$line-height-body: 1.5;
+$line-height-subheading: 1.4;
+$line-height-button: 1.4;
+$line-height-tagline: 1.2;
+
+// =========================
+// SPACING
+// (Assuming 8px scale for now)
+// =========================
+$space-xs: 0.5rem;   // 8px
+$space-sm: 1rem;     // 16px
+$space-md: 1.5rem;   // 24px
+$space-lg: 2rem;     // 32px
+$space-xl: 2.5rem;   // 40px
+
+// =========================
+// BORDER RADIUS
+// =========================
+$radius-button: 5px;
+
+// =========================
+// BREAKPOINTS
+// =========================
+$bp-mobile: 375px;
+$bp-tablet: 768px;
+$bp-desktop: 1440px;

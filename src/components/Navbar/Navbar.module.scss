@@ -1,0 +1,119 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  a {
+    display: flex;
+    align-items: center;
+    
+    img {
+      height: 100px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+}
+
+.foundedText {
+  font-family: v.$font-subheading;
+  font-size: 0.75rem;
+  color: v.$color-text;
+  opacity: 0.8;
+  position: absolute;
+  right: 2rem;
+  top: 1rem;
+}
+
+.menuItems {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 4rem;
+
+  li {
+    a {
+      color: v.$color-text;
+      text-decoration: none;
+      font-family: v.$font-subheading;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: v.$color-primary;
+      }
+    }
+  }
+
+  @include m.respond-to(tablet) {
+    display: flex;
+  }
+
+  &.menuOpen {
+    @include m.respond-to(mobile) {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      transform: none;
+      background-color: v.$color-background;
+      padding: v.$space-md;
+      gap: v.$space-md;
+    }
+  }
+}
+
+.hamburger {
+  display: none;
+  
+  @include m.respond-to(mobile) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 20px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .hamburgerBar {
+    width: 100%;
+    height: 2px;
+    background-color: v.$color-text;
+    transition: transform 0.3s ease;
+  }
+
+  &.hamburgerOpen {
+    .hamburgerBar {
+      &:first-child {
+        transform: translateY(9px) rotate(45deg);
+      }
+      &:nth-child(2) {
+        opacity: 0;
+      }
+      &:last-child {
+        transform: translateY(-9px) rotate(-45deg);
+      }
+    }
+  }
+}
