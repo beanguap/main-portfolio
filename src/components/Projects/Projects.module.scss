@@ -1,0 +1,61 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+@use 'sass:color';
+
+.projectsSection {
+  padding: 4rem 2rem;
+  background-color: color.adjust(v.$color-background, $lightness: 5%); // Use color.adjust
+  min-height: 100vh; // Ensure it takes space
+
+  h2 {
+    text-align: center;
+    font-family: v.$font-heading;
+    font-size: 3rem;
+    color: v.$color-primary;
+    margin-bottom: 3rem;
+  }
+}
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.projectCard {
+  background-color: v.$color-background;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer; // Indicate interactivity later
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(v.$color-primary, 0.3);
+  }
+
+  h3 {
+    font-family: v.$font-subheading;
+    font-size: 1.5rem;
+    color: v.$color-primary;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: v.$font-size-md;
+    color: v.$color-accent; // Use $color-accent instead
+    line-height: 1.6;
+  }
+}
+
+.projectImagePlaceholder {
+  height: 200px;
+  background-color: #333; // Placeholder color
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  // Add background image styles later
+} 

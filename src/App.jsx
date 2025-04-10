@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './components/Navbar/Navbar';
 import HeroSection from './components/HeroSection/HeroSection';
+import Projects from './components/Projects/Projects';
 import './App.scss';
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <Navbar />
       <main>
         <HeroSection />
+        <Projects />
       </main>
     </div>
   )
