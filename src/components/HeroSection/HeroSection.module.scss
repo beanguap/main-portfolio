@@ -68,10 +68,7 @@
 
 .heroContent {
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
   height: 100vh;
-  padding-right: 5rem;
   padding-bottom: 5rem;
 }
 
@@ -142,11 +139,53 @@
 }
 
 .heroImage {
+  position: absolute;
+  top: 40rem; 
+  left: 30rem; 
+  width: 1000px; 
+  z-index: 1; 
+
+  // Top-left bracket
+  &::before {
+    content: '';
+    position: absolute;
+    top: 3rem; // Adjust offset as needed
+    left: 10rem; // Adjust offset as needed
+    width: 2.5rem; // Adjust size
+    height: 2.5rem; // Adjust size
+    border-top: 12px solid v.$color-text; // White border
+    border-left: 12px solid v.$color-text; // White border
+  }
+
+  // Bottom-right bracket
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4rem; // Adjust offset as needed
+    right: 15rem; // Adjust offset as needed
+    width: 2.5rem; // Adjust size
+    height: 2.5rem; // Adjust size
+    border-bottom: 12px solid v.$color-text; // White border
+    border-right: 12px solid v.$color-text; // White border
+  }
+
   .keyboard {
-    max-width: 100%;
+    width: 100%; // Make keyboard fill the .heroImage container
     height: auto;
     filter: drop-shadow(0 0 20px rgba(v.$color-primary, 0.3));
   }
+}
+
+// Text near keyboard
+.keyboardInfoText {
+  position: absolute;
+  bottom: 15rem; // Position relative to bottom of .heroImage
+  left: -2rem;  // Adjust to position it left of the keyboard visually
+  color: v.$color-text; // Changed from $color-accent to $color-text
+  font-size: v.$font-size-sm;
+  line-height: v.$line-height-body;
+  max-width: 400px; // Limit width
+  z-index: 2; // Ensure it's above the keyboard if needed
 }
 
 @keyframes float {
@@ -212,5 +251,88 @@
 
   &:hover {
     background-color: color.adjust(v.$color-text, $lightness: -5%);
+  }
+}
+
+// Renamed styles for 46.png Image
+.decorativeImage46 {
+  position: absolute;
+  top: 48rem; 
+  left: 2rem; 
+  width: 400px; 
+  height: auto; 
+  z-index: 1; 
+}
+
+// Text under decorative image
+.footerTextBlock {
+  position: absolute;
+  top: 75rem; // Position below decorativeImage46 (top: 48rem + height approx)
+  left: 2rem; // Align with decorativeImage46
+  color: v.$color-text; // Changed from $color-accent to $color-text
+  font-size: v.$font-size-sm;
+  line-height: 1.2; // Tighter line spacing
+  z-index: 2;
+
+  .yearText {
+    font-size: 2rem; // Larger font size for the year
+    font-weight: bold;
+    color: v.$color-text; // Already white, no change needed
+    margin-top: 0.5rem; // Space above year
+  }
+}
+
+// Styles for Info Button
+.infoButton {
+  position: absolute;
+  top: 50rem; // Initial guess - Adjust to match mockup position relative to keyboard
+  left: 31rem; // Initial guess - Adjust to match mockup position relative to keyboard
+  width: 4rem; // Adjust size as needed
+  height: 4rem; // Adjust size as needed
+  background-color: #444; // Grey background - Adjust color as needed
+  color: v.$color-text; // Already white, no change needed
+  border: none;
+  border-radius: 50%; // Make it circular
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem; // Size of the plus sign
+  font-weight: lighter;
+  cursor: pointer;
+  z-index: 3; // Ensure it's above other elements
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    background-color: #555; // Slightly lighter grey on hover
+    transform: scale(1.1); // Slightly enlarge on hover
+  }
+}
+
+// Styles for Top Right Image
+.topRightImage {
+  position: absolute;
+  top: 7rem; 
+  right: -2.5rem; 
+  width: 400px; 
+  height: auto; 
+  z-index: 1; 
+  transform: rotate(90deg);
+}
+
+// Styles for Skills List
+.skillsList {
+  position: absolute;
+  bottom: .5rem; // Adjust position relative to bottom edge
+  right: 2rem; // Adjust position relative to right edge
+  color: v.$color-text; 
+  font-family: v.$font-heading; // Use heading font like mockup
+  font-size: 2rem; // Adjust size as needed
+  font-weight: bold;
+  line-height: 1.1; // Tight line spacing
+  text-align: right; // Align text to the right
+  z-index: 2;
+
+  span {
+    display: block; // Each skill on its own line
   }
 }
