@@ -10,7 +10,7 @@ const HeroSection = () => {
   const handleInfoButtonClick = () => {
     console.log('Info button clicked!');
     // Example: Toggle visibility state
-    // setIsInfoVisible(!isInfoVisible); 
+    setIsInfoVisible(!isInfoVisible); 
   };
 
   return (
@@ -23,19 +23,19 @@ const HeroSection = () => {
 
       {/* Updated Image for top-right */}
       <img 
-        src="src/assets/image-from-rawpixel-id-6171907-png.png"
+        src="/src/assets/image-from-rawpixel-id-6171907-png.png"
         alt="Abstract rawpixel graphic"
         className={styles.topRightImage} 
       />
 
       <div className={styles.socialLinks}>
-        <a href="YOUR_X_URL" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
+        <a href="https://twitter.com/jmartinezflores" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
           <FaXTwitter />
         </a> 
-        <a href="YOUR_GITHUB_URL" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <a href="https://github.com/jerielmartinez" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
           <FaGithub />
         </a>
-        <a href="YOUR_LINKEDIN_URL" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <a href="https://linkedin.com/in/jerielmartinez" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
           <FaLinkedin />
         </a>
       </div>
@@ -48,7 +48,7 @@ const HeroSection = () => {
 
       {/* Updated to 46.png Image */}
       <img 
-        src="src/assets/46.png"
+        src="/src/assets/46.png"
         alt="Decorative graphic"
         className={styles.decorativeImage46}
       />
@@ -70,23 +70,29 @@ const HeroSection = () => {
         +
       </button>
 
+      {/* Optional Info Panel that shows when isInfoVisible is true */}
+      {isInfoVisible && (
+        <div className={styles.infoPanel}>
+          <p>Made with React, SCSS, and ❤️</p>
+        </div>
+      )}
+
       {/* Skills List Text Block */}
       <div className={styles.skillsList}>
-        <span>FULL STACK </span>
+        <span>FULL STACK</span>
         <span>DEVELOPER</span>
         <span>SOFTWARE</span>
         <span>ENGINEER</span>
         <span>ANIMATION</span>
-        <span>ROBOTICS</span>
-        <span>UI UX</span>
-        
+        <span>UI</span>
+        <span>UX</span>
         <span>AI</span>
       </div>
 
       <div className={styles.heroContent}>
         <div className={styles.heroImage}>
           <img 
-            src="src/assets/NOBACKGROUNDJMFKEYBOARD .png" 
+            src="/src/assets/NOBACKGROUNDJMFKEYBOARD .png" 
             alt="JMF Keyboard" 
             className={styles.keyboard}
           />

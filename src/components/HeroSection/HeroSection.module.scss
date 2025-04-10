@@ -7,13 +7,21 @@
   background: url(v.$background-texture) v.$color-background;
   background-size: cover;
   position: relative;
+  overflow: hidden;
 }
 
 .heroName {
   position: absolute;
-  top: 120px;
-  left: 2rem;
+  top: 80px;
+  left: 1rem;
   z-index: 2;
+  @include m.respond-to(mobile) {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    text-align: center;
+    top: 80px;
+  }
 }
 
 .firstName {
@@ -25,7 +33,12 @@
   display: block;
   
   @include m.respond-to(mobile) {
-    font-size: calc(v.$font-size-xl * 0.7);
+    font-size: 3rem;
+    position: relative;
+    display: block;
+    left: auto;
+    top: auto;
+    line-height: 0.9;
   }
 }
 
@@ -42,9 +55,12 @@
   transform: translateX(0);
   
   @include m.respond-to(mobile) {
-    font-size: calc(v.$font-size-xl * 0.7);
-    left: 4rem;
-    top: 4rem;
+    font-size: 3rem;
+    position: relative;
+    display: block;
+    left: auto;
+    top: auto;
+    line-height: 0.9;
   }
 }
 
@@ -60,9 +76,13 @@
   top: 15rem;
   
   @include m.respond-to(mobile) {
-    font-size: calc(v.$font-size-xl * 0.7);
-    left: 4rem;
-    top: 8rem;
+    font-size: 3rem;
+    position: relative;
+    display: block;
+    left: auto;
+    top: auto;
+    line-height: 0.9;
+    margin-bottom: 1rem;
   }
 }
 
@@ -140,52 +160,89 @@
 
 .heroImage {
   position: absolute;
-  top: 40rem; 
-  left: 30rem; 
-  width: 1000px; 
-  z-index: 1; 
+  top: auto;
+  bottom: 22rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 350px;
+  z-index: 1;
 
   // Top-left bracket
   &::before {
     content: '';
     position: absolute;
-    top: 3rem; // Adjust offset as needed
-    left: 10rem; // Adjust offset as needed
-    width: 2.5rem; // Adjust size
-    height: 2.5rem; // Adjust size
-    border-top: 12px solid v.$color-text; // White border
-    border-left: 12px solid v.$color-text; // White border
+    top: 3rem;
+    left: 10rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-top: 12px solid v.$color-text;
+    border-left: 12px solid v.$color-text;
+    @include m.respond-to(mobile) {
+      top: -0.5rem;
+      left: -0.5rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      border-width: 4px;
+      border-color: rgba(v.$color-primary, 0.7);
+    }
   }
 
   // Bottom-right bracket
   &::after {
     content: '';
     position: absolute;
-    bottom: -4rem; // Adjust offset as needed
-    right: 15rem; // Adjust offset as needed
-    width: 2.5rem; // Adjust size
-    height: 2.5rem; // Adjust size
-    border-bottom: 12px solid v.$color-text; // White border
-    border-right: 12px solid v.$color-text; // White border
+    bottom: -4rem;
+    right: 15rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-bottom: 12px solid v.$color-text;
+    border-right: 12px solid v.$color-text;
+    @include m.respond-to(mobile) {
+      bottom: -0.5rem;
+      right: -0.5rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      border-width: 4px;
+      border-color: rgba(v.$color-primary, 0.7);
+    }
   }
 
   .keyboard {
-    width: 100%; // Make keyboard fill the .heroImage container
+    width: 100%;
     height: auto;
     filter: drop-shadow(0 0 20px rgba(v.$color-primary, 0.3));
+  }
+
+  @include m.respond-to(mobile) {
+    bottom: 22rem;
+    width: 70%;
+    margin: 0 auto;
   }
 }
 
 // Text near keyboard
 .keyboardInfoText {
   position: absolute;
-  bottom: 15rem; // Position relative to bottom of .heroImage
-  left: -2rem;  // Adjust to position it left of the keyboard visually
-  color: v.$color-text; // Changed from $color-accent to $color-text
+  bottom: 15rem;
+  left: -2rem;
+  color: v.$color-text;
   font-size: v.$font-size-sm;
   line-height: v.$line-height-body;
-  max-width: 400px; // Limit width
-  z-index: 2; // Ensure it's above the keyboard if needed
+  max-width: 400px;
+  z-index: 2;
+  @include m.respond-to(mobile) {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    text-align: center;
+    max-width: 90%;
+    margin: 1.2rem auto 0;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    padding: 0 0.5rem;
+    letter-spacing: 0.02rem;
+  }
 }
 
 @keyframes float {
@@ -200,15 +257,15 @@
 // Styles for Social Links
 .socialLinks {
   position: absolute;
-  top: 35rem; // Increased top value to lower the icons
-  left: 2rem; // Keep left alignment
+  top: 35rem;
+  left: 2rem;
   display: flex;
   gap: 1.5rem; 
   z-index: 2; 
 
   a {
     color: v.$color-text;
-    font-size: 3rem; // Increased font-size for bigger icons
+    font-size: 3rem;
     text-decoration: none;
     transition: color 0.3s ease;
 
@@ -216,16 +273,44 @@
       color: v.$color-primary; 
     }
   }
+  @include m.respond-to(mobile) {
+    top: auto;
+    bottom: 16rem;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 2.5rem;
+
+    a {
+      font-size: 2rem;
+    }
+  }
 }
 
 // Styles for Left CTA Buttons
 .ctaButtonsLeft {
   position: absolute;
-  top: 42rem; // Adjust based on social icons position and desired gap
-  left: 2rem; // Align with social icons
+  top: 42rem;
+  left: 2rem;
   display: flex;
-  gap: 1rem; // Space between buttons
+  gap: 1rem;
   z-index: 2;
+  @include m.respond-to(mobile) {
+    top: auto;
+    bottom: 11rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    justify-content: space-around;
+    gap: 1rem;
+
+    button {
+      padding: 0.8rem 1.2rem;
+      font-size: v.$font-size-button * 0.9;
+      flex-grow: 1;
+      text-align: center;
+      max-width: 45%;
+    }
+  }
 }
 
 .sayHelloBtn {
@@ -233,11 +318,18 @@
   background-color: v.$color-primary;
   color: v.$color-text; 
   border: none;
-  padding: 1rem 2.5rem; // Increased padding
-  border-radius: 50px; // Increased border-radius for roundness
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
 
   &:hover {
     background-color: color.adjust(v.$color-primary, $lightness: -10%);
+  }
+  
+  @include m.respond-to(mobile) {
+    padding: 0.8rem 1rem;
+    font-weight: 500;
+    letter-spacing: 0.03rem;
+    box-shadow: 0 2px 8px rgba(83, 140, 255, 0.4);
   }
 }
 
@@ -246,11 +338,18 @@
   background-color: v.$color-text; 
   color: v.$color-background; 
   border: 1px solid transparent; 
-  padding: 1rem 2.5rem; // Increased padding
-  border-radius: 50px; // Increased border-radius for roundness
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
 
   &:hover {
     background-color: color.adjust(v.$color-text, $lightness: -5%);
+  }
+  
+  @include m.respond-to(mobile) {
+    padding: 0.8rem 1rem;
+    font-weight: 500;
+    letter-spacing: 0.03rem;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -262,49 +361,64 @@
   width: 400px; 
   height: auto; 
   z-index: 1; 
+  @include m.respond-to(mobile) {
+    display: none;
+  }
 }
 
 // Text under decorative image
 .footerTextBlock {
   position: absolute;
-  top: 75rem; // Position below decorativeImage46 (top: 48rem + height approx)
-  left: 2rem; // Align with decorativeImage46
-  color: v.$color-text; // Changed from $color-accent to $color-text
+  top: 75rem;
+  left: 2rem;
+  color: v.$color-text;
   font-size: v.$font-size-sm;
-  line-height: 1.2; // Tighter line spacing
+  line-height: 1.2;
   z-index: 2;
 
   .yearText {
-    font-size: 2rem; // Larger font size for the year
+    font-size: 2rem;
     font-weight: bold;
-    color: v.$color-text; // Already white, no change needed
-    margin-top: 0.5rem; // Space above year
+    color: v.$color-text;
+    margin-top: 0.5rem;
+  }
+  @include m.respond-to(mobile) {
+    display: none;
   }
 }
 
 // Styles for Info Button
 .infoButton {
   position: absolute;
-  top: 50rem; // Initial guess - Adjust to match mockup position relative to keyboard
-  left: 31rem; // Initial guess - Adjust to match mockup position relative to keyboard
-  width: 4rem; // Adjust size as needed
-  height: 4rem; // Adjust size as needed
-  background-color: #444; // Grey background - Adjust color as needed
-  color: v.$color-text; // Already white, no change needed
+  top: 50rem;
+  left: 31rem;
+  width: 4rem;
+  height: 4rem;
+  background-color: #444;
+  color: v.$color-text;
   border: none;
-  border-radius: 50%; // Make it circular
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2rem; // Size of the plus sign
+  font-size: 2rem;
   font-weight: lighter;
   cursor: pointer;
-  z-index: 3; // Ensure it's above other elements
+  z-index: 3;
   transition: background-color 0.3s ease, transform 0.3s ease;
 
   &:hover {
-    background-color: #555; // Slightly lighter grey on hover
-    transform: scale(1.1); // Slightly enlarge on hover
+    background-color: #555;
+    transform: scale(1.1);
+  }
+  @include m.respond-to(mobile) {
+    top: auto;
+    bottom: 35rem;
+    left: 83%;
+    transform: translateX(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
   }
 }
 
@@ -317,22 +431,71 @@
   height: auto; 
   z-index: 1; 
   transform: rotate(90deg);
+  @include m.respond-to(mobile) {
+    display: none;
+  }
 }
 
 // Styles for Skills List
 .skillsList {
   position: absolute;
-  bottom: .5rem; // Adjust position relative to bottom edge
-  right: 2rem; // Adjust position relative to right edge
+  bottom: .5rem;
+  right: 2rem;
   color: v.$color-text; 
-  font-family: v.$font-heading; // Use heading font like mockup
-  font-size: 2rem; // Adjust size as needed
+  font-family: v.$font-heading;
+  font-size: 2rem;
   font-weight: bold;
-  line-height: 1.1; // Tight line spacing
-  text-align: right; // Align text to the right
+  line-height: 1.1;
+  text-align: right;
   z-index: 2;
 
   span {
-    display: block; // Each skill on its own line
+    display: block;
+  }
+  @include m.respond-to(mobile) {
+    bottom: 3rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    width: 100%;
+    padding: 0 1rem;
+    overflow-wrap: break-word;
+
+    span {
+      display: inline-block;
+      margin: 0 0.35rem 0.15rem;
+      white-space: nowrap;
+    }
+  }
+}
+
+.infoPanel {
+  position: absolute;
+  top: 50rem;
+  left: 31rem;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: v.$color-text;
+  padding: 1rem 1.5rem;
+  border-radius: 5px;
+  z-index: 5;
+  font-size: 0.9rem;
+  max-width: 300px;
+  backdrop-filter: blur(5px);
+  border: 1px solid v.$color-primary;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  
+  @include m.respond-to(mobile) {
+    top: auto;
+    bottom: 21rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 250px;
+    font-size: 0.8rem;
+    padding: 0.75rem 1rem;
+    text-align: center;
   }
 }
