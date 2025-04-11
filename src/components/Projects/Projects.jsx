@@ -71,6 +71,7 @@ const titleVariants = {
   }
 };
 
+// Improve card variants for smoother interactions
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: (i) => ({
@@ -84,12 +85,21 @@ const cardVariants = {
   }),
   hover: {
     y: -8,
+    scale: 1.02,
     boxShadow: "0 15px 30px rgba(83, 140, 255, 0.2)",
-    transition: { duration: 0.3 }
+    transition: { 
+      duration: 0.3,
+      ease: "easeOut",
+      type: "spring",
+      stiffness: 200
+    }
   },
   tap: {
     scale: 0.98,
-    transition: { duration: 0.15 }
+    transition: { 
+      duration: 0.15,
+      ease: "easeIn"
+    }
   }
 };
 
@@ -120,18 +130,23 @@ const Projects = () => {
     };
   }, []);
 
-  // Enhanced scroll animations specifically tuned for iPhone 12 Pro
+  // Enhanced scroll animations with better performance
   useLayoutEffect(() => {
     const isMobile = window.innerWidth <= 767;
     const mobilePadding = isMobile ? "80%" : "center";
     
+    // Create a context for better cleanup
     const ctx = gsap.context(() => {
-      gsap.timeline({
+      // Use timeline for more reliable animations
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: '#projects',
           start: `top ${mobilePadding}`,
           end: 'bottom center',
           scrub: 1,
+          // Reduce performance impact
+          fastScrollEnd: true,
+          preventOverlaps: true,
           onEnter: () => {
             document.body.classList.add(styles.projectsActive);
           },
@@ -139,33 +154,63 @@ const Projects = () => {
             document.body.classList.remove(styles.projectsActive);
           }
         },
-      })
-      .fromTo('.scene-container', 
+      });
+      
+      // More optimized animations
+      tl.fromTo('.scene-container', 
         { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 1.2 }
+        { 
+          opacity: 1, 
+          scale: 1, 
+          duration: 1.2,
+          ease: "power2.out" 
+        }
       )
       .fromTo('.projects-heading', 
         { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.5,
+          ease: "power1.out" 
+        },
         '<0.2'
       )
       .fromTo('.project-card', 
         { y: 80, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.15, duration: 0.7 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          stagger: 0.15, 
+          duration: 0.7,
+          ease: "back.out(1.2)" 
+        },
         '<0.3'
       );
     });
 
-    return () => ctx.revert();
+    // Proper cleanup to prevent memory leaks
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"]
   });
-  
-  const backgroundOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  const backgroundScale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.8, 1, 1, 0.9]);
+
+  const backgroundOpacity = useTransform(
+    scrollYProgress, 
+    [0, 0.15, 0.85, 1], 
+    [0, 1, 1, 0]
+  );
+
+  const backgroundScale = useTransform(
+    scrollYProgress, 
+    [0, 0.15, 0.85, 1], 
+    [0.9, 1, 1, 0.9]
+  );
 
   return (
     <motion.section 
@@ -175,7 +220,10 @@ const Projects = () => {
       variants={sectionVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
-      style={{ position: 'relative' }}
+      style={{ 
+        position: 'relative',
+        willChange: 'transform' // Optimize performance
+      }}
     >
       <div className={styles.projectsIndicator}>
         <motion.div 
@@ -192,12 +240,22 @@ const Projects = () => {
         style={{ 
           opacity: backgroundOpacity,
           scale: backgroundScale,
-          position: 'fixed', // Ensure position is explicitly set
-          width: '100%',     // Ensure full width
-          height: '100vh'    // Ensure full height
+          position: 'fixed',
+          width: '100%',
+          height: '100vh',
+          willChange: 'transform, opacity' // Optimize performance
         }}
+        initial={{ opacity: 0, scale: 0.9 }}
       >
-        <div className="scene-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <div 
+          className="scene-container" 
+          style={{ 
+            position: 'relative', 
+            width: '100%', 
+            height: '100%',
+            contain: 'strict' // Improve rendering performance
+          }}
+        >
           <Scene3D projects={projectsData} />
         </div>
       </motion.div>
@@ -227,7 +285,14 @@ const Projects = () => {
             whileHover="hover"
             whileTap="tap"
             initial="hidden"
-            viewport={{ once: true, margin: "-50px" }}
+            animate="visible"
+            drag={window.innerWidth <= 767 ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            transition={{
+              layout: { duration: 0.4, ease: "anticipate" },
+              default: { ease: "easeInOut" }
+            }}
           >
             <div className={styles.projectImage}>
               <img src={project.imageUrl} alt={project.title} loading="lazy" />

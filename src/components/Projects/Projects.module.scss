@@ -159,9 +159,10 @@ $iphone12-height: 844px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(v.$color-primary, 0.1);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-  touch-action: manipulation;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); // Smoother transition
+  will-change: transform, box-shadow; // Performance optimization
+  touch-action: pan-y; // Better touch behavior
+  transform: translateZ(0); // Force GPU acceleration
 
   &:hover {
     transform: translateY(-5px) scale(1.02);

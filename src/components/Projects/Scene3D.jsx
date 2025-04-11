@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
 import { Float, Environment, useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import gsap from 'gsap';
 
 // Mobile detection utility
 const isMobile = () => {
@@ -132,27 +133,67 @@ function ParticleField() {
   );
 }
 
-// Enhanced project card component in 3D
+// Enhanced project card component with better interactions
 function ProjectCard({ position, rotation, project, index, totalProjects }) {
   const mesh = useRef();
   const isMobileDevice = isMobile();
   const { viewport } = useThree();
   
-  // Adjust size based on viewport width
-  const scale = isMobileDevice ? 0.85 : 1;
+  // Create a ref for animation state to prevent conflicts
+  const animationState = useRef({
+    isHovered: false,
+    baseY: position[1]
+  });
   
-  // Use progress to animate in cards sequentially
-  const progress = index / totalProjects;
+  // Optimize scale based on viewport width
+  const scale = isMobileDevice ? 0.85 : 1;
   
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     
-    // Add subtle floating animation
-    mesh.current.position.y = Math.sin(t * 0.5 + index) * 0.1;
+    if (!mesh.current) return;
     
-    // Add subtle rotation for more dynamic feel
-    mesh.current.rotation.z = Math.sin(t * 0.3 + index * 0.2) * 0.05;
+    // More subtle base animation when not hovered
+    if (!animationState.current.isHovered) {
+      // Smoother, more subtle floating animation
+      mesh.current.position.y = animationState.current.baseY + Math.sin(t * 0.5 + index) * 0.1;
+      // Smoother rotation
+      mesh.current.rotation.z = Math.sin(t * 0.3 + index * 0.2) * 0.03;
+    }
   });
+
+  // Add hover handlers for better interaction
+  const onHover = () => {
+    if (!mesh.current) return;
+    animationState.current.isHovered = true;
+    // Use GSAP for smoother hover effect
+    gsap.to(mesh.current.position, {
+      y: animationState.current.baseY + 0.3,
+      duration: 0.4,
+      ease: "power2.out"
+    });
+    gsap.to(mesh.current.rotation, {
+      z: 0.05,
+      duration: 0.4,
+      ease: "power2.out"
+    });
+  };
+  
+  const onHoverEnd = () => {
+    if (!mesh.current) return;
+    animationState.current.isHovered = false;
+    // Smooth transition back
+    gsap.to(mesh.current.position, {
+      y: animationState.current.baseY,
+      duration: 0.5,
+      ease: "power2.out"
+    });
+    gsap.to(mesh.current.rotation, {
+      z: 0,
+      duration: 0.5,
+      ease: "power2.out"
+    });
+  };
 
   return (
     <Float
@@ -165,6 +206,8 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
       <mesh 
         ref={mesh} 
         rotation={rotation}
+        onPointerOver={onHover}
+        onPointerOut={onHoverEnd}
       >
         <planeGeometry args={[isMobileDevice ? 1.5 : 2, isMobileDevice ? 2.25 : 3]} />
         <meshStandardMaterial
