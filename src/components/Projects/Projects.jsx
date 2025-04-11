@@ -175,6 +175,7 @@ const Projects = () => {
       variants={sectionVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
+      style={{ position: 'relative' }}
     >
       <div className={styles.projectsIndicator}>
         <motion.div 
@@ -190,10 +191,13 @@ const Projects = () => {
         className={styles.backgroundScene}
         style={{ 
           opacity: backgroundOpacity,
-          scale: backgroundScale
+          scale: backgroundScale,
+          position: 'fixed', // Ensure position is explicitly set
+          width: '100%',     // Ensure full width
+          height: '100vh'    // Ensure full height
         }}
       >
-        <div className="scene-container">
+        <div className="scene-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
           <Scene3D projects={projectsData} />
         </div>
       </motion.div>

@@ -24,17 +24,28 @@ function ParticleField() {
   const isMobileDevice = isMobile();
   const isIPhone12 = isIPhone12Pro();
   
-  // Reduce particle count for mobile devices
-  const particlesCount = isIPhone12 ? 350 : isMobileDevice ? 500 : 1000;
+  // Increase particle count for better coverage
+  const particlesCount = isIPhone12 ? 800 : isMobileDevice ? 1200 : 2500;
   
   const positions = useMemo(() => {
     const pos = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const radius = 5 + Math.random() * (isMobileDevice ? 5 : 10);
-      pos[i * 3] = Math.cos(theta) * radius;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * (isMobileDevice ? 5 : 10);
-      pos[i * 3 + 2] = Math.sin(theta) * radius;
+      // Use a wider distribution strategy
+      if (i < particlesCount * 0.8) {
+        // 80% of particles in a whirlpool pattern
+        const theta = Math.random() * Math.PI * 2;
+        // Significantly increase the radius range
+        const radius = 5 + Math.random() * (isMobileDevice ? 35 : 60);
+        pos[i * 3] = Math.cos(theta) * radius;
+        // Make y-distribution much wider
+        pos[i * 3 + 1] = (Math.random() - 0.5) * (isMobileDevice ? 30 : 50);
+        pos[i * 3 + 2] = Math.sin(theta) * radius;
+      } else {
+        // 20% of particles fully random for better coverage
+        pos[i * 3] = (Math.random() - 0.5) * (isMobileDevice ? 60 : 100);
+        pos[i * 3 + 1] = (Math.random() - 0.5) * (isMobileDevice ? 40 : 70);
+        pos[i * 3 + 2] = (Math.random() - 0.5) * (isMobileDevice ? 60 : 100);
+      }
     }
     return pos;
   }, [isMobileDevice, isIPhone12, particlesCount]);
@@ -56,12 +67,40 @@ function ParticleField() {
   }, [particlesCount]);
 
   useFrame((state, delta) => {
-    // Slower rotation on mobile for better performance
-    particles.current.rotation.y += delta * (isMobileDevice ? 0.02 : 0.04);
+    // Create a whirlpool motion by rotating particles
+    particles.current.rotation.y += delta * (isMobileDevice ? 0.05 : 0.08);
     
-    // Add subtle movement to particles
-    const t = state.clock.getElapsedTime() * 0.2;
-    particles.current.position.y = Math.sin(t) * 0.2;
+    // Add whirlpool-like motion with more dramatic effect
+    const positions = particles.current.geometry.attributes.position.array;
+    const t = state.clock.getElapsedTime();
+    
+    for (let i = 0; i < particlesCount; i++) {
+      // Get current position
+      const idx = i * 3;
+      const x = positions[idx];
+      const z = positions[idx + 2];
+      
+      // Calculate distance from center
+      const distanceFromCenter = Math.sqrt(x * x + z * z);
+      
+      // Apply spiral motion - particles closer to center rotate faster
+      // Increased effect for more visible whirlpool
+      const rotationSpeed = 0.15 * (1 - distanceFromCenter / 70) * delta;
+      const cosR = Math.cos(rotationSpeed);
+      const sinR = Math.sin(rotationSpeed);
+      
+      // Apply rotation for whirlpool effect
+      positions[idx] = x * cosR - z * sinR;
+      positions[idx + 2] = z * cosR + x * sinR;
+      
+      // Add subtle pulsing movement for more aesthetic effect
+      positions[idx + 1] += Math.sin(t + i * 0.1) * delta * 0.2;
+    }
+    
+    particles.current.geometry.attributes.position.needsUpdate = true;
+    
+    // Add subtle overall movement
+    particles.current.position.y = Math.sin(t * 0.2) * 0.5;
   });
 
   return (
@@ -81,10 +120,10 @@ function ParticleField() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={isMobileDevice ? 0.03 : 0.05}
+        size={isMobileDevice ? 0.12 : 0.18} // Increased further
         vertexColors
         transparent
-        opacity={0.7}
+        opacity={0.85}
         blending={THREE.AdditiveBlending}
         sizeAttenuation
         depthWrite={false}
@@ -172,7 +211,7 @@ export function Scene3D({ projects }) {
 
   useEffect(() => {
     setIsMounted(true);
-    
+        
     // Clean up any heavy resources when component unmounts
     return () => {
       // Dispose of any resources if needed
@@ -185,8 +224,9 @@ export function Scene3D({ projects }) {
   return (
     <Canvas 
       camera={{ 
-        position: [0, 0, isIPhone12 ? 13 : isMobileDevice ? 12 : 10], 
-        fov: isMobileDevice ? 60 : 70,
+        // Move camera further back to see more particles
+        position: [0, 0, isIPhone12 ? 30 : isMobileDevice ? 35 : 45], 
+        fov: isMobileDevice ? 90 : 100, // Increase FOV for wider viewing angle
         near: 0.1,
         far: 1000
       }}
@@ -242,7 +282,6 @@ export function Scene3D({ projects }) {
         <Vignette darkness={0.5} offset={0.5} eskil={false} />
       </EffectComposer>
       
-      {/* Simplified post-processing for mobile */}
       {isMobileDevice && (
         <EffectComposer multisampling={0}>
           <Bloom luminanceThreshold={0.6} intensity={0.8} radius={0.3} />
