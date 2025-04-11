@@ -7,6 +7,26 @@
   box-sizing: border-box;
 }
 
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
 body {
   font-family: v.$font-body;
   font-size: v.$font-size-md;
@@ -15,14 +35,22 @@ body {
   background-color: v.$color-background;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
 .app {
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
 }
 
 main {
   position: relative;
   z-index: 1;
-} 
+  
+  section {
+    min-height: 100vh;
+    position: relative;
+  }
+}
