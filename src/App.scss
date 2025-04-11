@@ -7,24 +7,28 @@
   box-sizing: border-box;
 }
 
-html.lenis {
-  height: auto;
+html {
+  &.lenis {
+    height: auto;
+  }
 }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
+.lenis {
+  &.lenis-smooth {
+    scroll-behavior: auto;
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
+    [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+  }
 
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
+  &.lenis-stopped {
+    overflow: hidden;
+  }
 
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
+  &.lenis-scrolling iframe {
+    pointer-events: none;
+  }
 }
 
 body {
@@ -37,6 +41,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   min-height: 100vh;
+
+  // Transition background when projects section is active
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.projects-active {
+    background-color: rgba(0, 0, 0, 0.95);
+  }
 }
 
 .app {
@@ -48,9 +59,45 @@ body {
 main {
   position: relative;
   z-index: 1;
+}
+
+.section-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  will-change: transform, opacity;
+
+  // Performance optimizations
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
   
-  section {
-    min-height: 100vh;
-    position: relative;
+  // Transition states for hero section
+  &.hero-container {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    .hero-element {
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+}
+
+// Hide scrollbar but keep functionality
+::-webkit-scrollbar {
+  display: none;
+}
+
+// Mobile optimizations
+@media (max-width: v.$bp-mobile) {
+  .section-container {
+    transform: none;
+    backface-visibility: visible;
+    perspective: none;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto;
   }
 }

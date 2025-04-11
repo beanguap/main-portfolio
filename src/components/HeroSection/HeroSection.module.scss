@@ -4,10 +4,34 @@
 
 .hero {
   min-height: 100vh;
-  background: url(v.$background-texture) v.$color-background;
-  background-size: cover;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.9),
+    rgba(0, 0, 0, 0.7)
+  );
+  touch-action: pan-y; // Enable vertical scrolling on mobile
+  
+  @include m.respond-to(mobile) {
+    min-height: -webkit-fill-available; // Fix for mobile Safari
+  }
+}
+
+.heroBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1;
+  
+  canvas {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    outline: none;
+  }
 }
 
 .heroName {
@@ -15,278 +39,115 @@
   top: 80px;
   left: 1rem;
   z-index: 2;
+  perspective: 1000px;
+  
   @include m.respond-to(mobile) {
     left: 50%;
     transform: translateX(-50%);
-    width: 100%;
+    width: 90%;
     text-align: center;
-    top: 80px;
+    top: 60px;
+    padding: 0 1rem;
   }
 }
 
-.firstName {
+.firstName, .middleName, .lastName {
   font-family: v.$font-heading;
   font-size: 8rem;
   font-weight: bold;
   line-height: 1;
   color: v.$color-primary;
   display: block;
+  transform-origin: center left;
+  text-shadow: 0 0 30px rgba(v.$color-primary, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   @include m.respond-to(mobile) {
-    font-size: 3rem;
+    font-size: 2.5rem;
     position: relative;
     display: block;
     left: auto;
     top: auto;
-    line-height: 0.9;
+    transform-origin: center;
+    margin-bottom: 0.5rem;
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+  
+  &:hover {
+    text-shadow: 0 0 50px rgba(v.$color-primary, 0.5);
   }
 }
 
 .middleName {
-  font-family: v.$font-heading;
-  font-size: 8rem;
-  font-weight: bold;
-  line-height: 1;
-  color: v.$color-primary;
-  display: block;
   position: absolute;
   left: 15rem;
   top: 7.5rem;
-  transform: translateX(0);
   
   @include m.respond-to(mobile) {
-    font-size: 3rem;
     position: relative;
-    display: block;
     left: auto;
     top: auto;
-    line-height: 0.9;
   }
 }
 
 .lastName {
-  font-family: v.$font-heading;
-  font-size: 8rem;
-  font-weight: bold;
-  line-height: 1;
-  color: v.$color-primary;
-  display: block;
   position: absolute;
   left: 34.5rem;
   top: 15rem;
   
   @include m.respond-to(mobile) {
-    font-size: 3rem;
     position: relative;
-    display: block;
     left: auto;
     top: auto;
-    line-height: 0.9;
-    margin-bottom: 1rem;
   }
 }
 
-.heroContent {
-  display: flex;
-  height: 100vh;
-  padding-bottom: 5rem;
-}
-
-.heroText {
-  flex: 1;
-  text-align: center;
-  
-  @include m.respond-to(tablet) {
-    text-align: left;
-    max-width: 60%;
-  }
-}
-
-.heroTitle {
-  font-family: v.$font-heading;
-  font-size: 6rem;
-  font-weight: bold;
-  line-height: 1;
-  color: v.$color-primary;
-  margin: 0;
-  padding: 0;
-  text-transform: uppercase;
-  
-  @include m.respond-to(mobile) {
-    font-size: calc(v.$font-size-xl * 0.7);
-  }
-}
-
-.heroSubtitle {
-  font-family: v.$font-tagline;
-  font-size: v.$font-size-tagline;
-  font-weight: v.$font-weight-tagline;
-  line-height: v.$line-height-tagline;
-  color: v.$color-accent;
-  margin-bottom: v.$space-lg;
-}
-
-.ctaButtons {
-  display: flex;
-  gap: v.$space-md;
-  justify-content: center;
-  
-  @include m.respond-to(tablet) {
-    justify-content: flex-start;
-  }
-}
-
-.primaryBtn {
-  @include m.button-base;
-  background-color: v.$color-primary;
-  color: v.$color-text;
-  border: none;
-  
-  &:hover {
-    background-color: color.adjust(v.$color-primary, $lightness: -10%);
-  }
-}
-
-.secondaryBtn {
-  @include m.button-base;
-  background-color: transparent;
-  color: v.$color-text;
-  border: 1px solid v.$color-text;
-  
-  &:hover {
-    background-color: rgba(v.$color-text, 0.1);
-  }
-}
-
-.heroImage {
-  position: absolute;
-  top: auto;
-  bottom: 22rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 350px;
-  z-index: 1;
-
-  // Top-left bracket
-  &::before {
-    content: '';
-    position: absolute;
-    top: 3rem;
-    left: 10rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-top: 12px solid v.$color-text;
-    border-left: 12px solid v.$color-text;
-    @include m.respond-to(mobile) {
-      top: -0.5rem;
-      left: -0.5rem;
-      width: 1.2rem;
-      height: 1.2rem;
-      border-width: 4px;
-      border-color: rgba(v.$color-primary, 0.7);
-    }
-  }
-
-  // Bottom-right bracket
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -4rem;
-    right: 15rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-bottom: 12px solid v.$color-text;
-    border-right: 12px solid v.$color-text;
-    @include m.respond-to(mobile) {
-      bottom: -0.5rem;
-      right: -0.5rem;
-      width: 1.2rem;
-      height: 1.2rem;
-      border-width: 4px;
-      border-color: rgba(v.$color-primary, 0.7);
-    }
-  }
-
-  .keyboard {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 0 20px rgba(v.$color-primary, 0.3));
-  }
-
-  @include m.respond-to(mobile) {
-    bottom: 22rem;
-    width: 70%;
-    margin: 0 auto;
-  }
-}
-
-// Text near keyboard
-.keyboardInfoText {
-  position: absolute;
-  bottom: 15rem;
-  left: -2rem;
-  color: v.$color-text;
-  font-size: v.$font-size-sm;
-  line-height: v.$line-height-body;
-  max-width: 400px;
-  z-index: 2;
-  @include m.respond-to(mobile) {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    text-align: center;
-    max-width: 90%;
-    margin: 1.2rem auto 0;
-    font-size: 0.7rem;
-    line-height: 1.5;
-    padding: 0 0.5rem;
-    letter-spacing: 0.02rem;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-// Styles for Social Links
 .socialLinks {
   position: absolute;
   top: 35rem;
   left: 2rem;
   display: flex;
-  gap: 1.5rem; 
-  z-index: 2; 
+  gap: 1.5rem;
+  z-index: 2;
 
   a {
     color: v.$color-text;
     font-size: 3rem;
-    text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 10px rgba(v.$color-primary, 0));
 
     &:hover {
-      color: v.$color-primary; 
+      color: v.$color-primary;
+      filter: drop-shadow(0 0 20px rgba(v.$color-primary, 0.5));
     }
   }
+
   @include m.respond-to(mobile) {
-    top: auto;
-    bottom: 16rem;
-    left: 50%;
-    transform: translateX(-50%);
-    gap: 2.5rem;
+    position: fixed;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 10;
 
     a {
-      font-size: 2rem;
+      font-size: 1.8rem;
+      padding: 0.8rem;
+      
+      &:active {
+        transform: scale(0.9);
+      }
     }
   }
 }
 
-// Styles for Left CTA Buttons
 .ctaButtonsLeft {
   position: absolute;
   top: 42rem;
@@ -294,154 +155,110 @@
   display: flex;
   gap: 1rem;
   z-index: 2;
+
   @include m.respond-to(mobile) {
-    top: auto;
-    bottom: 11rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    justify-content: space-around;
+    position: fixed;
+    bottom: 5rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
     gap: 1rem;
+    padding: 1rem;
+    z-index: 10;
 
     button {
+      min-width: 120px;
       padding: 0.8rem 1.2rem;
-      font-size: v.$font-size-button * 0.9;
-      flex-grow: 1;
-      text-align: center;
-      max-width: 45%;
+      font-size: 0.9rem;
+      
+      &:active {
+        transform: scale(0.95);
+      }
     }
   }
 }
 
-.sayHelloBtn {
+.sayHelloBtn, .downloadCvBtn {
   @include m.button-base;
-  background-color: v.$color-primary;
-  color: v.$color-text; 
-  border: none;
   padding: 1rem 2.5rem;
   border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  &:hover {
-    background-color: color.adjust(v.$color-primary, $lightness: -10%);
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  &:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.sayHelloBtn {
+  background-color: v.$color-primary;
+  color: v.$color-text;
+  border: none;
   
-  @include m.respond-to(mobile) {
-    padding: 0.8rem 1rem;
-    font-weight: 500;
-    letter-spacing: 0.03rem;
-    box-shadow: 0 2px 8px rgba(83, 140, 255, 0.4);
+  &:hover {
+    background-color: color.adjust(v.$color-primary, $lightness: 5%);
   }
 }
 
 .downloadCvBtn {
-  @include m.button-base;
-  background-color: v.$color-text; 
-  color: v.$color-background; 
-  border: 1px solid transparent; 
-  padding: 1rem 2.5rem;
-  border-radius: 50px;
-
+  background-color: transparent;
+  color: v.$color-text;
+  border: 2px solid v.$color-text;
+  backdrop-filter: blur(5px);
+  
   &:hover {
-    background-color: color.adjust(v.$color-text, $lightness: -5%);
+    border-color: v.$color-primary;
+    color: v.$color-primary;
+  }
+}
+
+.customCursor {
+  width: 20px;
+  height: 20px;
+  background: rgba(v.$color-primary, 0.5);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  backdrop-filter: blur(2px);
+  mix-blend-mode: screen;
+
+  &.cursorExpanded {
+    transform: scale(1.5);
+    background: rgba(v.$color-primary, 0.8);
+  }
+}
+
+@media (hover: none) {
+  .customCursor {
+    display: none;
   }
   
-  @include m.respond-to(mobile) {
-    padding: 0.8rem 1rem;
-    font-weight: 500;
-    letter-spacing: 0.03rem;
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  a, button {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
-// Renamed styles for 46.png Image
-.decorativeImage46 {
-  position: absolute;
-  top: 48rem; 
-  left: 2rem; 
-  width: 400px; 
-  height: auto; 
-  z-index: 1; 
-  @include m.respond-to(mobile) {
-    display: none;
-  }
-}
-
-// Text under decorative image
-.footerTextBlock {
-  position: absolute;
-  top: 75rem;
-  left: 2rem;
-  color: v.$color-text;
-  font-size: v.$font-size-sm;
-  line-height: 1.2;
-  z-index: 2;
-
-  .yearText {
-    font-size: 2rem;
-    font-weight: bold;
-    color: v.$color-text;
-    margin-top: 0.5rem;
-  }
-  @include m.respond-to(mobile) {
-    display: none;
-  }
-}
-
-// Styles for Info Button
-.infoButton {
-  position: absolute;
-  top: 50rem;
-  left: 31rem;
-  width: 4rem;
-  height: 4rem;
-  background-color: #444;
-  color: v.$color-text;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2rem;
-  font-weight: lighter;
-  cursor: pointer;
-  z-index: 3;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-
-  &:hover {
-    background-color: #555;
-    transform: scale(1.1);
-  }
-  @include m.respond-to(mobile) {
-    top: auto;
-    bottom: 35rem;
-    left: 83%;
-    transform: translateX(-50%);
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.5rem;
-  }
-}
-
-// Styles for Top Right Image
-.topRightImage {
-  position: absolute;
-  top: 7rem; 
-  right: -2.5rem; 
-  width: 400px; 
-  height: auto; 
-  z-index: 1; 
-  transform: rotate(90deg);
-  @include m.respond-to(mobile) {
-    display: none;
-  }
-}
-
-// Styles for Skills List
 .skillsList {
   position: absolute;
   bottom: .5rem;
   right: 2rem;
-  color: v.$color-text; 
+  color: v.$color-text;
   font-family: v.$font-heading;
   font-size: 2rem;
   font-weight: bold;
@@ -451,51 +268,111 @@
 
   span {
     display: block;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+
+    &:hover {
+      text-shadow: 0 0 20px rgba(v.$color-primary, 0.5);
+    }
   }
+
   @include m.respond-to(mobile) {
-    bottom: 3rem;
+    position: relative;
+    bottom: auto;
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 0.85rem;
-    line-height: 1.3;
-    width: 100%;
-    padding: 0 1rem;
-    overflow-wrap: break-word;
+    font-size: 1rem;
+    padding: 1rem;
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
 
     span {
       display: inline-block;
-      margin: 0 0.35rem 0.15rem;
-      white-space: nowrap;
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      background: rgba(v.$color-primary, 0.1);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      
+      &:active {
+        background: rgba(v.$color-primary, 0.2);
+        transform: scale(0.95);
+      }
     }
   }
 }
 
-.infoPanel {
+.scrollIndicator {
   position: absolute;
-  top: 50rem;
-  left: 31rem;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  color: v.$color-text;
-  padding: 1rem 1.5rem;
-  border-radius: 5px;
-  z-index: 5;
-  font-size: 0.9rem;
-  max-width: 300px;
-  backdrop-filter: blur(5px);
-  border: 1px solid v.$color-primary;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  
-  @include m.respond-to(mobile) {
-    top: auto;
-    bottom: 21rem;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: 30px;
+  height: 50px;
+  border: 2px solid rgba(v.$color-text, 0.3);
+  border-radius: 15px;
+
+  span {
+    position: absolute;
+    top: 8px;
     left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    max-width: 250px;
-    font-size: 0.8rem;
-    padding: 0.75rem 1rem;
-    text-align: center;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    background-color: v.$color-text;
+    border-radius: 50%;
+    animation: scrollAnimation 2s infinite;
+  }
+
+  @keyframes scrollAnimation {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(15px);
+      opacity: 0;
+    }
+  }
+
+  @include m.respond-to(mobile) {
+    height: 40px;
+    width: 20px;
+    border-width: 1px;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(v.$color-primary, 0.2),
+        transparent
+      );
+      animation: pulse 2s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
   }
 }
