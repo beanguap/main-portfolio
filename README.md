@@ -1,54 +1,64 @@
-# React + JavaScript + Vite
+# 🌐 My Developer Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Hey — I'm a **full-stack web developer** with a passion for building things that look clean, function smoothly, and tell a story. This portfolio is where I keep everything I’m working on, from creative frontend builds to AI and robotics experiments.
 
-Currently, two official plugins are available:
+This repo houses the **codebase for my portfolio website**, built to showcase my projects, ongoing work, and the way I think as a developer, maker, and problem-solver.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 About Me
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 💻 I build with **React**, **JavaScript**, **Node.js**, and **CSS**, keeping my UI crisp and my backend clean.
+- ⚙️ I’m expanding into **robotics, drones, and computer vision** using tools like **Python**, **OpenCV**, **Raspberry Pi**, and **Arduino**.
+- 🧠 Constantly learning — currently diving deeper into **AI/ML**, **embedded systems**, and **hardware integrations**.
+- 🛠️ I like working on projects that blend **software and hardware**, from AI-enhanced web apps to real-world robotics.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧰 Tech Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Frontend            | Backend            | AI / ML                  | Robotics                  | Tools                     |
+|---------------------|--------------------|---------------------------|----------------------------|---------------------------|
+| React + Vite        | Node.js + Express  | TensorFlow.js             | Raspberry Pi / Arduino     | Git + GitHub              |
+| JavaScript / TS     | MongoDB            | Python + OpenCV           | 3D Printing / GPIO         | Figma                     |
+| HTML / CSS          | REST APIs          | TensorFlow (Python)       | Motors / Sensors / Control | Blender / Three.js        |
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---
+
+## 📂 What This Site Includes
+
+- 🧾 **Projects** – Interactive demos, full-stack apps, and media-based tools (like my **Outfit Recognition AI** and **Flight Tracking App**).
+- 🛫 **Travel Projects** – Real-time luggage managers, airport maps, and passport visuals with sticker-style customization.
+- 🎮 **Interactive Media** – Games and creative visualizations powered by React, Three.js, and Cesium.
+- 🔍 **Ongoing Experiments** – Computer vision, robotics logs, and AI model showcases.
+- 🧠 **Behind the Scenes** – Thought process breakdowns, prototypes, and learn-as-you-go robotics integrations.
+
+---
+
+## 🔭 What I’m Learning Now
+
+- ✅ Training ML models with TensorFlow + deploying with TensorFlow.js
+- ✅ Computer vision with Python (object detection, tracking, etc.)
+- ✅ Raspberry Pi + Arduino-based robotics (movement, sensors, automation)
+- ✅ Web + hardware integrations (controlling devices from browser)
+- ✅ Blender modeling for real-time 3D rendering in React
+
+---
+
+## 🎯 My Goal
+
+To blend **software engineering** with **physical computing** in a way that makes projects come alive — whether it's a virtual passport you can customize or a robot that reacts to the world.
+
+This portfolio is evolving with me. If you're checking this out, welcome — and feel free to connect if you're building wild stuff too.
+
+---
+
+## 📸 Preview
+
+> Coming soon — video + screenshots of live projects.
+
+---
+
+## 🤝 Let's Build
+
+Got a collab in mind? Want to jam on a side project? DM me or drop an issue. This repo is just the beginning — my goal is to create things that make people pause and say, *“wait, you built that?”*
