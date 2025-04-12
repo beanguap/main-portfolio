@@ -1,109 +1,429 @@
-import React, { useState } from 'react';
-// Import icons from react-icons
-import { FaXTwitter, FaGithub, FaLinkedin } from 'react-icons/fa6'; 
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useAnimation, AnimatePresence, useInView } from 'framer-motion';
+import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6'; 
+import { HeroScene3D } from './HeroScene3D';
 import styles from './HeroSection.module.scss';
 
+// Animation variants for staggered animations
+const nameVariants = {
+  hidden: { opacity: 0, y: -50 },
+  visible: (custom) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      delay: custom * 0.2, // stagger effect
+      ease: [0.2, 0.65, 0.3, 0.9]
+    }
+  })
+};
+
+// Card-like animation for the buttons
+const buttonVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (custom) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      delay: 1 + custom * 0.2,
+      ease: [0, 0.55, 0.45, 1]
+    }
+  }),
+  hover: {
+    y: -5,
+    boxShadow: "0 10px 20px rgba(83, 140, 255, 0.3)",
+    transition: { duration: 0.3 }
+  },
+  tap: {
+    scale: 0.97,
+    transition: { duration: 0.1 }
+  }
+};
+
+// Social icon animation
+const iconVariants = {
+  hidden: { opacity: 0, scale: 0 },
+  visible: (custom) => ({
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 260,
+      damping: 20,
+      delay: 1.3 + custom * 0.1
+    }
+  }),
+  hover: {
+    scale: 1.15,
+    color: "#538CFF",
+    transition: { duration: 0.2 }
+  },
+  tap: { scale: 0.95 }
+};
+
+// Subtle floating animation for the keyboard
+const keyboardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1,
+      delay: 0.5,
+      ease: [0, 0.55, 0.45, 1]
+    }
+  },
+  float: {
+    y: [0, -15, 0],
+    transition: {
+      duration: 6,
+      repeat: Infinity,
+      repeatType: "mirror",
+      ease: "easeInOut"
+    }
+  }
+};
+
+// Subtle fade-in for text
+const textVariants = {
+  hidden: { opacity: 0 },
+  visible: (custom) => ({
+    opacity: 1,
+    transition: {
+      duration: 0.8,
+      delay: 1.8 + custom * 0.2
+    }
+  })
+};
+
+// Skills list animation with staggered display
+const skillsVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 2.2
+    }
+  }
+};
+
+const skillItemVariants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  }
+};
+
+// Custom cursor that follows mouse
+const CustomCursor = () => {
+  const cursorRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+  
+  useEffect(() => {
+    // Track mouse movement
+    const moveCursor = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${e.clientX}px`;
+        cursorRef.current.style.top = `${e.clientY}px`;
+      }
+    };
+    
+    // Check if hovering over clickable elements
+    const checkHovering = () => {
+      const hoveredElements = document.querySelectorAll('a:hover, button:hover');
+      setIsHovering(hoveredElements.length > 0);
+    };
+    
+    window.addEventListener('mousemove', moveCursor);
+    window.addEventListener('mousemove', checkHovering);
+    
+    return () => {
+      window.removeEventListener('mousemove', moveCursor);
+      window.removeEventListener('mousemove', checkHovering);
+    };
+  }, []);
+  
+  return (
+    <div 
+      ref={cursorRef} 
+      className={`${styles.customCursor} ${isHovering ? styles.cursorHover : ''}`}
+    />
+  );
+};
+
+// Scroll indicator component
+const ScrollIndicator = () => {
+  return (
+    <motion.div 
+      className={styles.scrollIndicator}
+      initial={{ opacity: 0 }}
+      animate={{ 
+        opacity: 1,
+        y: [0, 10, 0]
+      }}
+      transition={{
+        delay: 3,
+        y: {
+          repeat: Infinity,
+          duration: 1.5,
+          ease: "easeInOut"
+        }
+      }}
+    >
+      <FaAngleDown />
+      <span>Scroll Down</span>
+    </motion.div>
+  );
+};
+
 const HeroSection = () => {
-  // Add state for potential info panel visibility
   const [isInfoVisible, setIsInfoVisible] = useState(false);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
+  const controls = useAnimation();
+  
+  // Start animations when section comes into view
+  useEffect(() => {
+    if (isInView) {
+      controls.start("visible");
+    }
+  }, [isInView, controls]);
 
   const handleInfoButtonClick = () => {
-    console.log('Info button clicked!');
-    // Example: Toggle visibility state
-    setIsInfoVisible(!isInfoVisible); 
+    setIsInfoVisible(!isInfoVisible);
   };
 
   return (
-    <section className={styles.hero}>
-      <div className={styles.heroName}>
-        <span className={styles.firstName}>JERIEL</span>
-        <span className={styles.middleName}>MARTINEZ</span>
-        <span className={styles.lastName}>FLORES</span>
+    <motion.section 
+      className={styles.hero} 
+      ref={sectionRef}
+      initial="hidden"
+      animate={controls}
+      id="home"
+    >
+      {/* Custom cursor for desktop */}
+      <div className={styles.cursorContainer}>
+        <CustomCursor />
       </div>
 
-      {/* Updated Image for top-right */}
-      <img 
+      {/* 3D Scene Background */}
+      <div className={styles.heroBackground}>
+        <HeroScene3D />
+      </div>
+
+      {/* Animated Name */}
+      <div className={styles.heroName}>
+        <motion.span 
+          className={styles.firstName}
+          variants={nameVariants}
+          custom={0}
+        >
+          JERIEL
+        </motion.span>
+        <motion.span 
+          className={styles.middleName}
+          variants={nameVariants}
+          custom={1}
+        >
+          MARTINEZ
+        </motion.span>
+        <motion.span 
+          className={styles.lastName}
+          variants={nameVariants}
+          custom={2}
+        >
+          FLORES
+        </motion.span>
+      </div>
+
+      {/* Top-right decorative image */}
+      <motion.img 
         src="/src/assets/image-from-rawpixel-id-6171907-png.png"
         alt="Abstract rawpixel graphic"
-        className={styles.topRightImage} 
+        className={styles.topRightImage}
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 0.7, x: 0 }}
+        transition={{ 
+          duration: 1.2,
+          delay: 1,
+          ease: [0.25, 0.25, 0, 1]
+        }}
       />
 
+      {/* Social Media Links */}
       <div className={styles.socialLinks}>
-        <a href="https://twitter.com/jmartinezflores" target="_blank" rel="noopener noreferrer" aria-label="X (formerly Twitter)">
+        <motion.a 
+          href="https://twitter.com/jmartinezflores" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          aria-label="X (formerly Twitter)"
+          variants={iconVariants}
+          custom={0}
+          whileHover="hover"
+          whileTap="tap"
+        >
           <FaXTwitter />
-        </a> 
-        <a href="https://github.com/jerielmartinez" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        </motion.a>
+        <motion.a 
+          href="https://github.com/jerielmartinez" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          aria-label="GitHub"
+          variants={iconVariants}
+          custom={1}
+          whileHover="hover"
+          whileTap="tap"
+        >
           <FaGithub />
-        </a>
-        <a href="https://linkedin.com/in/jerielmartinez" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        </motion.a>
+        <motion.a 
+          href="https://linkedin.com/in/jerielmartinez" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          aria-label="LinkedIn"
+          variants={iconVariants}
+          custom={2}
+          whileHover="hover"
+          whileTap="tap"
+        >
           <FaLinkedin />
-        </a>
+        </motion.a>
       </div>
 
-      {/* Added CTA Buttons Container */}
+      {/* CTA Buttons */}
       <div className={styles.ctaButtonsLeft}>
-        <button className={styles.sayHelloBtn}>SAY HELLO</button>
-        <button className={styles.downloadCvBtn}>DOWNLOAD CV</button>
+        <motion.button 
+          className={styles.sayHelloBtn}
+          variants={buttonVariants}
+          custom={0}
+          whileHover="hover"
+          whileTap="tap"
+        >
+          SAY HELLO
+        </motion.button>
+        <motion.button 
+          className={styles.downloadCvBtn}
+          variants={buttonVariants}
+          custom={1}
+          whileHover="hover"
+          whileTap="tap"
+        >
+          DOWNLOAD CV
+        </motion.button>
       </div>
 
-      {/* Updated to 46.png Image */}
-      <img 
+      {/* Decorative Image */}
+      <motion.img 
         src="/src/assets/46.png"
         alt="Decorative graphic"
         className={styles.decorativeImage46}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 0.8, scale: 1 }}
+        transition={{ duration: 1.5, delay: 1.2 }}
       />
 
-      {/* Text under decorative image */}
-      <div className={styles.footerTextBlock}>
+      {/* Footer Text Block */}
+      <motion.div 
+        className={styles.footerTextBlock}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 2 }}
+      >
         <p>Full Stack</p>
         <p>Solutions for a</p>
         <p>Digital World</p>
         <p className={styles.yearText}>2025</p>
-      </div>
+      </motion.div>
 
-      {/* Added Info Button */}
-      <button 
-        className={styles.infoButton} 
-        aria-label="More Information" 
+      {/* Info Button */}
+      <motion.button
+        className={styles.infoButton}
+        aria-label="More Information"
         onClick={handleInfoButtonClick}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 10, 
+          delay: 2.5 
+        }}
+        whileHover={{ 
+          scale: 1.1, 
+          backgroundColor: "#666",
+          transition: { duration: 0.2 }
+        }}
+        whileTap={{ scale: 0.95 }}
       >
         +
-      </button>
+      </motion.button>
 
-      {/* Optional Info Panel that shows when isInfoVisible is true */}
-      {isInfoVisible && (
-        <div className={styles.infoPanel}>
-          <p>Made with React, SCSS, and ❤️</p>
-        </div>
-      )}
+      {/* Info Panel with AnimatePresence for smooth mounting/unmounting */}
+      <AnimatePresence>
+        {isInfoVisible && (
+          <motion.div 
+            className={styles.infoPanel}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <p>Made with React, SCSS, and ❤️</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Skills List Text Block */}
-      <div className={styles.skillsList}>
-        <span>FULL STACK</span>
-        <span>DEVELOPER</span>
-        <span>SOFTWARE</span>
-        <span>ENGINEER</span>
-        <span>ANIMATION</span>
-        <span>UI</span>
-        <span>UX</span>
-        <span>AI</span>
-      </div>
+      {/* Skills List with staggered animation */}
+      <motion.div 
+        className={styles.skillsList}
+        variants={skillsVariants}
+      >
+        {["FULL STACK", "DEVELOPER", "SOFTWARE", "ENGINEER", "ANIMATION", "UI", "UX", "AI"].map((skill, index) => (
+          <motion.span 
+            key={index}
+            variants={skillItemVariants}
+          >
+            {skill}
+          </motion.span>
+        ))}
+      </motion.div>
 
+      {/* Main Content with Keyboard */}
       <div className={styles.heroContent}>
-        <div className={styles.heroImage}>
-          <img 
+        <motion.div 
+          className={styles.heroImage}
+          variants={keyboardVariants}
+          animate="float"
+        >
+          <motion.img 
             src="/src/assets/NOBACKGROUNDJMFKEYBOARD .png" 
             alt="JMF Keyboard" 
             className={styles.keyboard}
+            variants={keyboardVariants}
           />
+          
           {/* Text near keyboard */}
-          <div className={styles.keyboardInfoText}>
+          <motion.div 
+            className={styles.keyboardInfoText}
+            variants={textVariants}
+            custom={0}
+          >
             <p>From Concept to Code – I Make It Happen /</p>
             <p>Design, Develop, Deploy – The Future Is Built Here</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+
+      {/* Scroll Indicator */}
+      <ScrollIndicator />
+    </motion.section>
   );
 };
 
