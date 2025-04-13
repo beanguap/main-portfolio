@@ -71,26 +71,46 @@ const titleVariants = {
   }
 };
 
+// Optimize animation variants for better performance
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 }, // Reduced y distance
   visible: (i) => ({
     opacity: 1,
     y: 0,
     transition: {
       delay: i * 0.1,
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1]
+      duration: 0.4, // Slightly faster
+      ease: "easeOut" // Simpler easing function
     },
   }),
   hover: {
-    y: -8,
-    boxShadow: "0 15px 30px rgba(83, 140, 255, 0.2)",
-    transition: { duration: 0.3 }
+    y: -5, // Reduced movement
+    transition: { duration: 0.2 } // Faster transition
   },
   tap: {
     scale: 0.98,
-    transition: { duration: 0.15 }
+    transition: { duration: 0.1 }
   }
+};
+
+// Scroll down indicator component
+const ScrollDownIndicator = () => {
+  return (
+    <motion.div
+      className={styles.rocketScrollIndicator} // Use a new class for specific styling
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1, duration: 1 }}
+    >
+      <motion.div
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <FaAngleDown />
+      </motion.div>
+      <span>Scroll for Next Section</span>
+    </motion.div>
+  );
 };
 
 const Projects = () => {
@@ -137,7 +157,43 @@ const Projects = () => {
     };
   }, []);
 
-  // GSAP animations when scene becomes visible
+  // Enhanced scroll-based animations with wider transform range
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+  
+  // Enhanced transform values for more dramatic effect
+  const backgroundOpacity = useTransform(
+    scrollYProgress, 
+    [0, 0.2, 0.8, 1], 
+    [0, 1, 1, 0],
+    { clamp: true }
+  );
+
+  const backgroundScale = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.8, 1],
+    [0.85, 1.1, 1.1, 0.85], // Increased scale range for more dramatic effect
+    { clamp: true }
+  );
+
+  // Add rotation effect
+  const backgroundRotateY = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [-10, 0, 10],
+    { clamp: true }
+  );
+
+  const backgroundRotateX = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [5, 0, -5],
+    { clamp: true }
+  );
+
+  // Enhanced GSAP animations
   useEffect(() => {
     if (showScene && sceneContainerRef.current) {
       const ctx = gsap.context(() => {
@@ -146,55 +202,129 @@ const Projects = () => {
             trigger: '#projects',
             start: 'top center',
             end: 'bottom center',
-            scrub: 1,
+            scrub: 1, // Increased scrub time for smoother effect
+            toggleActions: "play none none reverse"
           }
         });
 
-        // Animate scene container
-        tl.fromTo(sceneContainerRef.current,
-          { opacity: 0, scale: 0.8 },
-          { opacity: 1, scale: 1, duration: 1.2 }
-        );
+        // Enhanced initial state
+        gsap.set(sceneContainerRef.current, { 
+          opacity: 0, 
+          scale: 0.85,
+          rotateY: -10,
+          rotateX: 5,
+          z: -100
+        });
 
-        // Animate projects heading
-        if (projectsHeadingRef.current) {
-          tl.fromTo(projectsHeadingRef.current,
-            { y: 50, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.5 },
-            '<0.2'
-          );
-        }
+        // Enhanced animation sequence
+        tl.to(sceneContainerRef.current, {
+          opacity: 1,
+          scale: 1.1,
+          rotateY: 0,
+          rotateX: 0,
+          z: 0,
+          duration: 1.2,
+          ease: "power2.out"
+        })
+        .to(sceneContainerRef.current, {
+          scale: 1,
+          duration: 0.8,
+          ease: "power1.inOut"
+        });
 
-        // Animate project cards
-        if (projectCardsRef.current.length) {
-          tl.fromTo(projectCardsRef.current,
-            { y: 80, opacity: 0 },
-            { y: 0, opacity: 1, stagger: 0.15, duration: 0.7 },
-            '<0.3'
-          );
-        }
+        // Add floating animation
+        gsap.to(sceneContainerRef.current, {
+          y: "20px",
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
+        });
       });
 
       return () => ctx.revert();
     }
   }, [showScene]);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-  
-  const backgroundOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  const backgroundScale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.8, 1, 1, 0.9]);
+  // Render optimization for project cards
+  const renderProjectCard = React.useCallback(({ project, index }) => (
+    <motion.div
+      key={project.id}
+      ref={el => projectCardsRef.current[index] = el}
+      className={`${styles.projectCard} project-card`}
+      variants={cardVariants}
+      custom={index}
+      initial="hidden"
+      whileInView="visible" // Change from animate to whileInView
+      viewport={{ once: true, margin: "-50px" }}
+      whileHover="hover"
+      whileTap="tap"
+    >
+      <div className={styles.projectImage}>
+        <img 
+          src={project.imageUrl} 
+          alt={project.title} 
+          loading="lazy"
+          decoding="async" // Add async decoding
+        />
+        <motion.div 
+          className={styles.projectLinks}
+          initial={false} // Disable initial animation
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Simplified link animations */}
+          <motion.a 
+            href={project.links.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View Source Code"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FaGithub />
+          </motion.a>
+          <motion.a
+            href={project.links.demo}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View Live Demo"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FaPlay />
+          </motion.a>
+        </motion.div>
+      </div>
+      <div className={styles.projectContent}>
+        <h3>{project.title}</h3>
+        <p>{project.description}</p>
+        <div className={styles.techStack}>
+          {project.tech.map((tech, i) => (
+            <motion.span
+              key={i}
+              className={styles.techTag}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.05 * i }} // Reduced delay
+              viewport={{ once: true }}
+            >
+              {tech}
+            </motion.span>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  ), []); // Memoize card render function
 
   return (
     <motion.section 
       className={styles.projectsSection} 
       id="projects"
       ref={sectionRef}
-      variants={sectionVariants}
       initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
       style={{ position: 'relative' }}
     >
       <div className={styles.projectsIndicator}>
@@ -212,17 +342,26 @@ const Projects = () => {
         style={{ 
           opacity: backgroundOpacity,
           scale: backgroundScale,
+          rotateY: backgroundRotateY,
+          rotateX: backgroundRotateX,
           position: 'fixed',
           width: '100%',
           height: '100vh',
-          pointerEvents: showScene ? 'auto' : 'none'
+          pointerEvents: showScene ? 'auto' : 'none',
+          transformPerspective: 1000,
+          transformStyle: 'preserve-3d'
         }}
       >
         {showScene && (
           <div 
             ref={sceneContainerRef}
             className="scene-container" 
-            style={{ position: 'relative', width: '100%', height: '100%' }}
+            style={{ 
+              position: 'relative', 
+              width: '100%', 
+              height: '100%',
+              transformStyle: 'preserve-3d'
+            }}
           >
             <Scene3D projects={projectsData} />
           </div>
@@ -244,81 +383,17 @@ const Projects = () => {
 
       <motion.div
         className={styles.projectsGrid}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        viewport={{ once: true, amount: 0.05 }}
+        initial={false} // Disable initial animation for container
       >
-        {projectsData.map((project, index) => (
-          <motion.div
-            key={project.id}
-            ref={el => projectCardsRef.current[index] = el}
-            className={`${styles.projectCard} project-card`}
-            variants={cardVariants}
-            custom={index}
-            whileHover="hover"
-            whileTap="tap"
-            initial="hidden"
-            viewport={{ once: true, margin: "-50px" }}
-          >
-            <div className={styles.projectImage}>
-              <img src={project.imageUrl} alt={project.title} loading="lazy" />
-              <motion.div 
-                className={styles.projectLinks}
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <motion.a 
-                  href={project.links.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View Source Code"
-                  whileHover={{ scale: 1.15, rotate: 5, backgroundColor: "rgba(83, 140, 255, 0.4)" }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FaGithub />
-                </motion.a>
-                <motion.a
-                  href={project.links.demo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View Live Demo"
-                  whileHover={{ scale: 1.15, rotate: -5, backgroundColor: "rgba(83, 140, 255, 0.4)" }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FaPlay />
-                </motion.a>
-              </motion.div>
-            </div>
-            <motion.div 
-              className={styles.projectContent}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className={styles.techStack}>
-                {project.tech.map((tech, i) => (
-                  <motion.span
-                    key={i}
-                    className={styles.techTag}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 * i }}
-                    whileHover={{ scale: 1.08, y: -2, backgroundColor: "rgba(83, 140, 255, 0.2)" }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {tech}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        ))}
+        {projectsData.map((project, index) => 
+          renderProjectCard({ project, index })
+        )}
       </motion.div>
+
+      <ScrollDownIndicator />
+
     </motion.section>
   );
 };
 
-export default Projects;
+export default React.memo(Projects); // Memoize entire component

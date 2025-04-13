@@ -129,7 +129,6 @@ export default function RocketCanvas({ isLaunched, onError }) {
     <Canvas
       ref={canvasRef}
       camera={{ position: [0, 0, 10], fov: 50 }}
-      dpr={[1, 1.5]}
       gl={{
         alpha: true,
         antialias: true,

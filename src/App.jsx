@@ -12,9 +12,12 @@ import './App.scss';
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
+  const heroRef = useRef(null);
   const projectsRef = useRef(null);
+  const experienceRef = useRef(null);
   const [startRocketTransition, setStartRocketTransition] = useState(false);
   const [showExperience, setShowExperience] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
   const handleTransitionComplete = () => {
     setShowExperience(true);
@@ -26,29 +29,54 @@ function App() {
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    const trigger = ScrollTrigger.create({
+    const sections = [
+      { id: 'home', ref: heroRef },
+      { id: 'projects', ref: projectsRef },
+      { id: 'experience', ref: experienceRef },
+    ];
+
+    sections.forEach(section => {
+      if (section.ref.current) {
+        ScrollTrigger.create({
+          trigger: section.ref.current,
+          start: 'top center',
+          end: 'bottom center',
+          onEnter: () => setActiveSection(section.id),
+          onEnterBack: () => setActiveSection(section.id),
+        });
+      }
+    });
+
+    const rocketTrigger = ScrollTrigger.create({
       trigger: projectsRef.current,
-      start: 'bottom bottom',
+      start: 'bottom bottom-=200px',
       end: 'bottom top',
       onEnter: () => setStartRocketTransition(true),
       onLeaveBack: () => {
         setStartRocketTransition(false);
         setShowExperience(false);
+        if (ScrollTrigger.isInViewport(projectsRef.current, 0.5)) {
+           setActiveSection('projects');
+        } else if (ScrollTrigger.isInViewport(heroRef.current, 0.5)) {
+           setActiveSection('home');
+        }
       }
     });
 
     return () => {
       lenis.destroy();
       gsap.ticker.remove(lenis.raf);
-      trigger.kill();
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
   return (
     <div className="app">
-      <Navbar />
+      <Navbar activeSection={activeSection} />
       <main>
-        <HeroSection />
+        <section ref={heroRef} id="home">
+          <HeroSection />
+        </section>
         <section ref={projectsRef} id="projects">
           <Projects />
         </section>
@@ -56,7 +84,7 @@ function App() {
           startTransition={startRocketTransition} 
           onTransitionComplete={handleTransitionComplete} 
         />
-        <section id="experience">
+        <section ref={experienceRef} id="experience">
           {showExperience && <ExperiencePanel />}
         </section>
       </main>

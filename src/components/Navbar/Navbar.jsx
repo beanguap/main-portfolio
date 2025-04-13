@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styles from "./Navbar.module.scss";
 import logoImg from "../../assets/logo-transparent.png";
 
-const Navbar = () => {
+const Navbar = ({ activeSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuItems = ['about', 'experience', 'projects', 'contact'];
 
   return (
     <nav className={styles.navbar} role="navigation" aria-label="Main Navigation">
@@ -14,10 +15,16 @@ const Navbar = () => {
       </div>
 
       <ul className={`${styles.menuItems} ${menuOpen ? styles.menuOpen : ""}`}>
-        <li><a href="#about">About</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#contact">Contact</a></li>
+        {menuItems.map(item => (
+          <li key={item}>
+            <a 
+              href={`#${item}`}
+              className={activeSection === item ? styles.active : ''}
+            >
+              {item.charAt(0).toUpperCase() + item.slice(1)}
+            </a>
+          </li>
+        ))}
       </ul>
 
       <div className={styles.foundedText}>

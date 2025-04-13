@@ -68,8 +68,26 @@
       font-size: 1rem;
       font-weight: 500;
       transition: color 0.3s ease;
+      position: relative;
+      padding-bottom: 4px;
 
-      &:hover {
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        background-color: v.$color-primary;
+        transition: width 0.3s ease;
+      }
+
+      &:hover::after,
+      &.active::after {
+        width: 100%;
+      }
+
+      &.active {
         color: v.$color-primary;
       }
     }

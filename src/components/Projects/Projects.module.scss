@@ -106,6 +106,44 @@ $iphone12-height: 844px;
   }
 }
 
+// Scroll indicator specifically for hinting rocket transition
+.rocketScrollIndicator {
+  position: absolute;
+  bottom: 2rem; // Position near the bottom
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: v.$color-text; 
+  opacity: 0.7; // Start slightly transparent
+  z-index: 10;
+  pointer-events: none; // Not interactive
+
+  svg {
+    font-size: 1.8rem;
+    color: v.$color-primary; // Use primary color for the icon
+  }
+
+  span {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  @include m.respond-to(mobile) {
+    bottom: 1.5rem;
+    svg {
+      font-size: 1.5rem;
+    }
+    span {
+      font-size: 0.6rem;
+    }
+  }
+}
+
 // Fading class for body when projects section is active
 :global(.projectsActive) {
   background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9));
@@ -163,30 +201,30 @@ $iphone12-height: 844px;
   will-change: transform;
   touch-action: manipulation;
 
-  &:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 30px rgba(v.$color-primary, 0.2), 0 0 0 2px rgba(v.$color-primary, 0.2);
-
-    .projectImage img {
-      transform: scale(1.05);
-    }
-
-    .projectLinks {
-      opacity: 1;
-    }
-
-    &::after {
-      opacity: 1;
+  // Apply hover effects only on devices that can hover
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 8px 30px rgba(v.$color-primary, 0.2), 0 0 0 2px rgba(v.$color-primary, 0.2);
+  
+      .projectImage img {
+        transform: scale(1.05);
+      }
+  
+      .projectLinks {
+        opacity: 1;
+      }
+  
+      &::after {
+        opacity: 1;
+      }
     }
   }
 
+  // Remove hover-specific overrides on mobile
   @include m.respond-to(mobile) {
     max-width: 100%;
     min-height: auto;
-
-    &:hover {
-      transform: translateY(-3px) scale(1.01);
-    }
 
     // iPhone 12 Pro specific adjustments
     @media (max-width: $iphone12-width) {
