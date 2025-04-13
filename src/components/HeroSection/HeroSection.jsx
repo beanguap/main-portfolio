@@ -186,15 +186,15 @@ const ScrollIndicator = () => {
 const HeroSection = () => {
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
+  const isHeroSceneInView = useInView(sectionRef, { once: false, amount: 0.1 });
   const controls = useAnimation();
   
   // Start animations when section comes into view
   useEffect(() => {
-    if (isInView) {
+    if (isHeroSceneInView) {
       controls.start("visible");
     }
-  }, [isInView, controls]);
+  }, [isHeroSceneInView, controls]);
 
   const handleInfoButtonClick = () => {
     setIsInfoVisible(!isInfoVisible);
@@ -207,15 +207,16 @@ const HeroSection = () => {
       initial="hidden"
       animate={controls}
       id="home"
+      style={{ position: 'relative' }} // Add position relative to fix scroll calculations
     >
       {/* Custom cursor for desktop */}
       <div className={styles.cursorContainer}>
         <CustomCursor />
       </div>
 
-      {/* 3D Scene Background */}
-      <div className={styles.heroBackground}>
-        <HeroScene3D />
+      {/* Conditionally render 3D Scene Background */}
+      <div className={styles.heroBackground} style={{ pointerEvents: isHeroSceneInView ? 'auto' : 'none' }}>
+        {isHeroSceneInView && <HeroScene3D />}
       </div>
 
       {/* Animated Name */}
@@ -258,7 +259,7 @@ const HeroSection = () => {
       />
 
       {/* Social Media Links */}
-      <div className={styles.socialLinks}>
+      <div className={styles.socialLinks} style={{ position: 'relative' }}>
         <motion.a 
           href="https://twitter.com/jmartinezflores" 
           target="_blank" 
@@ -298,7 +299,7 @@ const HeroSection = () => {
       </div>
 
       {/* CTA Buttons */}
-      <div className={styles.ctaButtonsLeft}>
+      <div className={styles.ctaButtonsLeft} style={{ position: 'relative' }}>
         <motion.button 
           className={styles.sayHelloBtn}
           variants={buttonVariants}
@@ -396,11 +397,12 @@ const HeroSection = () => {
       </motion.div>
 
       {/* Main Content with Keyboard */}
-      <div className={styles.heroContent}>
+      <div className={styles.heroContent} style={{ position: 'relative' }}>
         <motion.div 
           className={styles.heroImage}
           variants={keyboardVariants}
           animate="float"
+          style={{ position: 'relative' }}
         >
           <motion.img 
             src="/src/assets/NOBACKGROUNDJMFKEYBOARD .png" 

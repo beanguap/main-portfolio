@@ -1,0 +1,90 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.experiencePanel {
+  min-height: 100vh; // Ensure it takes full height
+  padding: 4rem 2rem; // Add some padding
+  background-color: v.$color-background; // Use existing background color variable
+  color: v.$color-text;
+  display: flex; // Use flexbox for centering
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative; // Needed for potential absolute positioned children
+  z-index: 10; // Ensure it appears above other content if needed
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+
+  h1 {
+    position: relative;
+    font-family: v.$font-heading;
+    font-size: 3rem;
+    color: v.$color-primary;
+    margin-bottom: 3rem;
+    will-change: transform;
+    
+    @include m.respond-to(mobile) {
+        font-size: 2rem;
+    }
+  }
+
+  p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    line-height: 1.6;
+    
+    @include m.respond-to(mobile) {
+        font-size: 1rem;
+    }
+  }
+
+  .timeline {
+    position: relative;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    will-change: transform;
+  }
+
+  .timelineItem {
+    position: relative;
+    background: rgba(v.$color-primary, 0.1);
+    border-left: 4px solid v.$color-primary;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease;
+    will-change: transform;
+
+    &:hover {
+      transform: translateX(10px);
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: v.$color-primary;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin: 0.5rem 0;
+      line-height: 1.6;
+    }
+
+    span {
+      display: inline-block;
+      font-size: 0.9rem;
+      color: v.$color-accent;
+      margin-top: 0.5rem;
+    }
+
+    @include m.respond-to(mobile) {
+      padding: 1.5rem;
+      
+      h3 {
+        font-size: 1.2rem;
+      }
+    }
+  }
+}

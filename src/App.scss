@@ -7,6 +7,11 @@
   box-sizing: border-box;
 }
 
+html {
+  position: relative;
+  min-height: 100%;
+}
+
 html.lenis {
   height: auto;
 }
@@ -37,20 +42,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   min-height: 100vh;
+  position: relative;
+}
+
+#root {
+  position: relative;
+  min-height: 100vh;
 }
 
 .app {
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
+  will-change: transform;
 }
 
 main {
   position: relative;
   z-index: 1;
+  will-change: transform;
   
   section {
     min-height: 100vh;
     position: relative;
+    will-change: transform;
   }
 }

@@ -6,7 +6,7 @@
   min-height: 100vh;
   background: url(v.$background-texture) v.$color-background;
   background-size: cover;
-  position: relative;
+  position: relative; /* Already has relative positioning, which is good */
   overflow: hidden;
   z-index: 1;
 }
@@ -177,6 +177,7 @@
   display: flex;
   height: 100vh;
   padding-bottom: 5rem;
+  position: relative; /* Added this to fix Framer Motion useInView warning */
 }
 
 .heroText {

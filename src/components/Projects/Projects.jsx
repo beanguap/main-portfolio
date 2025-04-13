@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaPlay, FaAngleDown } from 'react-icons/fa6';
 import Lenis from 'lenis';
@@ -96,8 +96,13 @@ const cardVariants = {
 const Projects = () => {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
+  const sceneContainerRef = useRef(null);
+  const projectsHeadingRef = useRef(null);
+  const projectCardsRef = useRef([]);
+  
   const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
   const isHeadingInView = useInView(headingRef, { once: true, amount: 0.8 });
+  const [showScene, setShowScene] = useState(false);
 
   // Initialize smooth scrolling
   useEffect(() => {
@@ -115,49 +120,64 @@ const Projects = () => {
 
     requestAnimationFrame(raf);
 
+    // Trigger for showing/hiding the scene
+    const sceneTrigger = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top bottom",
+      end: "bottom top",
+      onEnter: () => setShowScene(true),
+      onLeave: () => setShowScene(false),
+      onEnterBack: () => setShowScene(true),
+      onLeaveBack: () => setShowScene(false),
+    });
+
     return () => {
       lenis.destroy();
+      sceneTrigger.kill();
     };
   }, []);
 
-  // Enhanced scroll animations specifically tuned for iPhone 12 Pro
-  useLayoutEffect(() => {
-    const isMobile = window.innerWidth <= 767;
-    const mobilePadding = isMobile ? "80%" : "center";
-    
-    const ctx = gsap.context(() => {
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: '#projects',
-          start: `top ${mobilePadding}`,
-          end: 'bottom center',
-          scrub: 1,
-          onEnter: () => {
-            document.body.classList.add(styles.projectsActive);
-          },
-          onLeaveBack: () => {
-            document.body.classList.remove(styles.projectsActive);
+  // GSAP animations when scene becomes visible
+  useEffect(() => {
+    if (showScene && sceneContainerRef.current) {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#projects',
+            start: 'top center',
+            end: 'bottom center',
+            scrub: 1,
           }
-        },
-      })
-      .fromTo('.scene-container', 
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 1.2 }
-      )
-      .fromTo('.projects-heading', 
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-        '<0.2'
-      )
-      .fromTo('.project-card', 
-        { y: 80, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.15, duration: 0.7 },
-        '<0.3'
-      );
-    });
+        });
 
-    return () => ctx.revert();
-  }, []);
+        // Animate scene container
+        tl.fromTo(sceneContainerRef.current,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 1.2 }
+        );
+
+        // Animate projects heading
+        if (projectsHeadingRef.current) {
+          tl.fromTo(projectsHeadingRef.current,
+            { y: 50, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.5 },
+            '<0.2'
+          );
+        }
+
+        // Animate project cards
+        if (projectCardsRef.current.length) {
+          tl.fromTo(projectCardsRef.current,
+            { y: 80, opacity: 0 },
+            { y: 0, opacity: 1, stagger: 0.15, duration: 0.7 },
+            '<0.3'
+          );
+        }
+      });
+
+      return () => ctx.revert();
+    }
+  }, [showScene]);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -192,18 +212,28 @@ const Projects = () => {
         style={{ 
           opacity: backgroundOpacity,
           scale: backgroundScale,
-          position: 'fixed', // Ensure position is explicitly set
-          width: '100%',     // Ensure full width
-          height: '100vh'    // Ensure full height
+          position: 'fixed',
+          width: '100%',
+          height: '100vh',
+          pointerEvents: showScene ? 'auto' : 'none'
         }}
       >
-        <div className="scene-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <Scene3D projects={projectsData} />
-        </div>
+        {showScene && (
+          <div 
+            ref={sceneContainerRef}
+            className="scene-container" 
+            style={{ position: 'relative', width: '100%', height: '100%' }}
+          >
+            <Scene3D projects={projectsData} />
+          </div>
+        )}
       </motion.div>
 
       <motion.h2 
-        ref={headingRef}
+        ref={(el) => {
+          headingRef.current = el;
+          projectsHeadingRef.current = el;
+        }}
         className="projects-heading"
         variants={titleVariants}
         initial="hidden"
@@ -221,6 +251,7 @@ const Projects = () => {
         {projectsData.map((project, index) => (
           <motion.div
             key={project.id}
+            ref={el => projectCardsRef.current[index] = el}
             className={`${styles.projectCard} project-card`}
             variants={cardVariants}
             custom={index}
