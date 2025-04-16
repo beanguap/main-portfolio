@@ -40,11 +40,6 @@ export default function SaturnV({ isLaunched, ...props }) {
   const rocketRef = useRef();
   const { scene, materials, nodes } = useGLTF('/scene.gltf');
 
-  // Log what useGLTF returns
-  useEffect(() => {
-    console.log('useGLTF result:', { scene, materials, nodes });
-  }, [scene, materials, nodes]);
-
   // Create a basic material (this is for the actual model, keep separate)
   const modelMaterial = new THREE.MeshStandardMaterial({
     color: '#e0e0e0', // Slightly different color to distinguish if needed
@@ -78,17 +73,11 @@ export default function SaturnV({ isLaunched, ...props }) {
   // Clone the scene
   const clonedScene = scene ? scene.clone(true) : null;
   
-  // Log information about the cloned scene
+  // Traverse the cloned scene
   useEffect(() => {
     if (clonedScene) {
-      console.log('Cloned GLTF Scene:', clonedScene);
-      console.log('Cloned Scene Children Count:', clonedScene.children.length);
       clonedScene.traverse((child) => {
-        if (child.isMesh) {
-          console.log('Found Mesh:', child.name, 'Visible:', child.visible, 'Material:', child.material);
-          // Optionally apply the modelMaterial if needed, otherwise GLTF materials are used
-          // child.material = modelMaterial;
-        }
+        // Optionally apply the modelMaterial if needed, otherwise GLTF materials are used
       });
     }
   }, [clonedScene]);
