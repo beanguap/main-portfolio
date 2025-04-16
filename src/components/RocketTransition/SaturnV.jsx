@@ -2,9 +2,6 @@ import React, { useRef, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Preload the model
-useGLTF.preload('/scene.gltf');
-
 // Define FallbackRocket at the top level and export it
 export const FallbackRocket = (props) => {
   // Create a basic material for the fallback
@@ -37,6 +34,11 @@ export const FallbackRocket = (props) => {
 };
 
 export default function SaturnV({ isLaunched, ...props }) {
+  // Preload GLTF within component (inside Canvas context)
+  useEffect(() => {
+    useGLTF.preload('/scene.gltf');
+  }, []);
+
   const rocketRef = useRef();
   const { scene, materials, nodes } = useGLTF('/scene.gltf');
 

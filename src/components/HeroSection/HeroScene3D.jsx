@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
+import ErrorBoundary from '../RocketTransition/ErrorBoundary';
 
 // Mobile detection utility
 const isMobile = () => {
@@ -45,16 +46,18 @@ export function HeroScene3D() {
   if (!isMounted) return null;
 
   return (
-    <Canvas 
-      dpr={isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio}
-      gl={{ 
-        alpha: true,
-        powerPreference: 'high-performance',
-        stencil: false,
-        depth: true 
-      }}
-    >
-      <SceneContent />
-    </Canvas>
+    <ErrorBoundary fallback={<></>}>
+      <Canvas 
+        dpr={isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio}
+        gl={{ 
+          alpha: true,
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true 
+        }}
+      >
+        <SceneContent />
+      </Canvas>
+    </ErrorBoundary>
   );
 }

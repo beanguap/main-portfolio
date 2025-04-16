@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
 import { Float, Environment, useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import ErrorBoundary from '../RocketTransition/ErrorBoundary';
 
 // Mobile detection utility
 const isMobile = () => {
@@ -222,71 +223,73 @@ export function Scene3D({ projects }) {
   if (!isMounted) return null;
 
   return (
-    <Canvas 
-      camera={{ 
-        // Move camera further back to see more particles
-        position: [0, 0, isIPhone12 ? 30 : isMobileDevice ? 35 : 45], 
-        fov: isMobileDevice ? 90 : 100, // Increase FOV for wider viewing angle
-        near: 0.1,
-        far: 1000
-      }}
-      dpr={isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio}
-      performance={{ min: 0.5 }}
-      gl={{ 
-        antialias: !isMobileDevice,
-        alpha: true,
-        powerPreference: 'high-performance',
-        stencil: false,
-        depth: true 
-      }}
-    >
-      <color attach="background" args={['#000000']} />
-      
-      {/* Optimized lighting */}
-      <ambientLight intensity={0.4} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={0.7} />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} />
-      
-      {/* Background glow effect */}
-      <BackgroundGlow />
-      
-      {/* Particle field */}
-      <ParticleField />
+    <ErrorBoundary fallback={<></>}>
+      <Canvas 
+        camera={{ 
+          // Move camera further back to see more particles
+          position: [0, 0, isIPhone12 ? 30 : isMobileDevice ? 35 : 45], 
+          fov: isMobileDevice ? 90 : 100, // Increase FOV for wider viewing angle
+          near: 0.1,
+          far: 1000
+        }}
+        dpr={isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio}
+        performance={{ min: 0.5 }}
+        gl={{ 
+          antialias: !isMobileDevice,
+          alpha: true,
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true 
+        }}
+      >
+        <color attach="background" args={['#000000']} />
+        
+        {/* Optimized lighting */}
+        <ambientLight intensity={0.4} />
+        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={0.7} />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} />
+        
+        {/* Background glow effect */}
+        <BackgroundGlow />
+        
+        {/* Particle field */}
+        <ParticleField />
 
-      {/* Project cards */}
-      {projects.map((project, index) => {
-        const theta = (index / projects.length) * Math.PI * 2;
-        const radius = isMobileDevice ? 4 : 5;
-        return (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            index={index}
-            totalProjects={projects.length}
-            position={[
-              Math.cos(theta) * radius,
-              0,
-              Math.sin(theta) * radius
-            ]}
-            rotation={[0, -theta, 0]}
-          />
-        );
-      })}
+        {/* Project cards */}
+        {projects.map((project, index) => {
+          const theta = (index / projects.length) * Math.PI * 2;
+          const radius = isMobileDevice ? 4 : 5;
+          return (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+              totalProjects={projects.length}
+              position={[
+                Math.cos(theta) * radius,
+                0,
+                Math.sin(theta) * radius
+              ]}
+              rotation={[0, -theta, 0]}
+            />
+          );
+        })}
 
-      <Environment preset="night" />
-      
-      {/* Optimize post-processing for mobile */}
-      <EffectComposer enabled={!isMobileDevice} multisampling={0}>
-        <Bloom luminanceThreshold={0.5} intensity={1} radius={0.4} />
-        <Noise opacity={0.02} />
-        <Vignette darkness={0.5} offset={0.5} eskil={false} />
-      </EffectComposer>
-      
-      {isMobileDevice && (
-        <EffectComposer multisampling={0}>
-          <Bloom luminanceThreshold={0.6} intensity={0.8} radius={0.3} />
+        <Environment preset="night" />
+        
+        {/* Optimize post-processing for mobile */}
+        <EffectComposer enabled={!isMobileDevice} multisampling={0}>
+          <Bloom luminanceThreshold={0.5} intensity={1} radius={0.4} />
+          <Noise opacity={0.02} />
+          <Vignette darkness={0.5} offset={0.5} eskil={false} />
         </EffectComposer>
-      )}
-    </Canvas>
+        
+        {isMobileDevice && (
+          <EffectComposer multisampling={0}>
+            <Bloom luminanceThreshold={0.6} intensity={0.8} radius={0.3} />
+          </EffectComposer>
+        )}
+      </Canvas>
+    </ErrorBoundary>
   );
 }
