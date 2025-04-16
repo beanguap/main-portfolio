@@ -1,51 +1,25 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-
-// Mock react-three-fiber hooks and Canvas
-vi.mock('@react-three/fiber', () => ({
-  useFrame: () => {},
-  Canvas: ({ children }) => <>{children}</>,
-}));
-
-// Mock three.js InstancedMesh and related classes
-vi.mock('three', () => ({
-  InstancedMesh: (props) => <div data-testid="instanced-mesh" {...props} />,
-  Object3D: class {},
-  Color: class {
-    setHSL() { return this; }
-    toArray(arr, i) { if (arr) arr[i] = 1; return arr; }
-    constructor(r = 1, g = 1, b = 1) { this.r = r; this.g = g; this.b = b; }
-  },
-  Matrix4: class {},
-  Vector3: class {
-    copy() { return this; }
-    clone() { return this; }
-    set() { return this; }
-    add() { return this; }
-    addScaledVector() { return this; }
-    multiplyScalar() { return this; }
-    constructor(x = 0, y = 0, z = 0) { this.x = x; this.y = y; this.z = z; }
-  },
-  BoxGeometry: class {},
-  MeshStandardMaterial: class {},
-  PlaneGeometry: class {},
-  ShaderMaterial: class {},
-  AdditiveBlending: 2,
-  DoubleSide: 2,
-  InstancedBufferAttribute: class {},
-  Euler: class {
-    constructor(x = 0, y = 0, z = 0) { this.x = x; this.y = y; this.z = z; }
-  }
-}));
-
+import { render as renderR3f } from '@react-three/test-renderer';
+import { describe, it, expect } from 'vitest';
 import PixelSmokeEffect from './PixelSmokeEffect';
 
-describe('PixelSmokeEffect', () => {
-  it('renders InstancedMesh wrapper', () => {
-    const { getByTestId } = render(
+// No need for manual vi.mock calls - handled by vitest.setup.js
+
+describe('PixelSmokeEffect Scene tests', () => {
+  it('renders an InstancedMesh in the scene', async () => {
+    // Render using the R3F test renderer
+    const instance = await renderR3f(
       <PixelSmokeEffect rocketWorldPos={[0, 0, 0]} isLaunched={false} />
     );
-    expect(getByTestId('instanced-mesh')).toBeInTheDocument();
+    
+    // Find the InstancedMesh instance within the virtual scene graph
+    const instancedMesh = instance.scene.findByType('InstancedMesh');
+    
+    expect(instancedMesh).toBeDefined();
+    // Check if the count prop matches the expected PARTICLE_COUNT
+    // Note: PARTICLE_COUNT is defined inside PixelSmokeEffect.jsx, 
+    // we might need to export it or use a known value if testing count is critical.
+    // For now, just checking existence.
+    // expect(instancedMesh.props.args[2]).toBe(PARTICLE_COUNT); // Example if args holds count
   });
 });

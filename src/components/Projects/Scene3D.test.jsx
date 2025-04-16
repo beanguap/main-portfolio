@@ -1,19 +1,31 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render as renderR3f } from '@react-three/test-renderer';
+import { describe, it, expect } from 'vitest';
+import { Scene3D } from './Scene3D'; // Assuming Scene3D is the component to test
 
-// Stub react-three-fiber for tests
-vi.mock('@react-three/fiber', () => ({
-  Canvas: ({ children }) => <>{children}</>,
-  useFrame: () => {},
-  useThree: () => ({ viewport: { height: 100 } }),
-}));
+// No need for manual vi.mock calls - handled by vitest.setup.js
 
-import { Scene3D } from './Scene3D';
+describe('Scene3D Scene tests', () => {
+  it('renders without crashing and contains expected elements', async () => {
+    const mockProjects = [
+      { id: 1, name: 'Project 1', imageUrl: 'test.jpg', links: { github: '', demo: '' }, tech: [] },
+      // Add more mock projects if needed
+    ];
+    
+    const instance = await renderR3f(<Scene3D projects={mockProjects} />);
+    
+    // Example assertion: Check if the scene contains a Group or specific meshes
+    // This depends heavily on the actual structure of your Scene3D component
+    const groupElement = instance.scene.findByType('Group'); // Or 'Mesh', 'AmbientLight', etc.
+    expect(groupElement).toBeDefined();
 
-describe('Scene3D', () => {
-  it('renders without crashing', () => {
-    render(<Scene3D projects={[]} />);
-    expect(true).toBe(true); // Placeholder
+    // Example: Check if ProjectCard components are rendered (assuming ProjectCard is identifiable)
+    // This might require ProjectCard to be exported or have a specific type/prop
+    // const projectCards = instance.root.findAllByType('ProjectCard'); 
+    // expect(projectCards.length).toBe(mockProjects.length);
+
+    // Example: Check for ParticleField
+    const particleField = instance.root.findByType('ParticleField');
+    expect(particleField).toBeDefined();
   });
 });
