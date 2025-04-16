@@ -207,10 +207,10 @@ const PixelSmokeEffect = ({ rocketWorldPos, directEmitter, isLaunched = false })
     // Spawn new particles at controlled rate
     const currentTime = state.clock.getElapsedTime();
     const elapsedTime = currentTime - lastSpawnTimeRef.current;
-    
+
     if (elapsedTime > 0.016) { // ~60fps rate limiting
       lastSpawnTimeRef.current = currentTime;
-      
+
       let spawnCount = 0;
       let attempts = 0;
       let currentIndex = spawnIndex;
@@ -218,7 +218,7 @@ const PixelSmokeEffect = ({ rocketWorldPos, directEmitter, isLaunched = false })
       while (spawnCount < SPAWN_RATE && attempts < PARTICLE_COUNT) {
         attempts++;
         const p = particleState.state[currentIndex];
-        
+
         if (p.life <= 0) {
           // Reset particle at rocket position with offset
           p.position.copy(emitterPos).add(
@@ -228,19 +228,19 @@ const PixelSmokeEffect = ({ rocketWorldPos, directEmitter, isLaunched = false })
               (Math.random() - 0.5) * SMALL_OFFSET_FACTOR
             )
           );
-          
+
           // Set velocity
           p.velocity.set(
             (Math.random() - 0.5) * SPREAD_FACTOR,
             INITIAL_Y_VELOCITY * (0.7 + Math.random() * 0.6),
             (Math.random() - 0.5) * SPREAD_FACTOR
           );
-          
+
           // Reset lifecycle
           p.life = p.maxLife;
           p.opacity = 1;
           p.rotation.z = Math.random() * Math.PI * 2;
-          
+
           // Update matrix
           dummy.position.copy(p.position);
           dummy.rotation.copy(p.rotation);
@@ -248,16 +248,16 @@ const PixelSmokeEffect = ({ rocketWorldPos, directEmitter, isLaunched = false })
           dummy.updateMatrix();
           mesh.setMatrixAt(currentIndex, dummy.matrix);
           opacityAttribute.setX(currentIndex, p.opacity);
-          
+
           spawnCount++;
         }
-        
+
         currentIndex = (currentIndex + 1) % PARTICLE_COUNT;
       }
-      
+
       setSpawnIndex(currentIndex);
     }
-    
+
     // Update instance attributes
     positionAttribute.needsUpdate = true;
     opacityAttribute.needsUpdate = true;

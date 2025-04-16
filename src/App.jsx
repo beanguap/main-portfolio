@@ -75,12 +75,10 @@ function App() {
       start: 'bottom bottom-=200px',
       end: 'bottom top',
       onEnter: () => {
-        console.log("Rocket Trigger Enter");
         setStartRocketTransition(true);
         setActiveSection(null);
       },
       onLeaveBack: () => {
-        console.log("Rocket Trigger Leave Back");
         setStartRocketTransition(false);
         setShowExperience(false);
         setActiveSection('projects');

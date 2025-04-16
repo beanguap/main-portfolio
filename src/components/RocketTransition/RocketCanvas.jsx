@@ -28,6 +28,12 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   // State for the local offset for smoke emission (computed from bounding box)
   const [smokeEmissionOffset, setSmokeEmissionOffset] = useState(new THREE.Vector3(0, -4.2, 0));
 
+  // Helper function to reset smoke emission offset
+  const resetSmokeEmissionOffset = useCallback(() => {
+    const defaultOffset = new THREE.Vector3(0, -4.2, 0);
+    setSmokeEmissionOffset(defaultOffset);
+  }, []);
+
   // Helper function to find the correct emission point
   const findEmissionPoint = useCallback((rocketObject) => {
     if (!rocketObject) return new THREE.Vector3(0, -4.2, 0);
@@ -46,20 +52,31 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
     if (groupRef.current && rocketModelRef.current) {
       // Get the world matrix of the rocket model
       rocketModelRef.current.updateWorldMatrix(true, true);
-      
+
       // Get the bounding box in local space
+      const box = new THREE.Box3().setFromObject(rocketModelRef.current);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+
+      // Add a debug helper mesh at the bounding box center
+      const helperMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 'blue' })
+      );
+      helperMesh.position.copy(center);
+      scene.add(helperMesh);
+
       const emissionPoint = findEmissionPoint(rocketModelRef.current);
-      
+
       // Set the offset with improved positioning
       setSmokeEmissionOffset(emissionPoint);
-      console.log('Calculated smoke emission offset:', emissionPoint);
 
       // Immediately update world position if launched
       if (isLaunched) {
         const worldPos = new THREE.Vector3();
         worldPos.copy(emissionPoint);
         worldPos.applyMatrix4(groupRef.current.matrixWorld);
-        
+
         // Update both React state and direct reference
         setRocketWorldPos(worldPos.clone());
         directEmitterPosition.copy(worldPos);
@@ -94,7 +111,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
     };
 
     const handleContextRestored = () => {
-      console.log("WebGL context restored. Application might need refresh for full recovery.");
       // Full recovery often requires re-initializing textures, shaders, etc.
       // For simplicity here, we might just rely on user refresh or parent component handling.
     };
@@ -127,7 +143,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 
   // Effect to reset position and velocity when launch state changes
   useEffect(() => {
-    console.log('[SceneContent] isLaunched changed:', isLaunched); // Log isLaunched change
     if (!isLaunched) {
       velocityRef.current = 0;
       transitionCompletedRef.current = false; // Reset completion tracker
@@ -141,7 +156,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       // When launch starts, calculate initial world pos immediately
       if (groupRef.current) {
         groupRef.current.localToWorld(smokeEmissionOffset.clone(), tempWorldPos);
-        console.log('[SceneContent] Initial rocketWorldPos:', tempWorldPos.toArray()); // Log initial pos
         setRocketWorldPos(tempWorldPos);
       }
     }
@@ -166,16 +180,10 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         if (clock.elapsedTime % 0.5 < delta) {
           setRocketWorldPos(directEmitterPosition.clone());
         }
-
-        // Log position periodically (reduced frequency to avoid console spam)
-        if (clock.elapsedTime % 2 < delta) {
-          console.log('[SceneContent] Rocket emitter position:', directEmitterPosition.toArray());
-        }
         
         // Check if rocket is off-screen
         const exitThreshold = viewport.height / 1.5;
         if (groupRef.current.position.y > exitThreshold && !transitionCompletedRef.current) {
-          console.log("Rocket exit threshold reached, triggering transition complete.");
           onTransitionComplete?.();
           transitionCompletedRef.current = true;
         }
@@ -188,7 +196,19 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <pointLight position={[0, -3, 2]} intensity={1.2} color="orange" />
-      
+
+      {/* Debug helper mesh to visualize smoke emission offset */}
+      <mesh position={smokeEmissionOffset}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshBasicMaterial color="green" />
+      </mesh>
+
+      {/* Debug helper mesh to visualize rocketWorldPos */}
+      <mesh position={rocketWorldPos}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshBasicMaterial color="red" />
+      </mesh>
+
       {/* Rocket Group - This moves */}
       <group ref={groupRef}>
         <ErrorBoundary fallback={<FallbackRocket position={[0, -4, 0]} scale={[0.015, 0.015, 0.015]}/>}>
@@ -214,13 +234,12 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 }
 
 // Main canvas component
-export default function RocketCanvas({ isLaunched, onError, onTransitionComplete }) {
+export default React.memo(function RocketCanvas({ isLaunched, onError, onTransitionComplete }) {
   const canvasRef = useRef();
   const [hasError, setHasError] = useState(false);
   const [contextLost, setContextLost] = useState(false);
 
   const handleCanvasError = useCallback((error) => {
-    console.error('Canvas error detected:', error);
     setHasError(true);
     onError?.(); // Notify App level
   }, [onError]);
@@ -242,7 +261,6 @@ export default function RocketCanvas({ isLaunched, onError, onTransitionComplete
             const loseContextExt = internalGl.getExtension('WEBGL_lose_context');
             if (loseContextExt) {
               loseContextExt.loseContext();
-              console.log('Attempted to gracefully lose context on unmount.')
             }
             // R3F usually handles disposal, but explicit dispose might be needed in complex cases
             // internalGl.dispose?.(); 
@@ -255,7 +273,6 @@ export default function RocketCanvas({ isLaunched, onError, onTransitionComplete
   }, []);
 
   if (hasError || contextLost) {
-    console.log("Rendering null for RocketCanvas due to error or context loss.");
     // Optionally render a fallback message instead of null
     // return <div style={{ /* style for error message */ }}>WebGL unavailable or context lost.</div>;
     return null;
@@ -267,27 +284,24 @@ export default function RocketCanvas({ isLaunched, onError, onTransitionComplete
       camera={{ position: [0, 0, 10], fov: 50 }}
       gl={{
         alpha: true,
-        antialias: true,
+        antialias: false, // disable default AA for better control
         powerPreference: "high-performance",
-        // Explicitly request stencil and depth buffers if needed by effects/materials
-        // stencil: false, // Default
-        // depth: true, // Default
+        stencil: false,
+        depth: true,
+        precision: "highp",
+        preserveDrawingBuffer: true // prevent flickering during transitions
       }}
+      dpr={[1, 2]} // limit pixel ratio
       style={{ position: 'relative' }}
       onCreated={({ gl }) => {
-          // Add context loss/restore listeners directly on creation if possible
-          // This might be redundant with the one in SceneContent but ensures early setup
           gl.domElement.addEventListener('webglcontextlost', handleContextLoss, false);
-          // Add restore listener if needed
-          // gl.domElement.addEventListener('webglcontextrestored', handleContextRestored, false);
+          gl.shadowMap.enabled = false;
       }}
-      // R3F default error boundaries might handle some errors, 
-      // but explicit onError can catch others.
-      // Pass our specific error handler.
     >
       <Suspense fallback={null}>
           {/* Pass context loss handler down */}
-          <SceneContent 
+          {/** Memoize SceneContent to avoid re-renders */}
+          <MemoSceneContent 
             isLaunched={isLaunched} 
             onError={handleCanvasError} 
             onTransitionComplete={onTransitionComplete}
@@ -295,4 +309,7 @@ export default function RocketCanvas({ isLaunched, onError, onTransitionComplete
       </Suspense>
     </Canvas>
   );
-}
+});
+
+// Memoize SceneContent for performance
+const MemoSceneContent = React.memo(SceneContent);
