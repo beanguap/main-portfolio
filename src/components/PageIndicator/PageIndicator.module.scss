@@ -1,0 +1,44 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.indicatorContainer {
+  position: fixed;
+  right: 2rem; // Adjust as needed
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem; // Space between dots
+  z-index: 100; // Ensure it's above most content
+
+  @include m.respond-to(mobile) {
+    right: 1rem;
+    gap: 0.8rem;
+  }
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(v.$color-text, 0.3); // Inactive dot color
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+  display: block; // Needed for anchor tag styling
+
+  &:hover {
+    background-color: rgba(v.$color-text, 0.6);
+    transform: scale(1.2);
+  }
+
+  &.active {
+    background-color: v.$color-primary; // Active dot color
+    transform: scale(1.4);
+  }
+
+   @include m.respond-to(mobile) {
+    width: 8px;
+    height: 8px;
+  }
+} 

@@ -23,19 +23,4 @@
     position: relative;
     will-change: transform;
   }
-
-  .smoke {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, rgba(200,200,200,0.7), rgba(30,30,30,0.95));
-    opacity: 0;
-    transition: opacity 2s ease-in-out;
-    will-change: opacity, transform;
-    pointer-events: none;
-    transform-style: preserve-3d;
-  }
-
-  &.launched .smoke {
-    opacity: 1;
-  }
 }

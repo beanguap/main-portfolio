@@ -247,7 +247,7 @@ const HeroSection = () => {
       {/* Top-right decorative image */}
       <motion.img 
         src="/src/assets/image-from-rawpixel-id-6171907-png.png"
-        alt="Abstract rawpixel graphic"
+        alt="Abstract geometric blue and white pattern"
         className={styles.topRightImage}
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 0.7, x: 0 }}
@@ -259,12 +259,12 @@ const HeroSection = () => {
       />
 
       {/* Social Media Links */}
-      <div className={styles.socialLinks} style={{ position: 'relative' }}>
-        <motion.a 
-          href="https://twitter.com/jmartinezflores" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          aria-label="X (formerly Twitter)"
+      <div className={styles.socialLinks}>
+        <motion.a
+          href="https://twitter.com/yourprofile"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Twitter profile"
           variants={iconVariants}
           custom={0}
           whileHover="hover"
@@ -272,11 +272,11 @@ const HeroSection = () => {
         >
           <FaXTwitter />
         </motion.a>
-        <motion.a 
-          href="https://github.com/jerielmartinez" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          aria-label="GitHub"
+        <motion.a
+          href="https://github.com/yourprofile"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub profile"
           variants={iconVariants}
           custom={1}
           whileHover="hover"
@@ -284,11 +284,11 @@ const HeroSection = () => {
         >
           <FaGithub />
         </motion.a>
-        <motion.a 
-          href="https://linkedin.com/in/jerielmartinez" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          aria-label="LinkedIn"
+        <motion.a
+          href="https://linkedin.com/in/yourprofile"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn profile"
           variants={iconVariants}
           custom={2}
           whileHover="hover"

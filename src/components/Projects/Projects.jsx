@@ -263,7 +263,7 @@ const Projects = () => {
       <div className={styles.projectImage}>
         <img 
           src={project.imageUrl} 
-          alt={project.title} 
+          alt={`Screenshot of ${project.title} project`} 
           loading="lazy"
           decoding="async" // Add async decoding
         />
@@ -278,7 +278,7 @@ const Projects = () => {
             href={project.links.github}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="View Source Code"
+            aria-label={`View source code for ${project.title}`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -288,7 +288,7 @@ const Projects = () => {
             href={project.links.demo}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="View Live Demo"
+            aria-label={`View live demo for ${project.title}`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
