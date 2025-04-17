@@ -9,17 +9,17 @@ export default defineConfig({
       // No three-mock alias; use real three.js
     },
   },
+  // server: { // Remove or comment out the old server.deps block
+  //   deps: {
+  //     inline: ['vitest-webgl-canvas-mock'], 
+  //   },
+  // },
   test: {
     globals: true,
     environment: 'happy-dom', // Use happy-dom instead of jsdom
     setupFiles: './src/test/vitest.setup.js',
-    // Replace deps.inline with deps.optimizer.web.include
-    deps: {
-      optimizer: {
-        web: {
-          include: ['vitest-webgl-canvas-mock'],
-        },
-      },
+    deps: { // Add deps.inline here
+      inline: ['vitest-webgl-canvas-mock'],
     },
     clearMocks: true,
     restoreMocks: true,
