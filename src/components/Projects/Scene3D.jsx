@@ -1,20 +1,25 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
-import { Float, Environment } from '@react-three/drei';
-import * as THREE from 'three';
-import ErrorBoundary from '../RocketTransition/ErrorBoundary';
-import { isMobile, isIPhone12Pro } from '../../utils/device';
+import React, { useRef, useMemo, useState, useEffect } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import {
+  EffectComposer,
+  Bloom,
+  Noise,
+  Vignette,
+} from "@react-three/postprocessing";
+import { Float, Environment } from "@react-three/drei";
+import * as THREE from "three";
+import ErrorBoundary from "../RocketTransition/ErrorBoundary";
+import { isMobile, isIPhone12Pro } from "../../utils/device";
 
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
   const particles = useRef();
   const isMobileDevice = isMobile();
   const isIPhone12 = isIPhone12Pro();
-  
+
   // Increase particle count for better coverage
   const particlesCount = isIPhone12 ? 800 : isMobileDevice ? 1200 : 2500;
-  
+
   const positions = useMemo(() => {
     const pos = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount; i++) {
@@ -37,16 +42,20 @@ function ParticleField() {
     }
     return pos;
   }, [isMobileDevice, isIPhone12, particlesCount]);
-  
+
   // Add colors for more visual interest
   const colors = useMemo(() => {
     const col = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount; i++) {
       const h = i / particlesCount;
-      
+
       // Use a blue color palette
-      const color = new THREE.Color().setHSL(0.6 + Math.random() * 0.05, 0.8, 0.5 + Math.random() * 0.3);
-      
+      const color = new THREE.Color().setHSL(
+        0.6 + Math.random() * 0.05,
+        0.8,
+        0.5 + Math.random() * 0.3
+      );
+
       col[i * 3] = color.r;
       col[i * 3 + 1] = color.g;
       col[i * 3 + 2] = color.b;
@@ -57,36 +66,36 @@ function ParticleField() {
   useFrame((state, delta) => {
     // Create a whirlpool motion by rotating particles
     particles.current.rotation.y += delta * (isMobileDevice ? 0.05 : 0.08);
-    
+
     // Add whirlpool-like motion with more dramatic effect
     const positions = particles.current.geometry.attributes.position.array;
     const t = state.clock.getElapsedTime();
-    
+
     for (let i = 0; i < particlesCount; i++) {
       // Get current position
       const idx = i * 3;
       const x = positions[idx];
       const z = positions[idx + 2];
-      
+
       // Calculate distance from center
       const distanceFromCenter = Math.sqrt(x * x + z * z);
-      
+
       // Apply spiral motion - particles closer to center rotate faster
       // Increased effect for more visible whirlpool
       const rotationSpeed = 0.15 * (1 - distanceFromCenter / 70) * delta;
       const cosR = Math.cos(rotationSpeed);
       const sinR = Math.sin(rotationSpeed);
-      
+
       // Apply rotation for whirlpool effect
       positions[idx] = x * cosR - z * sinR;
       positions[idx + 2] = z * cosR + x * sinR;
-      
+
       // Add subtle pulsing movement for more aesthetic effect
       positions[idx + 1] += Math.sin(t + i * 0.1) * delta * 0.2;
     }
-    
+
     particles.current.geometry.attributes.position.needsUpdate = true;
-    
+
     // Add subtle overall movement
     particles.current.position.y = Math.sin(t * 0.2) * 0.5;
   });
@@ -125,16 +134,16 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
   const mesh = useRef();
   const isMobileDevice = isMobile();
   const { viewport } = useThree();
-  
+
   // Adjust size based on viewport width
   const scale = isMobileDevice ? 0.85 : 1;
-  
+
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    
+
     // Add subtle floating animation
     mesh.current.position.y = Math.sin(t * 0.5 + index) * 0.1;
-    
+
     // Add subtle rotation for more dynamic feel
     mesh.current.rotation.z = Math.sin(t * 0.3 + index * 0.2) * 0.05;
   });
@@ -147,11 +156,10 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
       position={position}
       scale={scale}
     >
-      <mesh 
-        ref={mesh} 
-        rotation={rotation}
-      >
-        <planeGeometry args={[isMobileDevice ? 1.5 : 2, isMobileDevice ? 2.25 : 3]} />
+      <mesh ref={mesh} rotation={rotation}>
+        <planeGeometry
+          args={[isMobileDevice ? 1.5 : 2, isMobileDevice ? 2.25 : 3]}
+        />
         <meshStandardMaterial
           color="#000000"
           metalness={0.7}
@@ -173,10 +181,10 @@ function BackgroundGlow() {
   return (
     <mesh position={[0, 0, -10]}>
       <sphereGeometry args={[7, 32, 32]} />
-      <meshBasicMaterial 
-        color="#102054" 
-        transparent 
-        opacity={isMobileDevice ? 0.15 : 0.2} 
+      <meshBasicMaterial
+        color="#102054"
+        transparent
+        opacity={isMobileDevice ? 0.15 : 0.2}
       />
     </mesh>
   );
@@ -190,7 +198,7 @@ export function Scene3D({ projects }) {
 
   useEffect(() => {
     setIsMounted(true);
-        
+
     // Clean up any heavy resources when component unmounts
     return () => {
       // Dispose of any resources if needed
@@ -202,34 +210,43 @@ export function Scene3D({ projects }) {
 
   return (
     <ErrorBoundary fallback={<></>}>
-      <Canvas 
-        camera={{ 
+      <Canvas
+        camera={{
           // Move camera further back to see more particles
-          position: [0, 0, isIPhone12 ? 30 : isMobileDevice ? 35 : 45], 
+          position: [0, 0, isIPhone12 ? 30 : isMobileDevice ? 35 : 45],
           fov: isMobileDevice ? 90 : 100, // Increase FOV for wider viewing angle
           near: 0.1,
-          far: 1000
+          far: 1000,
         }}
-        dpr={isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio}
+        dpr={
+          isMobileDevice
+            ? Math.min(window.devicePixelRatio, 1.5)
+            : window.devicePixelRatio
+        }
         performance={{ min: 0.5 }}
-        gl={{ 
+        gl={{
           antialias: !isMobileDevice,
           alpha: true,
-          powerPreference: 'high-performance',
+          powerPreference: "high-performance",
           stencil: false,
-          depth: true 
+          depth: true,
         }}
       >
-        <color attach="background" args={['#000000']} />
-        
+        <color attach="background" args={["#000000"]} />
+
         {/* Optimized lighting */}
         <ambientLight intensity={0.4} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={0.7} />
+        <spotLight
+          position={[10, 10, 10]}
+          angle={0.15}
+          penumbra={1}
+          intensity={0.7}
+        />
         <pointLight position={[-10, -10, -10]} intensity={0.5} />
-        
+
         {/* Background glow effect */}
         <BackgroundGlow />
-        
+
         {/* Particle field */}
         <ParticleField />
 
@@ -243,25 +260,21 @@ export function Scene3D({ projects }) {
               project={project}
               index={index}
               totalProjects={projects.length}
-              position={[
-                Math.cos(theta) * radius,
-                0,
-                Math.sin(theta) * radius
-              ]}
+              position={[Math.cos(theta) * radius, 0, Math.sin(theta) * radius]}
               rotation={[0, -theta, 0]}
             />
           );
         })}
 
         <Environment preset="night" />
-        
+
         {/* Optimize post-processing for mobile */}
         <EffectComposer enabled={!isMobileDevice} multisampling={0}>
           <Bloom luminanceThreshold={0.5} intensity={1} radius={0.4} />
           <Noise opacity={0.02} />
           <Vignette darkness={0.5} offset={0.5} eskil={false} />
         </EffectComposer>
-        
+
         {isMobileDevice && (
           <EffectComposer multisampling={0}>
             <Bloom luminanceThreshold={0.6} intensity={0.8} radius={0.3} />

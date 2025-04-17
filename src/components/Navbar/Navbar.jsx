@@ -4,10 +4,14 @@ import logoImg from "../../assets/logo-transparent.png";
 
 const Navbar = ({ activeSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuItems = ['about', 'experience', 'projects', 'contact'];
+  const menuItems = ["about", "experience", "projects", "contact"];
 
   return (
-    <nav className={styles.navbar} role="navigation" aria-label="Main Navigation">
+    <nav
+      className={styles.navbar}
+      role="navigation"
+      aria-label="Main Navigation"
+    >
       <div className={styles.logo}>
         <a href="#home" aria-label="Home">
           <img src={logoImg} alt="Logo" />
@@ -15,11 +19,11 @@ const Navbar = ({ activeSection }) => {
       </div>
 
       <ul className={`${styles.menuItems} ${menuOpen ? styles.menuOpen : ""}`}>
-        {menuItems.map(item => (
+        {menuItems.map((item) => (
           <li key={item}>
-            <a 
+            <a
               href={`#${item}`}
-              className={activeSection === item ? styles.active : ''}
+              className={activeSection === item ? styles.active : ""}
             >
               {item.charAt(0).toUpperCase() + item.slice(1)}
             </a>
@@ -31,8 +35,10 @@ const Navbar = ({ activeSection }) => {
         FOUNDED IN 2001 (CAGUAS, PUERTO RICO)
       </div>
 
-      <button 
-        className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ""}`}
+      <button
+        className={`${styles.hamburger} ${
+          menuOpen ? styles.hamburgerOpen : ""
+        }`}
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Toggle Menu"
         aria-expanded={menuOpen}

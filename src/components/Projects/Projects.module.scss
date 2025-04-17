@@ -1,6 +1,6 @@
-@use '../../styles/variables' as v;
-@use '../../styles/mixins' as m;
-@use 'sass:color';
+@use "../../styles/variables" as v;
+@use "../../styles/mixins" as m;
+@use "sass:color";
 
 // iPhone 12 Pro specific optimizations
 $iphone12-width: 390px;
@@ -53,7 +53,7 @@ $iphone12-height: 844px;
   color: rgba(v.$color-primary, 0.9);
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -5px;
     left: 0;
@@ -116,7 +116,7 @@ $iphone12-height: 844px;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: v.$color-text; 
+  color: v.$color-text;
   opacity: 0.7; // Start slightly transparent
   z-index: 10;
   pointer-events: none; // Not interactive
@@ -192,11 +192,15 @@ $iphone12-height: 844px;
 
 .projectCard {
   position: relative;
-  background-color: rgba(color.adjust(v.$color-background, $lightness: 2%), 0.8);
+  background-color: rgba(
+    color.adjust(v.$color-background, $lightness: 2%),
+    0.8
+  );
   backdrop-filter: blur(10px);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(v.$color-primary, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(v.$color-primary, 0.1);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
   touch-action: manipulation;
@@ -205,16 +209,17 @@ $iphone12-height: 844px;
   @media (hover: hover) {
     &:hover {
       transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 8px 30px rgba(v.$color-primary, 0.2), 0 0 0 2px rgba(v.$color-primary, 0.2);
-  
+      box-shadow: 0 8px 30px rgba(v.$color-primary, 0.2),
+        0 0 0 2px rgba(v.$color-primary, 0.2);
+
       .projectImage img {
         transform: scale(1.05);
       }
-  
+
       .projectLinks {
         opacity: 1;
       }
-  
+
       &::after {
         opacity: 1;
       }
@@ -229,13 +234,14 @@ $iphone12-height: 844px;
     // iPhone 12 Pro specific adjustments
     @media (max-width: $iphone12-width) {
       border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(v.$color-primary, 0.08);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(v.$color-primary, 0.08);
     }
   }
 
   // Hologram effect
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(
@@ -318,7 +324,7 @@ $iphone12-height: 844px;
     @media (max-width: $iphone12-width) {
       // Add swipe hint
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 15px;
         left: 50%;

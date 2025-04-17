@@ -1,6 +1,6 @@
-@use '../../styles/variables' as v;
-@use '../../styles/mixins' as m;
-@use 'sass:color';
+@use "../../styles/variables" as v;
+@use "../../styles/mixins" as m;
+@use "sass:color";
 
 .hero {
   min-height: 100vh;
@@ -36,7 +36,7 @@
   z-index: 9999;
   transition: width 0.2s ease, height 0.2s ease, opacity 0.3s ease;
   opacity: 0.7;
-  
+
   // Hide on mobile/touch devices
   @media (hover: none) and (pointer: coarse) {
     display: none;
@@ -68,26 +68,26 @@
   align-items: center;
   gap: 0.5rem;
   z-index: 5;
-  
+
   svg {
     font-size: 1.5rem;
     color: v.$color-primary;
   }
-  
+
   span {
     font-size: 0.75rem;
     letter-spacing: 0.0625rem;
     text-transform: uppercase;
     opacity: 0.8;
   }
-  
+
   @include m.respond-to(mobile) {
     bottom: 1rem;
-    
+
     svg {
       font-size: 1.2rem;
     }
-    
+
     span {
       font-size: 0.65rem;
     }
@@ -116,7 +116,7 @@
   color: v.$color-primary;
   display: block;
   will-change: transform, opacity;
-  
+
   @include m.respond-to(mobile) {
     font-size: 3rem;
     position: relative;
@@ -139,7 +139,7 @@
   top: 7.5rem;
   transform: translateX(0);
   will-change: transform, opacity;
-  
+
   @include m.respond-to(mobile) {
     font-size: 3rem;
     position: relative;
@@ -161,7 +161,7 @@
   left: 34.5rem;
   top: 15rem;
   will-change: transform, opacity;
-  
+
   @include m.respond-to(mobile) {
     font-size: 3rem;
     position: relative;
@@ -183,7 +183,7 @@
 .heroText {
   flex: 1;
   text-align: center;
-  
+
   @include m.respond-to(tablet) {
     text-align: left;
     max-width: 60%;
@@ -199,7 +199,7 @@
   margin: 0;
   padding: 0;
   text-transform: uppercase;
-  
+
   @include m.respond-to(mobile) {
     font-size: calc(v.$font-size-xl * 0.7);
   }
@@ -218,7 +218,7 @@
   display: flex;
   gap: v.$space-md;
   justify-content: center;
-  
+
   @include m.respond-to(tablet) {
     justify-content: flex-start;
   }
@@ -229,7 +229,7 @@
   background-color: v.$color-primary;
   color: v.$color-text;
   border: none;
-  
+
   &:hover {
     background-color: color.adjust(v.$color-primary, $lightness: -10%);
   }
@@ -240,7 +240,7 @@
   background-color: transparent;
   color: v.$color-text;
   border: 0.0625rem solid v.$color-text;
-  
+
   &:hover {
     background-color: rgba(v.$color-text, 0.1);
   }
@@ -259,7 +259,7 @@
 
   // Top-left bracket
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 3rem;
     left: 10rem;
@@ -279,7 +279,7 @@
 
   // Bottom-right bracket
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -4rem;
     right: 15rem;
@@ -321,7 +321,7 @@
   max-width: 25rem;
   z-index: 2;
   will-change: opacity, transform;
-  
+
   @include m.respond-to(mobile) {
     position: relative;
     bottom: auto;
@@ -337,7 +337,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -351,8 +352,8 @@
   top: 35rem;
   left: 2rem;
   display: flex;
-  gap: 1.5rem; 
-  z-index: 2; 
+  gap: 1.5rem;
+  z-index: 2;
 
   a {
     color: v.$color-text;
@@ -362,7 +363,7 @@
     will-change: transform, opacity;
 
     &:hover {
-      color: v.$color-primary; 
+      color: v.$color-primary;
     }
   }
   @include m.respond-to(mobile) {
@@ -408,7 +409,7 @@
 .sayHelloBtn {
   @include m.button-base;
   background-color: v.$color-primary;
-  color: v.$color-text; 
+  color: v.$color-text;
   border: none;
   padding: 1rem 2.5rem;
   border-radius: 3.125rem;
@@ -417,7 +418,7 @@
   &:hover {
     background-color: color.adjust(v.$color-primary, $lightness: -10%);
   }
-  
+
   @include m.respond-to(mobile) {
     padding: 0.8rem 1rem;
     font-weight: 500;
@@ -428,9 +429,9 @@
 
 .downloadCvBtn {
   @include m.button-base;
-  background-color: v.$color-text; 
-  color: v.$color-background; 
-  border: 0.0625rem solid transparent; 
+  background-color: v.$color-text;
+  color: v.$color-background;
+  border: 0.0625rem solid transparent;
   padding: 1rem 2.5rem;
   border-radius: 3.125rem;
   will-change: transform, box-shadow;
@@ -438,7 +439,7 @@
   &:hover {
     background-color: color.adjust(v.$color-text, $lightness: -5%);
   }
-  
+
   @include m.respond-to(mobile) {
     padding: 0.8rem 1rem;
     font-weight: 500;
@@ -450,13 +451,13 @@
 // Renamed styles for 46.png Image
 .decorativeImage46 {
   position: absolute;
-  top: 48rem; 
-  left: 2rem; 
-  width: 25rem; 
-  height: auto; 
-  z-index: 1; 
+  top: 48rem;
+  left: 2rem;
+  width: 25rem;
+  height: auto;
+  z-index: 1;
   will-change: transform, opacity;
-  
+
   @include m.respond-to(mobile) {
     display: none;
   }
@@ -523,14 +524,14 @@
 // Styles for Top Right Image
 .topRightImage {
   position: absolute;
-  top: 7rem; 
-  right: -2.5rem; 
-  width: 25rem; 
-  height: auto; 
-  z-index: 1; 
+  top: 7rem;
+  right: -2.5rem;
+  width: 25rem;
+  height: auto;
+  z-index: 1;
   transform: rotate(90deg);
   will-change: transform, opacity;
-  
+
   @include m.respond-to(mobile) {
     display: none;
   }
@@ -541,7 +542,7 @@
   position: absolute;
   bottom: 0.5rem;
   right: 2rem;
-  color: v.$color-text; 
+  color: v.$color-text;
   font-family: v.$font-heading;
   font-size: 2rem;
   font-weight: bold;
@@ -588,7 +589,7 @@
   border: 0.0625rem solid v.$color-primary;
   box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.5);
   will-change: transform, opacity;
-  
+
   @include m.respond-to(mobile) {
     top: auto;
     bottom: 21rem;

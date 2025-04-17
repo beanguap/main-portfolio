@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useAnimation, AnimatePresence, useInView } from 'framer-motion';
-import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6'; 
-import { HeroScene3D } from './HeroScene3D';
-import styles from './HeroSection.module.scss';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  motion,
+  useAnimation,
+  AnimatePresence,
+  useInView,
+} from "framer-motion";
+import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from "react-icons/fa6";
+import { HeroScene3D } from "./HeroScene3D";
+import styles from "./HeroSection.module.scss";
 
 // Animation variants for staggered animations
 const nameVariants = {
@@ -13,9 +18,9 @@ const nameVariants = {
     transition: {
       duration: 0.8,
       delay: custom * 0.2, // stagger effect
-      ease: [0.2, 0.65, 0.3, 0.9]
-    }
-  })
+      ease: [0.2, 0.65, 0.3, 0.9],
+    },
+  }),
 };
 
 // Card-like animation for the buttons
@@ -27,18 +32,18 @@ const buttonVariants = {
     transition: {
       duration: 0.5,
       delay: 1 + custom * 0.2,
-      ease: [0, 0.55, 0.45, 1]
-    }
+      ease: [0, 0.55, 0.45, 1],
+    },
   }),
   hover: {
     y: -5,
     boxShadow: "0 10px 20px rgba(83, 140, 255, 0.3)",
-    transition: { duration: 0.3 }
+    transition: { duration: 0.3 },
   },
   tap: {
     scale: 0.97,
-    transition: { duration: 0.1 }
-  }
+    transition: { duration: 0.1 },
+  },
 };
 
 // Social icon animation
@@ -51,15 +56,15 @@ const iconVariants = {
       type: "spring",
       stiffness: 260,
       damping: 20,
-      delay: 1.3 + custom * 0.1
-    }
+      delay: 1.3 + custom * 0.1,
+    },
   }),
   hover: {
     scale: 1.15,
     color: "#538CFF",
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
-  tap: { scale: 0.95 }
+  tap: { scale: 0.95 },
 };
 
 // Subtle floating animation for the keyboard
@@ -71,8 +76,8 @@ const keyboardVariants = {
     transition: {
       duration: 1,
       delay: 0.5,
-      ease: [0, 0.55, 0.45, 1]
-    }
+      ease: [0, 0.55, 0.45, 1],
+    },
   },
   float: {
     y: [0, -15, 0],
@@ -80,9 +85,9 @@ const keyboardVariants = {
       duration: 6,
       repeat: Infinity,
       repeatType: "mirror",
-      ease: "easeInOut"
-    }
-  }
+      ease: "easeInOut",
+    },
+  },
 };
 
 // Subtle fade-in for text
@@ -92,9 +97,9 @@ const textVariants = {
     opacity: 1,
     transition: {
       duration: 0.8,
-      delay: 1.8 + custom * 0.2
-    }
-  })
+      delay: 1.8 + custom * 0.2,
+    },
+  }),
 };
 
 // Skills list animation with staggered display
@@ -104,9 +109,9 @@ const skillsVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 2.2
-    }
-  }
+      delayChildren: 2.2,
+    },
+  },
 };
 
 const skillItemVariants = {
@@ -116,16 +121,16 @@ const skillItemVariants = {
     x: 0,
     transition: {
       duration: 0.5,
-      ease: "easeOut"
-    }
-  }
+      ease: "easeOut",
+    },
+  },
 };
 
 // Custom cursor that follows mouse
 const CustomCursor = () => {
   const cursorRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
-  
+
   useEffect(() => {
     // Track mouse movement
     const moveCursor = (e) => {
@@ -134,26 +139,30 @@ const CustomCursor = () => {
         cursorRef.current.style.top = `${e.clientY}px`;
       }
     };
-    
+
     // Check if hovering over clickable elements
     const checkHovering = () => {
-      const hoveredElements = document.querySelectorAll('a:hover, button:hover');
+      const hoveredElements = document.querySelectorAll(
+        "a:hover, button:hover"
+      );
       setIsHovering(hoveredElements.length > 0);
     };
-    
-    window.addEventListener('mousemove', moveCursor);
-    window.addEventListener('mousemove', checkHovering);
-    
+
+    window.addEventListener("mousemove", moveCursor);
+    window.addEventListener("mousemove", checkHovering);
+
     return () => {
-      window.removeEventListener('mousemove', moveCursor);
-      window.removeEventListener('mousemove', checkHovering);
+      window.removeEventListener("mousemove", moveCursor);
+      window.removeEventListener("mousemove", checkHovering);
     };
   }, []);
-  
+
   return (
-    <div 
-      ref={cursorRef} 
-      className={`${styles.customCursor} ${isHovering ? styles.cursorHover : ''}`}
+    <div
+      ref={cursorRef}
+      className={`${styles.customCursor} ${
+        isHovering ? styles.cursorHover : ""
+      }`}
     />
   );
 };
@@ -161,20 +170,20 @@ const CustomCursor = () => {
 // Scroll indicator component
 const ScrollIndicator = () => {
   return (
-    <motion.div 
+    <motion.div
       className={styles.scrollIndicator}
       initial={{ opacity: 0 }}
-      animate={{ 
+      animate={{
         opacity: 1,
-        y: [0, 10, 0]
+        y: [0, 10, 0],
       }}
       transition={{
         delay: 3,
         y: {
           repeat: Infinity,
           duration: 1.5,
-          ease: "easeInOut"
-        }
+          ease: "easeInOut",
+        },
       }}
     >
       <FaAngleDown />
@@ -188,7 +197,7 @@ const HeroSection = () => {
   const sectionRef = useRef(null);
   const isHeroSceneInView = useInView(sectionRef, { once: false, amount: 0.1 });
   const controls = useAnimation();
-  
+
   // Start animations when section comes into view
   useEffect(() => {
     if (isHeroSceneInView) {
@@ -201,13 +210,13 @@ const HeroSection = () => {
   };
 
   return (
-    <motion.section 
-      className={styles.hero} 
+    <motion.section
+      className={styles.hero}
       ref={sectionRef}
       initial="hidden"
       animate={controls}
       id="home"
-      style={{ position: 'relative' }} // Add position relative to fix scroll calculations
+      style={{ position: "relative" }} // Add position relative to fix scroll calculations
     >
       {/* Custom cursor for desktop */}
       <div className={styles.cursorContainer}>
@@ -215,27 +224,30 @@ const HeroSection = () => {
       </div>
 
       {/* Conditionally render 3D Scene Background */}
-      <div className={styles.heroBackground} style={{ pointerEvents: isHeroSceneInView ? 'auto' : 'none' }}>
+      <div
+        className={styles.heroBackground}
+        style={{ pointerEvents: isHeroSceneInView ? "auto" : "none" }}
+      >
         {isHeroSceneInView && <HeroScene3D />}
       </div>
 
       {/* Animated Name */}
       <div className={styles.heroName}>
-        <motion.span 
+        <motion.span
           className={styles.firstName}
           variants={nameVariants}
           custom={0}
         >
           JERIEL
         </motion.span>
-        <motion.span 
+        <motion.span
           className={styles.middleName}
           variants={nameVariants}
           custom={1}
         >
           MARTINEZ
         </motion.span>
-        <motion.span 
+        <motion.span
           className={styles.lastName}
           variants={nameVariants}
           custom={2}
@@ -245,16 +257,16 @@ const HeroSection = () => {
       </div>
 
       {/* Top-right decorative image */}
-      <motion.img 
+      <motion.img
         src="/src/assets/image-from-rawpixel-id-6171907-png.png"
         alt="Abstract geometric blue and white pattern"
         className={styles.topRightImage}
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 0.7, x: 0 }}
-        transition={{ 
+        transition={{
           duration: 1.2,
           delay: 1,
-          ease: [0.25, 0.25, 0, 1]
+          ease: [0.25, 0.25, 0, 1],
         }}
       />
 
@@ -299,8 +311,8 @@ const HeroSection = () => {
       </div>
 
       {/* CTA Buttons */}
-      <div className={styles.ctaButtonsLeft} style={{ position: 'relative' }}>
-        <motion.button 
+      <div className={styles.ctaButtonsLeft} style={{ position: "relative" }}>
+        <motion.button
           className={styles.sayHelloBtn}
           variants={buttonVariants}
           custom={0}
@@ -309,7 +321,7 @@ const HeroSection = () => {
         >
           SAY HELLO
         </motion.button>
-        <motion.button 
+        <motion.button
           className={styles.downloadCvBtn}
           variants={buttonVariants}
           custom={1}
@@ -321,7 +333,7 @@ const HeroSection = () => {
       </div>
 
       {/* Decorative Image */}
-      <motion.img 
+      <motion.img
         src="/src/assets/46.png"
         alt="Decorative graphic"
         className={styles.decorativeImage46}
@@ -331,7 +343,7 @@ const HeroSection = () => {
       />
 
       {/* Footer Text Block */}
-      <motion.div 
+      <motion.div
         className={styles.footerTextBlock}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -350,16 +362,16 @@ const HeroSection = () => {
         onClick={handleInfoButtonClick}
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 10, 
-          delay: 2.5 
+        transition={{
+          type: "spring",
+          stiffness: 400,
+          damping: 10,
+          delay: 2.5,
         }}
-        whileHover={{ 
-          scale: 1.1, 
+        whileHover={{
+          scale: 1.1,
           backgroundColor: "#666",
-          transition: { duration: 0.2 }
+          transition: { duration: 0.2 },
         }}
         whileTap={{ scale: 0.95 }}
       >
@@ -369,7 +381,7 @@ const HeroSection = () => {
       {/* Info Panel with AnimatePresence for smooth mounting/unmounting */}
       <AnimatePresence>
         {isInfoVisible && (
-          <motion.div 
+          <motion.div
             className={styles.infoPanel}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -382,37 +394,40 @@ const HeroSection = () => {
       </AnimatePresence>
 
       {/* Skills List with staggered animation */}
-      <motion.div 
-        className={styles.skillsList}
-        variants={skillsVariants}
-      >
-        {["FULL STACK", "DEVELOPER", "SOFTWARE", "ENGINEER", "ANIMATION", "UI", "UX", "AI"].map((skill, index) => (
-          <motion.span 
-            key={index}
-            variants={skillItemVariants}
-          >
+      <motion.div className={styles.skillsList} variants={skillsVariants}>
+        {[
+          "FULL STACK",
+          "DEVELOPER",
+          "SOFTWARE",
+          "ENGINEER",
+          "ANIMATION",
+          "UI",
+          "UX",
+          "AI",
+        ].map((skill, index) => (
+          <motion.span key={index} variants={skillItemVariants}>
             {skill}
           </motion.span>
         ))}
       </motion.div>
 
       {/* Main Content with Keyboard */}
-      <div className={styles.heroContent} style={{ position: 'relative' }}>
-        <motion.div 
+      <div className={styles.heroContent} style={{ position: "relative" }}>
+        <motion.div
           className={styles.heroImage}
           variants={keyboardVariants}
           animate="float"
-          style={{ position: 'relative' }}
+          style={{ position: "relative" }}
         >
-          <motion.img 
-            src="/src/assets/NOBACKGROUNDJMFKEYBOARD .png" 
-            alt="JMF Keyboard" 
+          <motion.img
+            src="/src/assets/NOBACKGROUNDJMFKEYBOARD .png"
+            alt="JMF Keyboard"
             className={styles.keyboard}
             variants={keyboardVariants}
           />
-          
+
           {/* Text near keyboard */}
-          <motion.div 
+          <motion.div
             className={styles.keyboardInfoText}
             variants={textVariants}
             custom={0}

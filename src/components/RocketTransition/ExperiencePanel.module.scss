@@ -1,5 +1,5 @@
-@use '../../styles/variables' as v;
-@use '../../styles/mixins' as m;
+@use "../../styles/variables" as v;
+@use "../../styles/mixins" as m;
 
 .experiencePanel {
   min-height: 100vh; // Ensure it takes full height
@@ -22,7 +22,8 @@
     padding: 3rem 1rem;
   }
 
-  h1, h2 {
+  h1,
+  h2 {
     font-family: v.$font-heading;
     color: v.$color-primary;
     margin-bottom: 2rem;
@@ -32,7 +33,7 @@
     font-size: 2.5rem;
     text-align: left;
     margin-bottom: 1.5rem;
-     @include m.respond-to(mobile) {
+    @include m.respond-to(mobile) {
       font-size: 2rem;
       text-align: center;
     }
@@ -93,7 +94,7 @@
 
     @include m.respond-to(mobile) {
       padding: 1.5rem;
-      
+
       h3 {
         font-size: 1.2rem;
       }
@@ -109,7 +110,7 @@
   justify-content: center;
   margin-bottom: 3rem;
 
-   @include m.respond-to(mobile) {
+  @include m.respond-to(mobile) {
     gap: 0.6rem;
   }
 }
@@ -163,20 +164,20 @@
   h3 {
     color: v.$color-primary; // Make app titles stand out
   }
-  
+
   p {
-     font-size: 0.95rem;
-     color: v.$color-text-secondary; // Slightly dimmer text
+    font-size: 0.95rem;
+    color: v.$color-text-secondary; // Slightly dimmer text
   }
-  
-   @include m.respond-to(mobile) {
+
+  @include m.respond-to(mobile) {
     padding: 1rem;
-     h3 {
-       font-size: 1.2rem;
-     }
-     p {
-       font-size: 0.9rem;
-     }
+    h3 {
+      font-size: 1.2rem;
+    }
+    p {
+      font-size: 0.9rem;
+    }
   }
 }
 
@@ -185,8 +186,8 @@
   font-style: italic;
   color: v.$color-text-secondary;
   font-size: 0.9rem;
-   @include m.respond-to(mobile) {
-     margin-top: 2rem;
-     font-size: 0.8rem;
+  @include m.respond-to(mobile) {
+    margin-top: 2rem;
+    font-size: 0.8rem;
   }
 }

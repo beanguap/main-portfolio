@@ -1,6 +1,6 @@
-@use './styles/_reset';
-@use './styles/variables' as v;
-@use './styles/mixins' as m;
+@use "./styles/_reset";
+@use "./styles/variables" as v;
+@use "./styles/mixins" as m;
 
 * {
   margin: 0;
@@ -62,7 +62,7 @@ main {
   position: relative;
   z-index: 1;
   will-change: transform;
-  
+
   section {
     min-height: 100vh;
     position: relative;

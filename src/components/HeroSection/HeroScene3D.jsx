@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, PerspectiveCamera } from '@react-three/drei';
-import ErrorBoundary from '../RocketTransition/ErrorBoundary';
+import React, { useState, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, PerspectiveCamera } from "@react-three/drei";
+import ErrorBoundary from "../RocketTransition/ErrorBoundary";
 
 // Mobile detection utility
 const isMobile = () => {
@@ -16,7 +16,7 @@ function SceneContent() {
 
   return (
     <>
-      <PerspectiveCamera 
+      <PerspectiveCamera
         makeDefault
         position={[0, 0, isMobile() ? 25 : 30]}
         fov={isMobile() ? 85 : 75}
@@ -47,13 +47,17 @@ export function HeroScene3D() {
 
   return (
     <ErrorBoundary fallback={<></>}>
-      <Canvas 
-        dpr={isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio}
-        gl={{ 
+      <Canvas
+        dpr={
+          isMobileDevice
+            ? Math.min(window.devicePixelRatio, 1.5)
+            : window.devicePixelRatio
+        }
+        gl={{
           alpha: true,
-          powerPreference: 'high-performance',
+          powerPreference: "high-performance",
           stencil: false,
-          depth: true 
+          depth: true,
         }}
       >
         <SceneContent />
