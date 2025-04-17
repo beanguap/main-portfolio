@@ -1,14 +1,35 @@
-import 'vitest-webgl-canvas-mock'; // Provides maintained WebGL/canvas stubs
-import { configure } from '@react-three/test-renderer';
+import 'vitest-webgl-canvas-mock'
+import { vi } from 'vitest'
 
-// Configure the test renderer (optional, can customize node mocking)
-configure({ createNodeMock: () => null });
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-// Provide a mock WebGL context for canvas elements
-globalThis.HTMLCanvasElement.prototype.getContext = (contextId) => {
-  if (contextId === 'webgl' || contextId === 'webgl2') {
-    return null; // Return null for WebGL contexts
+// Polyfill ResizeObserver (prefer @juggle/resize-observer if available)
+try {
+  globalThis.ResizeObserver = require('@juggle/resize-observer').ResizeObserver;
+} catch (e) {
+  class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
   }
-  // Return null or throw for other context types if needed
-  return null;
-};
+  globalThis.ResizeObserver = ResizeObserver;
+}
+
+// Polyfill matchMedia if missing
+if (!globalThis.matchMedia) {
+  globalThis.matchMedia = vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+}
+
+// Stub GSAP ScrollTrigger
+vi.mock('gsap/ScrollTrigger', () => ({
+  default: { register: vi.fn(), mockScrollTrigger: true },
+}));

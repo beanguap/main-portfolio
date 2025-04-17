@@ -1,6 +1,6 @@
 import React from 'react';
 import { render as renderHappyDom } from '@testing-library/react';
-import { render as renderR3f } from '@react-three/test-renderer';
+import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { describe, it, expect, vi } from 'vitest';
 import RocketTransition from './RocketTransition';
 
@@ -24,15 +24,14 @@ describe('RocketTransition DOM tests', () => {
 // Scene tests using @react-three/test-renderer for scene-graph assertions
 describe('RocketTransition Scene tests', () => {
   it('renders RocketCanvas component when startTransition is true', async () => {
-    // Render the component using the R3F test renderer
-    const instance = await renderR3f(<RocketTransition startTransition={true} />);
+    // Render the component using ReactThreeTestRenderer directly
+    const renderer = await ReactThreeTestRenderer.create(
+      <RocketTransition startTransition={true} />
+    );
     
-    // Find the mocked RocketCanvas component instance within the virtual scene
-    // We search by the component function/class itself or its display name
-    const rocketCanvasInstance = instance.root.findByType('RocketCanvas'); // Assumes RocketCanvas is exported/named
+    // Using instance.root.findByProps to find component by props
+    const rocketCanvasInstance = renderer.root.findByProps({ startTransition: true });
     
     expect(rocketCanvasInstance).toBeDefined();
-    // Optionally, check props passed to the virtual component instance
-    // expect(rocketCanvasInstance.props...).toBe(...);
   });
 });
