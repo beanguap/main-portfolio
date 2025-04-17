@@ -1,10 +1,6 @@
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@swc/core'
-  - es5-ext
   - esbuild
-  - headless-gl
 
 ignoredBuiltDependencies:
-  - es5-ext
-  - gl
