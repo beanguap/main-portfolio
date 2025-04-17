@@ -1,23 +1,10 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
-import { Float, Environment, useTexture, Text } from '@react-three/drei';
+import { Float, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import ErrorBoundary from '../RocketTransition/ErrorBoundary';
-
-// Mobile detection utility
-const isMobile = () => {
-  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-};
-
-// iPhone 12 Pro specific detection
-const isIPhone12Pro = () => {
-  const iOS = /iPhone/.test(navigator.userAgent);
-  if (!iOS) return false;
-  
-  // Check for approximate screen dimensions of iPhone 12 Pro
-  return window.screen.width === 390 || window.screen.height === 390;
-};
+import { isMobile, isIPhone12Pro } from '../../utils/device';
 
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
@@ -142,9 +129,6 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
   // Adjust size based on viewport width
   const scale = isMobileDevice ? 0.85 : 1;
   
-  // Use progress to animate in cards sequentially
-  const progress = index / totalProjects;
-  
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     
@@ -186,12 +170,6 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
 // Animated background glow
 function BackgroundGlow() {
   const isMobileDevice = isMobile();
-  
-  useFrame(({ clock }) => {
-    // Pulsating animation
-    const t = clock.getElapsedTime();
-  });
-  
   return (
     <mesh position={[0, 0, -10]}>
       <sphereGeometry args={[7, 32, 32]} />

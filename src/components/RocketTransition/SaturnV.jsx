@@ -49,40 +49,29 @@ export default function SaturnV({ isLaunched, ...props }) {
     roughness: 0.3
   });
 
-  // Cleanup function for GLTF materials and geometries
+  // Cleanup function for GLTF materials, geometries and cache
   useEffect(() => {
     return () => {
-      // Dispose of GLTF materials
-      if (materials) {
-        Object.values(materials).forEach(material => {
-          if (material.map) material.map.dispose();
-          material.dispose();
-        });
+      try {
+        if (materials) {
+          Object.values(materials).forEach(mat => {
+            mat.map?.dispose();
+            mat.dispose();
+          });
+        }
+        if (nodes) {
+          Object.values(nodes).forEach(node => node.geometry?.dispose());
+        }
+        modelMaterial?.dispose();
+        useGLTF.clear('/scene.gltf');
+      } catch (err) {
+        console.error('Error disposing GLTF resources in SaturnV:', err);
       }
-      // Dispose of GLTF geometries
-      if (nodes) {
-        Object.values(nodes).forEach(node => {
-          if (node.geometry) node.geometry.dispose();
-        });
-      }
-      // Dispose of the specific model material if used
-      modelMaterial.dispose();
-      // Clear the loaded GLTF from cache
-      useGLTF.clear('/scene.gltf');
     };
-  }, [materials, nodes, modelMaterial]); // Use modelMaterial here
+  }, [materials, nodes, modelMaterial]);
 
-  // Clone the scene
+  // Clone the scene for rendering
   const clonedScene = scene ? scene.clone(true) : null;
-  
-  // Traverse the cloned scene
-  useEffect(() => {
-    if (clonedScene) {
-      clonedScene.traverse((child) => {
-        // Optionally apply the modelMaterial if needed, otherwise GLTF materials are used
-      });
-    }
-  }, [clonedScene]);
 
   // Check if scene loaded
   if (!scene) {

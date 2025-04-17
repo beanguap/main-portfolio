@@ -1,0 +1,24 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install dependencies and prune
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prune
+      - name: Run lint
+        run: pnpm lint
+      - name: Run tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build

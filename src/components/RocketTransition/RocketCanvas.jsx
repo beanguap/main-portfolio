@@ -197,18 +197,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <pointLight position={[0, -3, 2]} intensity={1.2} color="orange" />
 
-      {/* Debug helper mesh to visualize smoke emission offset */}
-      <mesh position={smokeEmissionOffset}>
-        <sphereGeometry args={[0.1, 8, 8]} />
-        <meshBasicMaterial color="green" />
-      </mesh>
-
-      {/* Debug helper mesh to visualize rocketWorldPos */}
-      <mesh position={rocketWorldPos}>
-        <sphereGeometry args={[0.1, 8, 8]} />
-        <meshBasicMaterial color="red" />
-      </mesh>
-
       {/* Rocket Group - This moves */}
       <group ref={groupRef}>
         <ErrorBoundary fallback={<FallbackRocket position={[0, -4, 0]} scale={[0.015, 0.015, 0.015]}/>}>
@@ -262,8 +250,7 @@ export default React.memo(function RocketCanvas({ isLaunched, onError, onTransit
             if (loseContextExt) {
               loseContextExt.loseContext();
             }
-            // R3F usually handles disposal, but explicit dispose might be needed in complex cases
-            // internalGl.dispose?.(); 
+            // R3F handles disposal automatically
           } catch (error) {
             console.error('Error during canvas cleanup:', error);
           }
