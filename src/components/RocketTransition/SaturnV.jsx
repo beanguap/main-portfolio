@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -38,7 +38,7 @@ export const FallbackRocket = (props) => {
   );
 };
 
-export default function SaturnV({ isLaunched, ...props }) {
+export default function SaturnV({ _isLaunched, ...props }) { // Prefixed unused prop
   // Preload GLTF within component (inside Canvas context)
   useEffect(() => {
     useGLTF.preload('/scene.gltf');
@@ -46,13 +46,6 @@ export default function SaturnV({ isLaunched, ...props }) {
 
   const rocketRef = useRef();
   const { scene, materials, nodes } = useGLTF('/scene.gltf');
-
-  // Create a basic material (this is for the actual model, keep separate)
-  const modelMaterial = new THREE.MeshStandardMaterial({
-    color: '#e0e0e0', // Slightly different color to distinguish if needed
-    metalness: 0.7,
-    roughness: 0.3,
-  });
 
   // Cleanup function for GLTF materials, geometries and cache
   useEffect(() => {
@@ -67,13 +60,12 @@ export default function SaturnV({ isLaunched, ...props }) {
         if (nodes) {
           Object.values(nodes).forEach((node) => node.geometry?.dispose());
         }
-        modelMaterial?.dispose();
         useGLTF.clear('/scene.gltf');
-      } catch (err) {
-        console.error('Error disposing GLTF resources in SaturnV:', err);
+      } catch (_err) { // Prefix unused 'err' with underscore
+        console.error('Error disposing GLTF resources in SaturnV:', _err);
       }
     };
-  }, [materials, nodes, modelMaterial]);
+  }, [materials, nodes]);
 
   // Clone the scene for rendering
   const clonedScene = scene ? scene.clone(true) : null;

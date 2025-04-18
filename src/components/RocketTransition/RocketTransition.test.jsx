@@ -1,6 +1,5 @@
-import React from 'react';
 import { render as renderHappyDom } from '@testing-library/react';
-import ReactThreeTestRenderer from '@react-three/test-renderer';
+import ReactThreeTestRenderer from '@react-three/test-renderer'; // Re-added used import
 import { describe, it, expect, vi } from 'vitest';
 import RocketTransition from './RocketTransition';
 

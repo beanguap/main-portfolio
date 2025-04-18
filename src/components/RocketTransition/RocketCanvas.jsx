@@ -1,10 +1,9 @@
-import React, {
+import {
   Suspense,
   useRef,
   useEffect,
   useState,
   useCallback,
-  useMemo,
 } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
@@ -14,9 +13,6 @@ import ErrorBoundary from './ErrorBoundary';
 import { FallbackRocket } from './SaturnV';
 import PixelSmokeEffect from './PixelSmokeEffect';
 
-// Reusable Vector3 for world position calculation
-const tempWorldPos = new THREE.Vector3();
-
 // Scene content component that uses hooks
 function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const groupRef = useRef();
@@ -25,7 +21,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const velocityRef = useRef(0); // Ref to store current velocity
   const acceleration = 0.0005; // How much to increase speed each frame
   const transitionCompletedRef = useRef(false); // Track if completion callback was called
-  const stateRef = useRef({ isLaunched }); // Ref to hold latest state for listeners
 
   // Direct reference object that bypasses React state for better performance
   const directEmitterPosition = useRef(new THREE.Vector3(0, -1000, 0)).current;
@@ -38,12 +33,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const [smokeEmissionOffset, setSmokeEmissionOffset] = useState(
     new THREE.Vector3(0, -4.2, 0)
   );
-
-  // Helper function to reset smoke emission offset
-  const resetSmokeEmissionOffset = useCallback(() => {
-    const defaultOffset = new THREE.Vector3(0, -4.2, 0);
-    setSmokeEmissionOffset(defaultOffset);
-  }, []);
 
   // Helper function to find the correct emission point
   const findEmissionPoint = useCallback((rocketObject) => {
@@ -69,13 +58,15 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       const center = new THREE.Vector3();
       box.getCenter(center);
 
-      // Add a debug helper mesh at the bounding box center
+      // Commented out debug helper mesh
+      /*
       const helperMesh = new THREE.Mesh(
         new THREE.SphereGeometry(0.1, 8, 8),
         new THREE.MeshBasicMaterial({ color: 'blue' })
       );
       helperMesh.position.copy(center);
       scene.add(helperMesh);
+      */
 
       const emissionPoint = findEmissionPoint(rocketModelRef.current);
 
@@ -93,39 +84,21 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         directEmitterPosition.copy(worldPos);
       }
     }
-  }, [isLaunched, rocketModelRef.current, findEmissionPoint]);
-
-  // Update state ref whenever isLaunched changes
-  useEffect(() => {
-    stateRef.current.isLaunched = isLaunched;
-  }, [isLaunched]);
+  }, [isLaunched, findEmissionPoint]);
 
   // Handle context events
   useEffect(() => {
-    const context = get().gl; // Get current context
-    if (!context?.domElement) return; // Exit if no context/canvas yet
-
+    const context = get().gl;    if (!context?.domElement) return; // Added check for context
     const canvas = context.domElement;
 
-    const handleContextLost = (event) => {
-      event.preventDefault();
-      console.warn('WebGL context lost. Attempting to notify parent...');
-      onError?.(); // Notify parent component of error
-      // If context is lost *during* launch, trigger completion to avoid getting stuck
-      if (stateRef.current.isLaunched) {
-        console.warn(
-          'Context lost during launch, forcing transition completion.'
-        );
-        if (!transitionCompletedRef.current) {
-          onTransitionComplete?.();
-          transitionCompletedRef.current = true;
-        }
-      }
+    const handleContextLost = (_event) => { // Prefixed unused event
+      console.warn('WebGL context lost in SceneContent.');
+      onError?.(new Error('WebGL context lost')); // Notify parent
     };
 
     const handleContextRestored = () => {
-      // Full recovery often requires re-initializing textures, shaders, etc.
-      // For simplicity here, we might just rely on user refresh or parent component handling.
+      console.log('WebGL context restored in SceneContent.');
+      // Potentially trigger a re-render or resource reload if needed
     };
 
     canvas.addEventListener('webglcontextlost', handleContextLost, false);
@@ -136,7 +109,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
     );
 
     return () => {
-      // Check if canvas still exists before removing listeners
       if (canvas) {
         canvas.removeEventListener(
           'webglcontextlost',
@@ -170,7 +142,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         }
       });
     };
-    // Add get to dependencies to re-run if context changes (though unlikely)
   }, [gl, scene, onError, onTransitionComplete, get]);
 
   // Effect to reset position and velocity when launch state changes
@@ -194,7 +165,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         setRocketWorldPos(tempWorldPos);
       }
     }
-    // Add smokeEmissionOffset to dependencies if it were dynamic
   }, [isLaunched, smokeEmissionOffset]);
 
   useFrame(({ clock }, delta) => {
@@ -274,7 +244,6 @@ export default React.memo(function RocketCanvas({
   onError,
   onTransitionComplete,
 }) {
-  const canvasRef = useRef();
   const [hasError, setHasError] = useState(false);
   const [contextLost, setContextLost] = useState(false);
 
@@ -322,7 +291,6 @@ export default React.memo(function RocketCanvas({
 
   return (
     <Canvas
-      ref={canvasRef}
       camera={{ position: [0, 0, 10], fov: 50 }}
       gl={{
         alpha: true,

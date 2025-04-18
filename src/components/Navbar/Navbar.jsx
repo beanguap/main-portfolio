@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styles from './Navbar.module.scss';
 import logoImg from '../../assets/logo-transparent.png';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './PageIndicator.module.scss';
 
 // Define the sections that the indicator will track

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import RocketCanvas from './RocketCanvas';
 import styles from './RocketTransition.module.scss';
 import ErrorBoundary from './ErrorBoundary';

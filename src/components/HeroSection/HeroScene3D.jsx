@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
 import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
@@ -6,7 +6,7 @@ import { isMobile } from '@utils/device';
 
 // Scene content that uses hooks - must be inside Canvas
 function SceneContent() {
-  useFrame(({ _clock }) => {
+  useFrame(({ clock: _clock }) => {
     // Animation logic here
   });
 

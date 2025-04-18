@@ -5,7 +5,6 @@ import jsxRuntime from 'eslint-plugin-react/configs/jsx-runtime.js';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import importPlugin from 'eslint-plugin-import';
-import alias from 'eslint-import-resolver-alias'; // Import the alias resolver
 
 export default [
   { ignores: ['dist', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'] }, // Ignore config/lock files

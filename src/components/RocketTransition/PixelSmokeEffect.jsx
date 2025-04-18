@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -53,11 +53,6 @@ const fragmentShader = `
   }
 `;
 
-// Helper objects
-const dummy = new THREE.Object3D();
-const tempVec3 = new THREE.Vector3();
-const tempColor = new THREE.Color();
-
 const PixelSmokeEffect = ({
   rocketWorldPos,
   directEmitter,
@@ -105,7 +100,6 @@ const PixelSmokeEffect = ({
     const state = [];
     const initialColor = new Float32Array(PARTICLE_COUNT * 3);
     const initialOpacity = new Float32Array(PARTICLE_COUNT);
-    const initialScale = new Float32Array(PARTICLE_COUNT);
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       // Particle color - warm orange/red hues for realistic rocket exhaust
@@ -113,6 +107,7 @@ const PixelSmokeEffect = ({
       const saturation = 0.7 + Math.random() * 0.3;
       const lightness = 0.6 + Math.random() * 0.3;
 
+      const tempColor = new THREE.Color();
       tempColor.setHSL(hue, saturation, lightness);
       tempColor.toArray(initialColor, i * 3);
 
@@ -131,16 +126,16 @@ const PixelSmokeEffect = ({
 
       // Initialize attributes
       initialOpacity[i] = 0;
-      initialScale[i] = state[i].scale;
 
-      // Set initial matrix
-      dummy.position.copy(state[i].position);
-      dummy.rotation.copy(state[i].rotation);
-      dummy.scale.set(state[i].scale, state[i].scale, state[i].scale);
-      dummy.updateMatrix();
+      // Set initial matrix using a local dummy object
+      const localDummy = new THREE.Object3D();
+      localDummy.position.copy(state[i].position);
+      localDummy.rotation.copy(state[i].rotation);
+      localDummy.scale.set(state[i].scale, state[i].scale, state[i].scale);
+      localDummy.updateMatrix();
     }
 
-    return { state, initialColor, initialOpacity, initialScale };
+    return { state, initialColor, initialOpacity };
   }, []);
 
   // Update emitter reference when rocket position changes
@@ -155,7 +150,6 @@ const PixelSmokeEffect = ({
     if (!particlesRef.current) return;
 
     const mesh = particlesRef.current;
-    const instancedGeometry = geometry;
 
     mesh.geometry.setAttribute(
       'instanceColor',
@@ -188,16 +182,11 @@ const PixelSmokeEffect = ({
     const opacityAttribute = mesh.geometry.attributes.instanceOpacity;
     if (!opacityAttribute) return;
 
-    // Track statistics
-    let activeParticles = 0;
-
     // Update existing particles
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const p = particleState.state[i];
 
       if (p.life > 0) {
-        activeParticles++;
-
         // Physics update
         p.velocity.multiplyScalar(DRAG_FACTOR);
         p.velocity.x += (Math.random() - 0.5) * 0.3;
@@ -214,16 +203,18 @@ const PixelSmokeEffect = ({
 
         // Update matrix
         if (p.life > 0) {
-          dummy.position.copy(p.position);
-          dummy.rotation.copy(p.rotation);
-          dummy.scale.set(p.scale, p.scale, p.scale);
-          dummy.updateMatrix();
-          mesh.setMatrixAt(i, dummy.matrix);
+          const localDummy = new THREE.Object3D();
+          localDummy.position.copy(p.position);
+          localDummy.rotation.copy(p.rotation);
+          localDummy.scale.set(p.scale, p.scale, p.scale);
+          localDummy.updateMatrix();
+          mesh.setMatrixAt(i, localDummy.matrix);
           opacityAttribute.setX(i, p.opacity);
         } else {
-          dummy.position.set(0, -1000, 0);
-          dummy.updateMatrix();
-          mesh.setMatrixAt(i, dummy.matrix);
+          const localDummy = new THREE.Object3D();
+          localDummy.position.set(0, -1000, 0);
+          localDummy.updateMatrix();
+          mesh.setMatrixAt(i, localDummy.matrix);
           opacityAttribute.setX(i, 0);
         }
       }
@@ -231,10 +222,8 @@ const PixelSmokeEffect = ({
 
     // Spawn new particles at controlled rate
     const currentTime = state.clock.getElapsedTime();
-    const elapsedTime = currentTime - lastSpawnTimeRef.current;
 
-    if (elapsedTime > 0.016) {
-      // ~60fps rate limiting
+    if (currentTime - lastSpawnTimeRef.current > 0.016) { // Used difference directly
       lastSpawnTimeRef.current = currentTime;
 
       let spawnCount = 0;
@@ -247,6 +236,7 @@ const PixelSmokeEffect = ({
 
         if (p.life <= 0) {
           // Reset particle at rocket position with offset
+          const tempVec3 = new THREE.Vector3();
           p.position
             .copy(emitterPos)
             .add(
@@ -270,11 +260,12 @@ const PixelSmokeEffect = ({
           p.rotation.z = Math.random() * Math.PI * 2;
 
           // Update matrix
-          dummy.position.copy(p.position);
-          dummy.rotation.copy(p.rotation);
-          dummy.scale.set(p.scale, p.scale, p.scale);
-          dummy.updateMatrix();
-          mesh.setMatrixAt(currentIndex, dummy.matrix);
+          const localDummy = new THREE.Object3D();
+          localDummy.position.copy(p.position);
+          localDummy.rotation.copy(p.rotation);
+          localDummy.scale.set(p.scale, p.scale, p.scale);
+          localDummy.updateMatrix();
+          mesh.setMatrixAt(currentIndex, localDummy.matrix);
           opacityAttribute.setX(currentIndex, p.opacity);
 
           spawnCount++;

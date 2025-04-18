@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   EffectComposer,
@@ -14,8 +14,6 @@ import { isMobile, isIPhone12Pro } from '@utils/device';
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
   const particles = useRef();
-  const geometryRef = useRef();
-  const materialRef = useRef();
   const isMobileDevice = isMobile();
   const isIPhone12 = isIPhone12Pro();
 
@@ -112,7 +110,7 @@ function ParticleField() {
 
   return (
     <points ref={particles}>
-      <bufferGeometry ref={geometryRef}>
+      <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
           count={particlesCount}
@@ -127,7 +125,6 @@ function ParticleField() {
         />
       </bufferGeometry>
       <pointsMaterial
-        ref={materialRef}
         size={isMobileDevice ? 0.12 : 0.18} // Increased further
         vertexColors
         transparent
@@ -141,15 +138,9 @@ function ParticleField() {
 }
 
 // Enhanced project card component in 3D
-function ProjectCard({ position, rotation, project, index, totalProjects }) {
+function ProjectCard({ position, rotation, project, index, _totalProjects }) { // Prefixed unused prop
   const mesh = useRef();
-  const geometryRef = useRef();
-  const materialRef = useRef();
   const isMobileDevice = isMobile();
-  const { viewport } = useThree();
-
-  // Adjust size based on viewport width
-  const scale = isMobileDevice ? 0.85 : 1;
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -179,11 +170,9 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
     >
       <mesh ref={mesh} rotation={rotation}>
         <planeGeometry
-          ref={geometryRef}
           args={[isMobileDevice ? 1.5 : 2, isMobileDevice ? 2.25 : 3]}
         />
         <meshStandardMaterial
-          ref={materialRef}
           color="#000000"
           metalness={0.7}
           roughness={0.3}
@@ -201,8 +190,6 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
 // Animated background glow
 function BackgroundGlow() {
   const isMobileDevice = isMobile();
-  const geometryRef = useRef();
-  const materialRef = useRef();
 
   // Cleanup geometry and material
   useEffect(() => {
@@ -214,9 +201,8 @@ function BackgroundGlow() {
 
   return (
     <mesh position={[0, 0, -10]}>
-      <sphereGeometry ref={geometryRef} args={[7, 32, 32]} />
+      <sphereGeometry args={[7, 32, 32]} />
       <meshBasicMaterial
-        ref={materialRef}
         color="#102054"
         transparent
         opacity={isMobileDevice ? 0.15 : 0.2}

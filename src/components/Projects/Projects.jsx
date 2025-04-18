@@ -1,10 +1,9 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   motion,
-  useScroll,
-  useTransform,
+  useScroll, // Re-added used import
+  useTransform, // Re-added used import
   useInView,
-  AnimatePresence,
 } from 'framer-motion';
 import { FaGithub, FaPlay, FaAngleDown } from 'react-icons/fa6';
 import Lenis from '@studio-freight/lenis';
@@ -54,32 +53,6 @@ const projectsData = [
   },
 ];
 
-// Enhanced animation variants for better mobile experience
-const sectionVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      when: 'beforeChildren',
-      staggerChildren: 0.2,
-      duration: 0.8,
-      ease: 'easeOut',
-    },
-  },
-};
-
-const titleVariants = {
-  hidden: { y: -50, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.6,
-      ease: [0.6, 0.05, 0.01, 0.9],
-    },
-  },
-};
-
 // Optimize animation variants for better performance
 const cardVariants = {
   hidden: { opacity: 0, y: 20 }, // Reduced y distance
@@ -126,10 +99,8 @@ const Projects = () => {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const sceneContainerRef = useRef(null);
-  const projectsHeadingRef = useRef(null);
   const projectCardsRef = useRef([]);
 
-  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
   const isHeadingInView = useInView(headingRef, { once: true, amount: 0.8 });
   const [showScene, setShowScene] = useState(false);
 
@@ -142,11 +113,10 @@ const Projects = () => {
       smoothWheel: true,
     });
 
-    function raf(time) {
+    const raf = (time) => {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
-
     requestAnimationFrame(raf);
 
     // Trigger for showing/hiding the scene
@@ -203,9 +173,9 @@ const Projects = () => {
   );
 
   // Enhanced GSAP animations
-  useEffect(() => {
-    if (showScene && sceneContainerRef.current) {
-      const ctx = gsap.context(() => {
+  useLayoutEffect(() => {
+    if (showScene && sceneContainerRef.current && projectCardsRef.current.length > 0) {
+      const _ctx = gsap.context(() => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: '#projects',
@@ -250,7 +220,7 @@ const Projects = () => {
         });
       });
 
-      return () => ctx.revert();
+      return () => _ctx.revert();
     }
   }, [showScene]);
 
@@ -382,7 +352,6 @@ const Projects = () => {
       <motion.h2
         ref={(el) => {
           headingRef.current = el;
-          projectsHeadingRef.current = el;
         }}
         className="projects-heading"
         variants={titleVariants}

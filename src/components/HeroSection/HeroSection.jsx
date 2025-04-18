@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'; // Removed unused React
 import {
   motion,
-  useAnimation,
+  // useAnimation, // Removed unused import
   // Removed unused AnimatePresence
   useInView,
+  AnimatePresence, // Keep AnimatePresence as it's used
 } from 'framer-motion';
-// Removed unused icons: FaXTwitter, FaGithub, FaLinkedin
-import { FaAngleDown } from 'react-icons/fa6';
+import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6'; // Re-added used icons
 import { HeroScene3D } from '@components/HeroSection/HeroScene3D'; // Used
 import styles from './HeroSection.module.scss';
 
@@ -136,14 +136,13 @@ const HeroSection = () => {
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const sectionRef = useRef(null);
   const isHeroSceneInView = useInView(sectionRef, { once: false, amount: 0.1 });
-  const controls = useAnimation();
 
   // Start animations when section comes into view
   useEffect(() => {
     if (isHeroSceneInView) {
-      controls.start('visible');
+      // Removed controls usage
     }
-  }, [isHeroSceneInView, controls]);
+  }, [isHeroSceneInView]);
 
   const handleInfoButtonClick = () => {
     setIsInfoVisible(!isInfoVisible);
