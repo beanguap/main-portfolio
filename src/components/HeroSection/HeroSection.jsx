@@ -1,13 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Removed unused React
 import {
   motion,
   useAnimation,
-  AnimatePresence,
+  // Removed unused AnimatePresence
   useInView,
 } from 'framer-motion';
-import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6';
-import { HeroScene3D } from '@components/HeroSection/HeroScene3D';
+// Removed unused icons: FaXTwitter, FaGithub, FaLinkedin
+import { FaAngleDown } from 'react-icons/fa6';
+import { HeroScene3D } from '@components/HeroSection/HeroScene3D'; // Used
 import styles from './HeroSection.module.scss';
+
+// Import assets directly
+import abstractImage from '@assets/image-from-rawpixel-id-6171907-png.png';
+import decorativeImage46 from '@assets/46.png';
+import keyboardImage from '@assets/NOBACKGROUNDJMFKEYBOARD .png';
 
 // Animation variants for staggered animations
 const nameVariants = {
@@ -126,72 +132,6 @@ const skillItemVariants = {
   },
 };
 
-// Custom cursor that follows mouse
-const CustomCursor = () => {
-  const cursorRef = useRef(null);
-  const [isHovering, setIsHovering] = useState(false);
-
-  useEffect(() => {
-    // Track mouse movement
-    const moveCursor = (e) => {
-      if (cursorRef.current) {
-        cursorRef.current.style.left = `${e.clientX}px`;
-        cursorRef.current.style.top = `${e.clientY}px`;
-      }
-    };
-
-    // Check if hovering over clickable elements
-    const checkHovering = () => {
-      const hoveredElements = document.querySelectorAll(
-        'a:hover, button:hover'
-      );
-      setIsHovering(hoveredElements.length > 0);
-    };
-
-    window.addEventListener('mousemove', moveCursor);
-    window.addEventListener('mousemove', checkHovering);
-
-    return () => {
-      window.removeEventListener('mousemove', moveCursor);
-      window.removeEventListener('mousemove', checkHovering);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={cursorRef}
-      className={`${styles.customCursor} ${
-        isHovering ? styles.cursorHover : ''
-      }`}
-    />
-  );
-};
-
-// Scroll indicator component
-const ScrollIndicator = () => {
-  return (
-    <motion.div
-      className={styles.scrollIndicator}
-      initial={{ opacity: 0 }}
-      animate={{
-        opacity: 1,
-        y: [0, 10, 0],
-      }}
-      transition={{
-        delay: 3,
-        y: {
-          repeat: Infinity,
-          duration: 1.5,
-          ease: 'easeInOut',
-        },
-      }}
-    >
-      <FaAngleDown />
-      <span>Scroll Down</span>
-    </motion.div>
-  );
-};
-
 const HeroSection = () => {
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -218,11 +158,6 @@ const HeroSection = () => {
       id="home"
       style={{ position: 'relative' }} // Add position relative to fix scroll calculations
     >
-      {/* Custom cursor for desktop */}
-      <div className={styles.cursorContainer}>
-        <CustomCursor />
-      </div>
-
       {/* Conditionally render 3D Scene Background */}
       <div
         className={styles.heroBackground}
@@ -258,7 +193,7 @@ const HeroSection = () => {
 
       {/* Top-right decorative image */}
       <motion.img
-        src={require('@assets/image-from-rawpixel-id-6171907-png.png')}
+        src={abstractImage} // Use imported variable
         alt="Abstract geometric blue and white pattern"
         className={styles.topRightImage}
         initial={{ opacity: 0, x: 50 }}
@@ -334,7 +269,7 @@ const HeroSection = () => {
 
       {/* Decorative Image */}
       <motion.img
-        src={require('@assets/46.png')}
+        src={decorativeImage46} // Use imported variable
         alt="Decorative graphic"
         className={styles.decorativeImage46}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -420,7 +355,7 @@ const HeroSection = () => {
           style={{ position: 'relative' }}
         >
           <motion.img
-            src={require('@assets/NOBACKGROUNDJMFKEYBOARD .png')}
+            src={keyboardImage} // Use imported variable
             alt="JMF Keyboard"
             className={styles.keyboard}
             variants={keyboardVariants}
@@ -437,9 +372,6 @@ const HeroSection = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      <ScrollIndicator />
     </motion.section>
   );
 };

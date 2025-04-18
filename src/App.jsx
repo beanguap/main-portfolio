@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react'; // Removed unused React import
 import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -70,7 +70,7 @@ function App() {
       }
     });
 
-    const rocketTrigger = ScrollTrigger.create({
+    ScrollTrigger.create({
       trigger: projectsRef.current,
       start: 'bottom bottom-=200px',
       end: 'bottom top',

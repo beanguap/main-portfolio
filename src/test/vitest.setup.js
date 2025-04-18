@@ -6,7 +6,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Polyfill ResizeObserver (prefer @juggle/resize-observer if available)
 try {
-  globalThis.ResizeObserver = require('@juggle/resize-observer').ResizeObserver;
+  await import('@juggle/resize-observer');
 } catch (e) {
   class ResizeObserver {
     observe() {}
