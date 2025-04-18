@@ -1,11 +1,11 @@
-import React from "react";
-import styles from "./PageIndicator.module.scss";
+import React from 'react';
+import styles from './PageIndicator.module.scss';
 
 // Define the sections that the indicator will track
 const SECTIONS = [
-  { id: "home", label: "Home" },
-  { id: "projects", label: "Projects" },
-  { id: "experience", label: "Experience" },
+  { id: 'home', label: 'Home' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'experience', label: 'Experience' },
 ];
 
 export default function PageIndicator({ activeSection, lenisInstance }) {
@@ -23,11 +23,11 @@ export default function PageIndicator({ activeSection, lenisInstance }) {
         <button
           key={section.id}
           className={`${styles.dot} ${
-            activeSection === section.id ? styles.active : ""
+            activeSection === section.id ? styles.active : ''
           }`}
           onClick={() => handleDotClick(section.id)}
           aria-label={`Scroll to ${section.label} section`}
-          aria-current={activeSection === section.id ? "page" : undefined}
+          aria-current={activeSection === section.id ? 'page' : undefined}
           type="button" // Explicitly set type for accessibility
         >
           {/* Dot itself is styled via CSS, no inner content needed */}

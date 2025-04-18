@@ -1,6 +1,6 @@
-import React from "react";
-import { motion } from "framer-motion";
-import styles from "./ExperiencePanel.module.scss";
+import React from 'react';
+import { motion } from 'framer-motion';
+import styles from './ExperiencePanel.module.scss';
 
 const panelVariants = {
   hidden: { opacity: 0, y: 50 },
@@ -28,45 +28,45 @@ const itemVariants = {
 
 // Data for the panel
 const technologies = [
-  "React",
-  "Vue.js",
-  "Next.js",
-  "Node.js",
-  "Express",
-  "TypeScript",
-  "JavaScript (ES6+)",
-  "Python",
-  "Three.js / R3F",
-  "WebGL",
-  "GSAP",
-  "Framer Motion",
-  "HTML5",
-  "CSS3 / SCSS",
-  "Tailwind CSS",
-  "GraphQL",
-  "REST APIs",
-  "PostgreSQL",
-  "MongoDB",
-  "Docker",
-  "AWS",
-  "Git",
+  'React',
+  'Vue.js',
+  'Next.js',
+  'Node.js',
+  'Express',
+  'TypeScript',
+  'JavaScript (ES6+)',
+  'Python',
+  'Three.js / R3F',
+  'WebGL',
+  'GSAP',
+  'Framer Motion',
+  'HTML5',
+  'CSS3 / SCSS',
+  'Tailwind CSS',
+  'GraphQL',
+  'REST APIs',
+  'PostgreSQL',
+  'MongoDB',
+  'Docker',
+  'AWS',
+  'Git',
 ];
 
 const applications = [
   {
-    title: "Syllabyte-Progress-SVG",
+    title: 'Syllabyte-Progress-SVG',
     description:
-      "Custom React component using SVG animations for dynamic progress visualization, ideal for loading states or dashboards.",
+      'Custom React component using SVG animations for dynamic progress visualization, ideal for loading states or dashboards.',
   },
   {
-    title: "Loan Management System",
+    title: 'Loan Management System',
     description:
-      "Full-stack web application facilitating loan processing, tracking, and reporting for financial institutions. Built with [Specify Tech, e.g., React, Node.js, PostgreSQL].",
+      'Full-stack web application facilitating loan processing, tracking, and reporting for financial institutions. Built with [Specify Tech, e.g., React, Node.js, PostgreSQL].',
   },
   {
-    title: "Airport Flight App",
+    title: 'Airport Flight App',
     description:
-      "Mobile-responsive application displaying real-time flight information, gate assignments, and delays. Integrated with flight data APIs. Built with [Specify Tech, e.g., Vue.js, Express].",
+      'Mobile-responsive application displaying real-time flight information, gate assignments, and delays. Integrated with flight data APIs. Built with [Specify Tech, e.g., Vue.js, Express].',
   },
 ];
 
@@ -93,7 +93,7 @@ export default function ExperiencePanel() {
         ))}
       </motion.div>
 
-      <motion.h2 variants={itemVariants} style={{ marginTop: "2rem" }}>
+      <motion.h2 variants={itemVariants} style={{ marginTop: '2rem' }}>
         Featured Applications
       </motion.h2>
 

@@ -2,8 +2,8 @@
 // FONTS
 // =========================
 @font-face {
-  font-family: "Druk Wide Bold";
-  src: url("../assets/fonts/DrukWideBold.ttf") format("truetype");
+  font-family: 'Druk Wide Bold';
+  src: url('../assets/fonts/DrukWideBold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
@@ -16,16 +16,16 @@ $color-text: #ffffff;
 $color-text-secondary: #cccccc;
 $color-accent: #999999;
 $color-background: #000000;
-$background-texture: "/cloth.png";
+$background-texture: '/cloth.png';
 
 // =========================
 // TYPOGRAPHY
 // =========================
-$font-heading: "Druk Wide Bold", sans-serif;
-$font-subheading: "Helvetica Neue", sans-serif;
-$font-body: "Helvetica Neue", sans-serif;
-$font-button: "Helvetica Neue", sans-serif;
-$font-tagline: "Helvetica Neue", sans-serif;
+$font-heading: 'Druk Wide Bold', sans-serif;
+$font-subheading: 'Helvetica Neue', sans-serif;
+$font-body: 'Helvetica Neue', sans-serif;
+$font-button: 'Helvetica Neue', sans-serif;
+$font-tagline: 'Helvetica Neue', sans-serif;
 
 $font-weight-heading: 700;
 $font-weight-regular: 400;

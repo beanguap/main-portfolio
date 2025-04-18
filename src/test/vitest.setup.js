@@ -1,12 +1,12 @@
-import "vitest-webgl-canvas-mock";
-import { vi } from "vitest";
-import createWebGLContext from "gl";
+import 'vitest-webgl-canvas-mock';
+import { vi } from 'vitest';
+import createWebGLContext from 'gl';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Polyfill ResizeObserver (prefer @juggle/resize-observer if available)
 try {
-  globalThis.ResizeObserver = require("@juggle/resize-observer").ResizeObserver;
+  globalThis.ResizeObserver = require('@juggle/resize-observer').ResizeObserver;
 } catch (e) {
   class ResizeObserver {
     observe() {}
@@ -31,14 +31,14 @@ if (!globalThis.matchMedia) {
 }
 
 // Stub GSAP ScrollTrigger
-vi.mock("gsap/ScrollTrigger", () => ({
+vi.mock('gsap/ScrollTrigger', () => ({
   default: { register: vi.fn(), mockScrollTrigger: true },
 }));
 
 // Patch HTMLCanvasElement.getContext to provide a real WebGL context
 const originalGetContext = HTMLCanvasElement.prototype.getContext;
 HTMLCanvasElement.prototype.getContext = function (type, ...args) {
-  if (type === "webgl" || type === "webgl2") {
+  if (type === 'webgl' || type === 'webgl2') {
     return createWebGLContext(this.width || 1, this.height || 1);
   }
   return originalGetContext.call(this, type, ...args);

@@ -1,15 +1,15 @@
-import React, { useRef, useMemo, useState, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import React, { useRef, useMemo, useState, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   EffectComposer,
   Bloom,
   Noise,
   Vignette,
-} from "@react-three/postprocessing";
-import { Float, Environment } from "@react-three/drei";
-import * as THREE from "three";
-import ErrorBoundary from "@components/RocketTransition/ErrorBoundary";
-import { isMobile, isIPhone12Pro } from "@utils/device";
+} from '@react-three/postprocessing';
+import { Float, Environment } from '@react-three/drei';
+import * as THREE from 'three';
+import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
+import { isMobile, isIPhone12Pro } from '@utils/device';
 
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
@@ -260,12 +260,12 @@ export function Scene3D({ projects }) {
         gl={{
           antialias: !isMobileDevice,
           alpha: true,
-          powerPreference: "high-performance",
+          powerPreference: 'high-performance',
           stencil: false,
           depth: true,
         }}
       >
-        <color attach="background" args={["#000000"]} />
+        <color attach="background" args={['#000000']} />
 
         {/* Optimized lighting */}
         <ambientLight intensity={0.4} />

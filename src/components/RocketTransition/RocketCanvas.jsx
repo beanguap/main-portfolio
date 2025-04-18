@@ -5,14 +5,14 @@ import React, {
   useState,
   useCallback,
   useMemo,
-} from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
-import * as THREE from "three";
-import SaturnV from "./SaturnV";
-import ErrorBoundary from "./ErrorBoundary";
-import { FallbackRocket } from "./SaturnV";
-import PixelSmokeEffect from "./PixelSmokeEffect";
+} from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Environment } from '@react-three/drei';
+import * as THREE from 'three';
+import SaturnV from './SaturnV';
+import ErrorBoundary from './ErrorBoundary';
+import { FallbackRocket } from './SaturnV';
+import PixelSmokeEffect from './PixelSmokeEffect';
 
 // Reusable Vector3 for world position calculation
 const tempWorldPos = new THREE.Vector3();
@@ -72,7 +72,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       // Add a debug helper mesh at the bounding box center
       const helperMesh = new THREE.Mesh(
         new THREE.SphereGeometry(0.1, 8, 8),
-        new THREE.MeshBasicMaterial({ color: "blue" })
+        new THREE.MeshBasicMaterial({ color: 'blue' })
       );
       helperMesh.position.copy(center);
       scene.add(helperMesh);
@@ -109,12 +109,12 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 
     const handleContextLost = (event) => {
       event.preventDefault();
-      console.warn("WebGL context lost. Attempting to notify parent...");
+      console.warn('WebGL context lost. Attempting to notify parent...');
       onError?.(); // Notify parent component of error
       // If context is lost *during* launch, trigger completion to avoid getting stuck
       if (stateRef.current.isLaunched) {
         console.warn(
-          "Context lost during launch, forcing transition completion."
+          'Context lost during launch, forcing transition completion.'
         );
         if (!transitionCompletedRef.current) {
           onTransitionComplete?.();
@@ -128,9 +128,9 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       // For simplicity here, we might just rely on user refresh or parent component handling.
     };
 
-    canvas.addEventListener("webglcontextlost", handleContextLost, false);
+    canvas.addEventListener('webglcontextlost', handleContextLost, false);
     canvas.addEventListener(
-      "webglcontextrestored",
+      'webglcontextrestored',
       handleContextRestored,
       false
     );
@@ -139,12 +139,12 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       // Check if canvas still exists before removing listeners
       if (canvas) {
         canvas.removeEventListener(
-          "webglcontextlost",
+          'webglcontextlost',
           handleContextLost,
           false
         );
         canvas.removeEventListener(
-          "webglcontextrestored",
+          'webglcontextrestored',
           handleContextRestored,
           false
         );
@@ -287,7 +287,7 @@ export default React.memo(function RocketCanvas({
   );
 
   const handleContextLoss = useCallback(() => {
-    console.warn("RocketCanvas notified of context loss.");
+    console.warn('RocketCanvas notified of context loss.');
     setContextLost(true); // Set state to indicate context loss
     // We already notify parent via onError in SceneContent
   }, []);
@@ -301,13 +301,13 @@ export default React.memo(function RocketCanvas({
         if (internalGl) {
           try {
             const loseContextExt =
-              internalGl.getExtension("WEBGL_lose_context");
+              internalGl.getExtension('WEBGL_lose_context');
             if (loseContextExt) {
               loseContextExt.loseContext();
             }
             // R3F handles disposal automatically
           } catch (error) {
-            console.error("Error during canvas cleanup:", error);
+            console.error('Error during canvas cleanup:', error);
           }
         }
       }
@@ -327,17 +327,17 @@ export default React.memo(function RocketCanvas({
       gl={{
         alpha: true,
         antialias: false, // disable default AA for better control
-        powerPreference: "high-performance",
+        powerPreference: 'high-performance',
         stencil: false,
         depth: true,
-        precision: "highp",
+        precision: 'highp',
         preserveDrawingBuffer: true, // prevent flickering during transitions
       }}
       dpr={[1, 2]} // limit pixel ratio
-      style={{ position: "relative" }}
+      style={{ position: 'relative' }}
       onCreated={({ gl }) => {
         gl.domElement.addEventListener(
-          "webglcontextlost",
+          'webglcontextlost',
           handleContextLoss,
           false
         );

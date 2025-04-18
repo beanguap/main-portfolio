@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, PerspectiveCamera } from "@react-three/drei";
-import ErrorBoundary from "@components/RocketTransition/ErrorBoundary";
-import { isMobile } from "@utils/device";
+import React, { useState, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Environment, PerspectiveCamera } from '@react-three/drei';
+import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
+import { isMobile } from '@utils/device';
 
 // Scene content that uses hooks - must be inside Canvas
 function SceneContent() {
@@ -51,7 +51,7 @@ export function HeroScene3D() {
         }
         gl={{
           alpha: true,
-          powerPreference: "high-performance",
+          powerPreference: 'high-performance',
           stencil: false,
           depth: true,
         }}

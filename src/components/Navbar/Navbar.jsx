@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import styles from "./Navbar.module.scss";
-import logoImg from "../../assets/logo-transparent.png";
+import React, { useState } from 'react';
+import styles from './Navbar.module.scss';
+import logoImg from '../../assets/logo-transparent.png';
 
 const Navbar = ({ activeSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuItems = ["about", "experience", "projects", "contact"];
+  const menuItems = ['about', 'experience', 'projects', 'contact'];
 
   return (
     <nav
@@ -18,12 +18,12 @@ const Navbar = ({ activeSection }) => {
         </a>
       </div>
 
-      <ul className={`${styles.menuItems} ${menuOpen ? styles.menuOpen : ""}`}>
+      <ul className={`${styles.menuItems} ${menuOpen ? styles.menuOpen : ''}`}>
         {menuItems.map((item) => (
           <li key={item}>
             <a
               href={`#${item}`}
-              className={activeSection === item ? styles.active : ""}
+              className={activeSection === item ? styles.active : ''}
             >
               {item.charAt(0).toUpperCase() + item.slice(1)}
             </a>
@@ -37,7 +37,7 @@ const Navbar = ({ activeSection }) => {
 
       <button
         className={`${styles.hamburger} ${
-          menuOpen ? styles.hamburgerOpen : ""
+          menuOpen ? styles.hamburgerOpen : ''
         }`}
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Toggle Menu"

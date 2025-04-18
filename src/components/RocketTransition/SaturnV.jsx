@@ -1,12 +1,12 @@
-import React, { useRef, useEffect } from "react";
-import { useGLTF } from "@react-three/drei";
-import * as THREE from "three";
+import React, { useRef, useEffect } from 'react';
+import { useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
 
 // Define FallbackRocket at the top level and export it
 export const FallbackRocket = (props) => {
   // Create a basic material for the fallback
   const rocketMaterial = new THREE.MeshStandardMaterial({
-    color: "#ffffff",
+    color: '#ffffff',
     metalness: 0.8,
     roughness: 0.2,
   });
@@ -41,15 +41,15 @@ export const FallbackRocket = (props) => {
 export default function SaturnV({ isLaunched, ...props }) {
   // Preload GLTF within component (inside Canvas context)
   useEffect(() => {
-    useGLTF.preload("/scene.gltf");
+    useGLTF.preload('/scene.gltf');
   }, []);
 
   const rocketRef = useRef();
-  const { scene, materials, nodes } = useGLTF("/scene.gltf");
+  const { scene, materials, nodes } = useGLTF('/scene.gltf');
 
   // Create a basic material (this is for the actual model, keep separate)
   const modelMaterial = new THREE.MeshStandardMaterial({
-    color: "#e0e0e0", // Slightly different color to distinguish if needed
+    color: '#e0e0e0', // Slightly different color to distinguish if needed
     metalness: 0.7,
     roughness: 0.3,
   });
@@ -68,9 +68,9 @@ export default function SaturnV({ isLaunched, ...props }) {
           Object.values(nodes).forEach((node) => node.geometry?.dispose());
         }
         modelMaterial?.dispose();
-        useGLTF.clear("/scene.gltf");
+        useGLTF.clear('/scene.gltf');
       } catch (err) {
-        console.error("Error disposing GLTF resources in SaturnV:", err);
+        console.error('Error disposing GLTF resources in SaturnV:', err);
       }
     };
   }, [materials, nodes, modelMaterial]);
@@ -80,7 +80,7 @@ export default function SaturnV({ isLaunched, ...props }) {
 
   // Check if scene loaded
   if (!scene) {
-    console.warn("GLTF scene not loaded, using fallback");
+    console.warn('GLTF scene not loaded, using fallback');
     // Pass props to FallbackRocket
     return <FallbackRocket {...props} />;
   }

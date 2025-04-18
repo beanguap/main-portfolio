@@ -1,6 +1,6 @@
-@use "../../styles/variables" as v;
-@use "../../styles/mixins" as m;
-@use "sass:color";
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+@use 'sass:color';
 
 .hero {
   min-height: 100vh;
@@ -259,7 +259,7 @@
 
   // Top-left bracket
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 3rem;
     left: 10rem;
@@ -279,7 +279,7 @@
 
   // Bottom-right bracket
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: -4rem;
     right: 15rem;

@@ -1,6 +1,6 @@
-import React, { useRef, useMemo, useEffect, useState } from "react";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import React, { useRef, useMemo, useEffect, useState } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
 // Enhanced particle constants for more dramatic visual effect
 const PARTICLE_COUNT = 2500; // Increased for denser trail
@@ -158,11 +158,11 @@ const PixelSmokeEffect = ({
     const instancedGeometry = geometry;
 
     mesh.geometry.setAttribute(
-      "instanceColor",
+      'instanceColor',
       new THREE.InstancedBufferAttribute(particleState.initialColor, 3)
     );
     mesh.geometry.setAttribute(
-      "instanceOpacity",
+      'instanceOpacity',
       new THREE.InstancedBufferAttribute(particleState.initialOpacity, 1)
     );
 

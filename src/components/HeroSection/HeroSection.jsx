@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
   motion,
   useAnimation,
   AnimatePresence,
   useInView,
-} from "framer-motion";
-import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from "react-icons/fa6";
-import { HeroScene3D } from "@components/HeroSection/HeroScene3D";
-import styles from "./HeroSection.module.scss";
+} from 'framer-motion';
+import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6';
+import { HeroScene3D } from '@components/HeroSection/HeroScene3D';
+import styles from './HeroSection.module.scss';
 
 // Animation variants for staggered animations
 const nameVariants = {
@@ -37,7 +37,7 @@ const buttonVariants = {
   }),
   hover: {
     y: -5,
-    boxShadow: "0 10px 20px rgba(83, 140, 255, 0.3)",
+    boxShadow: '0 10px 20px rgba(83, 140, 255, 0.3)',
     transition: { duration: 0.3 },
   },
   tap: {
@@ -53,7 +53,7 @@ const iconVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      type: "spring",
+      type: 'spring',
       stiffness: 260,
       damping: 20,
       delay: 1.3 + custom * 0.1,
@@ -61,7 +61,7 @@ const iconVariants = {
   }),
   hover: {
     scale: 1.15,
-    color: "#538CFF",
+    color: '#538CFF',
     transition: { duration: 0.2 },
   },
   tap: { scale: 0.95 },
@@ -84,8 +84,8 @@ const keyboardVariants = {
     transition: {
       duration: 6,
       repeat: Infinity,
-      repeatType: "mirror",
-      ease: "easeInOut",
+      repeatType: 'mirror',
+      ease: 'easeInOut',
     },
   },
 };
@@ -121,7 +121,7 @@ const skillItemVariants = {
     x: 0,
     transition: {
       duration: 0.5,
-      ease: "easeOut",
+      ease: 'easeOut',
     },
   },
 };
@@ -143,17 +143,17 @@ const CustomCursor = () => {
     // Check if hovering over clickable elements
     const checkHovering = () => {
       const hoveredElements = document.querySelectorAll(
-        "a:hover, button:hover"
+        'a:hover, button:hover'
       );
       setIsHovering(hoveredElements.length > 0);
     };
 
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mousemove", checkHovering);
+    window.addEventListener('mousemove', moveCursor);
+    window.addEventListener('mousemove', checkHovering);
 
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mousemove", checkHovering);
+      window.removeEventListener('mousemove', moveCursor);
+      window.removeEventListener('mousemove', checkHovering);
     };
   }, []);
 
@@ -161,7 +161,7 @@ const CustomCursor = () => {
     <div
       ref={cursorRef}
       className={`${styles.customCursor} ${
-        isHovering ? styles.cursorHover : ""
+        isHovering ? styles.cursorHover : ''
       }`}
     />
   );
@@ -182,7 +182,7 @@ const ScrollIndicator = () => {
         y: {
           repeat: Infinity,
           duration: 1.5,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         },
       }}
     >
@@ -201,7 +201,7 @@ const HeroSection = () => {
   // Start animations when section comes into view
   useEffect(() => {
     if (isHeroSceneInView) {
-      controls.start("visible");
+      controls.start('visible');
     }
   }, [isHeroSceneInView, controls]);
 
@@ -216,7 +216,7 @@ const HeroSection = () => {
       initial="hidden"
       animate={controls}
       id="home"
-      style={{ position: "relative" }} // Add position relative to fix scroll calculations
+      style={{ position: 'relative' }} // Add position relative to fix scroll calculations
     >
       {/* Custom cursor for desktop */}
       <div className={styles.cursorContainer}>
@@ -226,7 +226,7 @@ const HeroSection = () => {
       {/* Conditionally render 3D Scene Background */}
       <div
         className={styles.heroBackground}
-        style={{ pointerEvents: isHeroSceneInView ? "auto" : "none" }}
+        style={{ pointerEvents: isHeroSceneInView ? 'auto' : 'none' }}
       >
         {isHeroSceneInView && <HeroScene3D />}
       </div>
@@ -258,7 +258,7 @@ const HeroSection = () => {
 
       {/* Top-right decorative image */}
       <motion.img
-        src={require("@assets/image-from-rawpixel-id-6171907-png.png")}
+        src={require('@assets/image-from-rawpixel-id-6171907-png.png')}
         alt="Abstract geometric blue and white pattern"
         className={styles.topRightImage}
         initial={{ opacity: 0, x: 50 }}
@@ -311,7 +311,7 @@ const HeroSection = () => {
       </div>
 
       {/* CTA Buttons */}
-      <div className={styles.ctaButtonsLeft} style={{ position: "relative" }}>
+      <div className={styles.ctaButtonsLeft} style={{ position: 'relative' }}>
         <motion.button
           className={styles.sayHelloBtn}
           variants={buttonVariants}
@@ -334,7 +334,7 @@ const HeroSection = () => {
 
       {/* Decorative Image */}
       <motion.img
-        src={require("@assets/46.png")}
+        src={require('@assets/46.png')}
         alt="Decorative graphic"
         className={styles.decorativeImage46}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -363,14 +363,14 @@ const HeroSection = () => {
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{
-          type: "spring",
+          type: 'spring',
           stiffness: 400,
           damping: 10,
           delay: 2.5,
         }}
         whileHover={{
           scale: 1.1,
-          backgroundColor: "#666",
+          backgroundColor: '#666',
           transition: { duration: 0.2 },
         }}
         whileTap={{ scale: 0.95 }}
@@ -386,7 +386,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
             <p>Made with React, SCSS, and ❤️</p>
           </motion.div>
@@ -396,14 +396,14 @@ const HeroSection = () => {
       {/* Skills List with staggered animation */}
       <motion.div className={styles.skillsList} variants={skillsVariants}>
         {[
-          "FULL STACK",
-          "DEVELOPER",
-          "SOFTWARE",
-          "ENGINEER",
-          "ANIMATION",
-          "UI",
-          "UX",
-          "AI",
+          'FULL STACK',
+          'DEVELOPER',
+          'SOFTWARE',
+          'ENGINEER',
+          'ANIMATION',
+          'UI',
+          'UX',
+          'AI',
         ].map((skill, index) => (
           <motion.span key={index} variants={skillItemVariants}>
             {skill}
@@ -412,15 +412,15 @@ const HeroSection = () => {
       </motion.div>
 
       {/* Main Content with Keyboard */}
-      <div className={styles.heroContent} style={{ position: "relative" }}>
+      <div className={styles.heroContent} style={{ position: 'relative' }}>
         <motion.div
           className={styles.heroImage}
           variants={keyboardVariants}
           animate="float"
-          style={{ position: "relative" }}
+          style={{ position: 'relative' }}
         >
           <motion.img
-            src={require("@assets/NOBACKGROUNDJMFKEYBOARD .png")}
+            src={require('@assets/NOBACKGROUNDJMFKEYBOARD .png')}
             alt="JMF Keyboard"
             className={styles.keyboard}
             variants={keyboardVariants}

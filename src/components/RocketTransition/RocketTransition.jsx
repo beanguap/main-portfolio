@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import RocketCanvas from "./RocketCanvas";
-import styles from "./RocketTransition.module.scss";
-import ErrorBoundary from "./ErrorBoundary";
+import React, { useState, useEffect } from 'react';
+import RocketCanvas from './RocketCanvas';
+import styles from './RocketTransition.module.scss';
+import ErrorBoundary from './ErrorBoundary';
 
 export default function RocketTransition({
   startTransition,
@@ -28,7 +28,7 @@ export default function RocketTransition({
 
   const handleCanvasError = () => {
     setCanvasError(true);
-    console.error("RocketCanvas encountered an error.");
+    console.error('RocketCanvas encountered an error.');
     // Potentially trigger transition complete here too if canvas fails
     // onTransitionComplete?.();
   };
@@ -47,19 +47,19 @@ export default function RocketTransition({
   return (
     <div
       className={`${styles.transitionContainer} ${
-        isLaunched ? styles.launched : ""
+        isLaunched ? styles.launched : ''
       }`}
       style={{
         // Add potential transition styles here if needed
         opacity: showCanvas ? 1 : 0,
-        transition: "opacity 0.5s ease-in-out",
-        position: "fixed",
+        transition: 'opacity 0.5s ease-in-out',
+        position: 'fixed',
         top: 0,
         left: 0,
-        width: "100%",
-        height: "100%",
+        width: '100%',
+        height: '100%',
         zIndex: 50, // Ensure it's above content but below navbar maybe
-        pointerEvents: isLaunched ? "auto" : "none",
+        pointerEvents: isLaunched ? 'auto' : 'none',
       }}
     >
       <ErrorBoundary fallback={<p>Rocket Loading Error...</p>}>

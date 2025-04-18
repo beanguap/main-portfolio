@@ -1,6 +1,6 @@
-@use "../../styles/variables" as v;
-@use "../../styles/mixins" as m;
-@use "sass:color";
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+@use 'sass:color';
 
 // iPhone 12 Pro specific optimizations
 $iphone12-width: 390px;
@@ -53,7 +53,7 @@ $iphone12-height: 844px;
   color: rgba(v.$color-primary, 0.9);
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: -5px;
     left: 0;
@@ -241,7 +241,7 @@ $iphone12-height: 844px;
 
   // Hologram effect
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(
@@ -324,7 +324,7 @@ $iphone12-height: 844px;
     @media (max-width: $iphone12-width) {
       // Add swipe hint
       &::after {
-        content: "";
+        content: '';
         position: absolute;
         bottom: 15px;
         left: 50%;
