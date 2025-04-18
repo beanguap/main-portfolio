@@ -8,12 +8,14 @@ import {
 } from "@react-three/postprocessing";
 import { Float, Environment } from "@react-three/drei";
 import * as THREE from "three";
-import ErrorBoundary from "../RocketTransition/ErrorBoundary";
-import { isMobile, isIPhone12Pro } from "../../utils/device";
+import ErrorBoundary from "@components/RocketTransition/ErrorBoundary";
+import { isMobile, isIPhone12Pro } from "@utils/device";
 
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
   const particles = useRef();
+  const geometryRef = useRef();
+  const materialRef = useRef();
   const isMobileDevice = isMobile();
   const isIPhone12 = isIPhone12Pro();
 
@@ -63,6 +65,14 @@ function ParticleField() {
     return col;
   }, [particlesCount]);
 
+  // Cleanup geometry and material
+  useEffect(() => {
+    return () => {
+      geometryRef.current?.dispose();
+      materialRef.current?.dispose();
+    };
+  }, []);
+
   useFrame((state, delta) => {
     // Create a whirlpool motion by rotating particles
     particles.current.rotation.y += delta * (isMobileDevice ? 0.05 : 0.08);
@@ -102,7 +112,7 @@ function ParticleField() {
 
   return (
     <points ref={particles}>
-      <bufferGeometry>
+      <bufferGeometry ref={geometryRef}>
         <bufferAttribute
           attach="attributes-position"
           count={particlesCount}
@@ -117,6 +127,7 @@ function ParticleField() {
         />
       </bufferGeometry>
       <pointsMaterial
+        ref={materialRef}
         size={isMobileDevice ? 0.12 : 0.18} // Increased further
         vertexColors
         transparent
@@ -132,6 +143,8 @@ function ParticleField() {
 // Enhanced project card component in 3D
 function ProjectCard({ position, rotation, project, index, totalProjects }) {
   const mesh = useRef();
+  const geometryRef = useRef();
+  const materialRef = useRef();
   const isMobileDevice = isMobile();
   const { viewport } = useThree();
 
@@ -148,6 +161,14 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
     mesh.current.rotation.z = Math.sin(t * 0.3 + index * 0.2) * 0.05;
   });
 
+  // Cleanup geometry and material
+  useEffect(() => {
+    return () => {
+      geometryRef.current?.dispose();
+      materialRef.current?.dispose();
+    };
+  }, []);
+
   return (
     <Float
       speed={1.2}
@@ -158,9 +179,11 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
     >
       <mesh ref={mesh} rotation={rotation}>
         <planeGeometry
+          ref={geometryRef}
           args={[isMobileDevice ? 1.5 : 2, isMobileDevice ? 2.25 : 3]}
         />
         <meshStandardMaterial
+          ref={materialRef}
           color="#000000"
           metalness={0.7}
           roughness={0.3}
@@ -178,10 +201,22 @@ function ProjectCard({ position, rotation, project, index, totalProjects }) {
 // Animated background glow
 function BackgroundGlow() {
   const isMobileDevice = isMobile();
+  const geometryRef = useRef();
+  const materialRef = useRef();
+
+  // Cleanup geometry and material
+  useEffect(() => {
+    return () => {
+      geometryRef.current?.dispose();
+      materialRef.current?.dispose();
+    };
+  }, []);
+
   return (
     <mesh position={[0, 0, -10]}>
-      <sphereGeometry args={[7, 32, 32]} />
+      <sphereGeometry ref={geometryRef} args={[7, 32, 32]} />
       <meshBasicMaterial
+        ref={materialRef}
         color="#102054"
         transparent
         opacity={isMobileDevice ? 0.15 : 0.2}
@@ -199,10 +234,8 @@ export function Scene3D({ projects }) {
   useEffect(() => {
     setIsMounted(true);
 
-    // Clean up any heavy resources when component unmounts
-    return () => {
-      // Dispose of any resources if needed
-    };
+    // No specific top-level resources to dispose here, children handle their own.
+    return () => {};
   }, []);
 
   // Don't render until mounted to avoid SSR issues

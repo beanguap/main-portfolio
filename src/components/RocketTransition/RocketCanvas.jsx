@@ -158,6 +158,13 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
           if (Array.isArray(object.material)) {
             object.material.forEach((material) => material?.dispose());
           } else {
+            // Dispose textures attached to the material
+            for (const key in object.material) {
+              const value = object.material[key];
+              if (value && typeof value === 'object' && value.isTexture) {
+                value.dispose();
+              }
+            }
             object.material?.dispose();
           }
         }

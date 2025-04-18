@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, PerspectiveCamera } from "@react-three/drei";
-import ErrorBoundary from "../RocketTransition/ErrorBoundary";
-
-// Mobile detection utility
-const isMobile = () => {
-  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-};
+import ErrorBoundary from "@components/RocketTransition/ErrorBoundary";
+import { isMobile } from "@utils/device";
 
 // Scene content that uses hooks - must be inside Canvas
 function SceneContent() {

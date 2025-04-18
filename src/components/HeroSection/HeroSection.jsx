@@ -6,7 +6,7 @@ import {
   useInView,
 } from "framer-motion";
 import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from "react-icons/fa6";
-import { HeroScene3D } from "./HeroScene3D";
+import { HeroScene3D } from "@components/HeroSection/HeroScene3D";
 import styles from "./HeroSection.module.scss";
 
 // Animation variants for staggered animations
@@ -258,7 +258,7 @@ const HeroSection = () => {
 
       {/* Top-right decorative image */}
       <motion.img
-        src="/src/assets/image-from-rawpixel-id-6171907-png.png"
+        src={require("@assets/image-from-rawpixel-id-6171907-png.png")}
         alt="Abstract geometric blue and white pattern"
         className={styles.topRightImage}
         initial={{ opacity: 0, x: 50 }}
@@ -334,7 +334,7 @@ const HeroSection = () => {
 
       {/* Decorative Image */}
       <motion.img
-        src="/src/assets/46.png"
+        src={require("@assets/46.png")}
         alt="Decorative graphic"
         className={styles.decorativeImage46}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -420,7 +420,7 @@ const HeroSection = () => {
           style={{ position: "relative" }}
         >
           <motion.img
-            src="/src/assets/NOBACKGROUNDJMFKEYBOARD .png"
+            src={require("@assets/NOBACKGROUNDJMFKEYBOARD .png")}
             alt="JMF Keyboard"
             className={styles.keyboard}
             variants={keyboardVariants}

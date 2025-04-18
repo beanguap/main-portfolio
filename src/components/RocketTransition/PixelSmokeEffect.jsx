@@ -92,6 +92,14 @@ const PixelSmokeEffect = ({
     []
   );
 
+  // Cleanup geometry and material
+  useEffect(() => {
+    return () => {
+      geometry?.dispose();
+      material?.dispose();
+    };
+  }, [geometry, material]);
+
   // Initialize particle state and buffer attributes
   const particleState = useMemo(() => {
     const state = [];

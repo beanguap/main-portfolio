@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import Lenis from "@studio-freight/lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Navbar from "./components/Navbar/Navbar";
-import HeroSection from "./components/HeroSection/HeroSection";
-import Projects from "./components/Projects/Projects";
-import RocketTransition from "./components/RocketTransition/RocketTransition";
-import ExperiencePanel from "./components/RocketTransition/ExperiencePanel";
-import PageIndicator from "./components/PageIndicator/PageIndicator";
-import "./App.scss";
+import Navbar from "@components/Navbar/Navbar";
+import HeroSection from "@components/HeroSection/HeroSection";
+import Projects from "@components/Projects/Projects";
+import RocketTransition from "@components/RocketTransition/RocketTransition";
+import ExperiencePanel from "@components/RocketTransition/ExperiencePanel";
+import PageIndicator from "@components/PageIndicator/PageIndicator";
+import "@/App.scss";
 
 gsap.registerPlugin(ScrollTrigger);
 

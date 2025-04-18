@@ -10,7 +10,7 @@ import { FaGithub, FaPlay, FaAngleDown } from "react-icons/fa6";
 import Lenis from "@studio-freight/lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Scene3D } from "./Scene3D";
+import { Scene3D } from "@components/Projects/Scene3D";
 import styles from "./Projects.module.scss";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -21,7 +21,7 @@ const projectsData = [
     title: "AI Finger Drummer",
     description:
       "Computer vision-based hand tracking application that turns hand gestures into drum beats. Built with Python for ML processing and JavaScript for the web interface.",
-    imageUrl: "/src/assets/129.jpg",
+    imageUrl: "@assets/129.jpg",
     tech: ["Python", "JavaScript", "TensorFlow", "MediaPipe", "WebAudio API"],
     links: {
       github: "https://github.com/yourusername/ai-finger-drummer",
@@ -33,7 +33,7 @@ const projectsData = [
     title: "Tank Battle Mobile",
     description:
       "A React Native mobile game featuring tank battles with real-time physics and multiplayer capabilities. Available on iOS.",
-    imageUrl: "/src/assets/156.jpg",
+    imageUrl: "@assets/156.jpg",
     tech: ["React Native", "TypeScript", "Redux", "React Game Engine", "iOS"],
     links: {
       github: "https://github.com/yourusername/tank-battle",
@@ -45,7 +45,7 @@ const projectsData = [
     title: "Brain Progress Animation",
     description:
       'Custom React component featuring an animated "unwinding" brain logo effect using SVG animations. Perfect for loading states or progress indicators.',
-    imageUrl: "/src/assets/MockPortfolioLanding.png",
+    imageUrl: "@assets/MockPortfolioLanding.png",
     tech: ["React", "TypeScript", "SVG", "Framer Motion", "SCSS"],
     links: {
       github: "https://github.com/yourusername/brain-progress",
