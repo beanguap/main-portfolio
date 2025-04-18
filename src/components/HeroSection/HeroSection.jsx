@@ -4,7 +4,7 @@ import {
   useInView,
   AnimatePresence,
 } from 'framer-motion';
-import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6';
+import { FaXTwitter, FaGithub, FaLinkedin } from 'react-icons/fa6';
 import { HeroScene3D } from '@components/HeroSection/HeroScene3D';
 import styles from './HeroSection.module.scss';
 

@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import RocketCanvas from './RocketCanvas';
 import styles from './RocketTransition.module.scss';
-import ErrorBoundary from './ErrorBoundary';
 
 export default function RocketTransition({
   startTransition,
   onTransitionComplete,
 }) {
   const [isLaunched, setIsLaunched] = useState(false);
-  const [hasError, setHasError] = useState(false);
 
   // Handle the rocket launch when startTransition prop changes
   useEffect(() => {
@@ -23,7 +22,6 @@ export default function RocketTransition({
   }, [startTransition, isLaunched]);
 
   const handleCanvasError = () => {
-    setHasError(true);
     setTimeout(() => {
       onTransitionComplete(); // Still trigger transition completion on error
     }, 500);

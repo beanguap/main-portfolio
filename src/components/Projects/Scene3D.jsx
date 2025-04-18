@@ -1,15 +1,15 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
+import { Environment, Float } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
-  EffectComposer,
-  Bloom,
-  Noise,
-  Vignette,
+    Bloom,
+    EffectComposer,
+    Noise,
+    Vignette,
 } from '@react-three/postprocessing';
-import { Float, Environment } from '@react-three/drei';
+import { isIPhone12Pro, isMobile } from '@utils/device';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
-import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
-import { isMobile, isIPhone12Pro } from '@utils/device';
 
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
@@ -67,9 +67,16 @@ function ParticleField() {
 
   // Cleanup geometry and material
   useEffect(() => {
+    // Copy current ref values into local variables before cleanup
+    const currentGeometry = geometryRef.current;
+    const currentMaterial = materialRef.current;
     return () => {
-      geometryRef.current?.dispose();
-      materialRef.current?.dispose();
+      if (currentMaterial) {
+        currentMaterial.dispose();
+      }
+      if (currentGeometry) {
+        currentGeometry.dispose();
+      }
     };
   }, []);
 
@@ -160,9 +167,16 @@ function ProjectCard({ position, rotation, index }) {
 
   // Cleanup geometry and material
   useEffect(() => {
+    // Copy current ref values into local variables before cleanup
+    const currentGeometry = geometryRef.current;
+    const currentMaterial = materialRef.current;
     return () => {
-      geometryRef.current?.dispose();
-      materialRef.current?.dispose();
+      if (currentMaterial) {
+        currentMaterial.dispose();
+      }
+      if (currentGeometry) {
+        currentGeometry.dispose();
+      }
     };
   }, []);
 
@@ -203,9 +217,16 @@ function BackgroundGlow() {
 
   // Cleanup geometry and material
   useEffect(() => {
+    // Copy current ref values into local variables before cleanup
+    const currentGeometry = geometryRef.current;
+    const currentMaterial = materialRef.current;
     return () => {
-      geometryRef.current?.dispose();
-      materialRef.current?.dispose();
+      if (currentMaterial) {
+        currentMaterial.dispose();
+      }
+      if (currentGeometry) {
+        currentGeometry.dispose();
+      }
     };
   }, []);
 

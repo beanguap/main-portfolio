@@ -1,7 +1,8 @@
+import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { render as renderHappyDom } from '@testing-library/react';
-import ReactThreeTestRenderer from '@react-three/test-renderer'; // Re-added used import
-import { describe, it, expect, vi } from 'vitest';
-// import RocketTransition from './RocketTransition'; // Keep import
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import RocketTransition from './RocketTransition'; // Added import
 
 // Mock the child component directly for simplicity in DOM tests
 vi.mock('./RocketCanvas', () => ({

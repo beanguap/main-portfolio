@@ -1,15 +1,15 @@
-import { useRef, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
-// Define FallbackRocket at the top level and export it
+// Define FallbackRocket using memoized material
 export const FallbackRocket = (props) => {
-  // Create a basic material for the fallback
-  const rocketMaterial = new THREE.MeshStandardMaterial({
+  // Wrap material creation in useMemo
+  const rocketMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#ffffff',
     metalness: 0.8,
     roughness: 0.2,
-  });
+  }), []);
 
   // Cleanup fallback material
   useEffect(() => {

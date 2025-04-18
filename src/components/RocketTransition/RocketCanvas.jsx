@@ -1,17 +1,16 @@
+import { Environment } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import React, {
   Suspense,
-  useRef,
-  useEffect,
-  useState,
   useCallback,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
-import SaturnV from './SaturnV';
 import ErrorBoundary from './ErrorBoundary';
-import { FallbackRocket } from './SaturnV';
 import PixelSmokeEffect from './PixelSmokeEffect';
+import SaturnV, { FallbackRocket } from './SaturnV';
 
 // Scene content component that uses hooks
 function SceneContent({ isLaunched, onError, onTransitionComplete }) {
@@ -22,7 +21,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const acceleration = 0.0005; // How much to increase speed each frame
   const transitionCompletedRef = useRef(false); // Track if completion callback was called
   const canvasRef = useRef(null);
-  const tempWorldPos = new THREE.Vector3();
 
   // Direct reference object that bypasses React state for better performance
   const directEmitterPosition = useRef(new THREE.Vector3(0, -1000, 0)).current;
@@ -276,11 +274,12 @@ export default React.memo(function RocketCanvas({
   }, []);
 
   useEffect(() => {
+    const currentCanvas = canvasRef.current;
     // This cleanup tries to lose context gracefully if component unmounts
     // Note: Might not always work if unmount is abrupt
     return () => {
-      if (canvasRef.current) {
-        const internalGl = canvasRef.current.__r3f?.gl;
+      if (currentCanvas) {
+        const internalGl = currentCanvas.__r3f?.gl;
         if (internalGl) {
           try {
             const loseContextExt =
@@ -295,7 +294,7 @@ export default React.memo(function RocketCanvas({
         }
       }
     };
-  }, []);
+  }, [directEmitterPosition]);
 
   if (hasError || contextLost) {
     // Optionally render a fallback message instead of null

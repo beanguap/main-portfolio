@@ -1,10 +1,12 @@
 import js from '@eslint/js';
-import globals from 'globals';
-import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
-import jsxRuntime from 'eslint-plugin-react/configs/jsx-runtime.js';
+import { default as reactThreePlugin } from '@react-three/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
-import importPlugin from 'eslint-plugin-import';
+import jsxRuntime from 'eslint-plugin-react/configs/jsx-runtime.js';
+import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
+import pluginUnused from "eslint-plugin-unused-imports";
+import globals from 'globals';
 
 export default [
   { ignores: ['dist', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'] }, // Ignore config/lock files
@@ -28,6 +30,8 @@ export default [
       'react': reactRecommended.plugins.react, // Use the actual plugin object
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      '@react-three': reactThreePlugin, // replaced require() with reactThreePlugin
+      "unused-imports": pluginUnused
     },
     settings: { // Merge settings
       react: {
@@ -78,11 +82,17 @@ export default [
       'react/prop-types': 'off', // Disable prop-types
       'react/react-in-jsx-scope': 'off', // Not needed with new JSX runtime
 
+      // Disable unknown property checking for three‑fiber props
+      'react/no-unknown-property': 'off',
+
       // React Refresh Rule
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
+
+      // New rules:
+      "unused-imports/no-unused-imports": "error"
     },
   },
   // Any other specific overrides can go in separate objects here if needed
