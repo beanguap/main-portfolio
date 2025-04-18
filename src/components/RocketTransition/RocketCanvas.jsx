@@ -20,10 +20,9 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const velocityRef = useRef(0); // Ref to store current velocity
   const acceleration = 0.0005; // How much to increase speed each frame
   const transitionCompletedRef = useRef(false); // Track if completion callback was called
-  const canvasRef = useRef(null);
 
-  // Direct reference object that bypasses React state for better performance
-  const directEmitterPosition = useRef(new THREE.Vector3(0, -1000, 0)).current;
+  // Define a stable ref for the direct emitter position
+  const directEmitterPosition = useRef(new THREE.Vector3());
 
   // State to hold the world position for smoke emission
   const [rocketWorldPos, setRocketWorldPos] = useState(
@@ -81,7 +80,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 
         // Update both React state and direct reference
         setRocketWorldPos(worldPos.clone());
-        directEmitterPosition.copy(worldPos);
+        directEmitterPosition.current.copy(worldPos);
       }
     }
   }, [isLaunched, findEmissionPoint]);
@@ -181,12 +180,12 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
           Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
 
         // Always update direct emitter on every frame for perfect synchronization
-        directEmitterPosition.copy(smokeEmissionOffset);
-        directEmitterPosition.applyMatrix4(groupRef.current.matrixWorld);
+        directEmitterPosition.current.copy(smokeEmissionOffset);
+        directEmitterPosition.current.applyMatrix4(groupRef.current.matrixWorld);
 
         // Only update React state occasionally for debugging (less frequent)
         if (clock.elapsedTime % 0.5 < delta) {
-          setRocketWorldPos(directEmitterPosition.clone());
+          setRocketWorldPos(directEmitterPosition.current.clone());
         }
 
         // Check if rocket is off-screen
@@ -240,7 +239,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       {/* Pixel Smoke Effect - Renders independently in world space */}
       <PixelSmokeEffect
         rocketWorldPos={rocketWorldPos}
-        directEmitter={directEmitterPosition} // Pass direct reference
+        directEmitter={directEmitterPosition.current} // Pass direct reference
         isLaunched={isLaunched}
       />
 
@@ -257,7 +256,6 @@ export default React.memo(function RocketCanvas({
 }) {
   const [hasError, setHasError] = useState(false);
   const [contextLost, setContextLost] = useState(false);
-  const canvasRef = useRef(); // Define canvasRef
 
   const handleCanvasError = useCallback(
     (_error) => { // Prefix unused error
@@ -294,7 +292,7 @@ export default React.memo(function RocketCanvas({
         }
       }
     };
-  }, [directEmitterPosition]);
+  }, []);
 
   if (hasError || contextLost) {
     // Optionally render a fallback message instead of null
@@ -304,7 +302,6 @@ export default React.memo(function RocketCanvas({
 
   return (
     <Canvas
-      ref={canvasRef} // Attach canvasRef
       camera={{ position: [0, 0, 10], fov: 50 }}
       gl={{
         alpha: true,

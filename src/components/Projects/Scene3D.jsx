@@ -43,7 +43,7 @@ function ParticleField() {
       }
     }
     return pos;
-  }, [isMobileDevice, isIPhone12, particlesCount]);
+  }, [isMobileDevice, particlesCount]);
 
   // Add colors for more visual interest
   const colors = useMemo(() => {
