@@ -8,40 +8,36 @@ import importPlugin from 'eslint-plugin-import';
 
 export default [
   { ignores: ['dist', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'] }, // Ignore config/lock files
-  js.configs.recommended, // Use ESLint recommended base rules
   {
-    // Base JS/JSX config
-    files: ['**/*.{js,jsx}'],
+    // Combined JS/JSX config
+    files: ['**/*.{js,jsx}'], // Apply to both JS and JSX files
     languageOptions: {
-      ecmaVersion: 'latest', // Use 'latest' instead of specific year
+      ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
         ...globals.browser,
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true,
+          jsx: true, // Enable JSX parsing
         },
       },
     },
-    plugins: {
+    plugins: { // Include all relevant plugins here
       import: importPlugin,
+      'react': reactRecommended.plugins.react, // Use the actual plugin object
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
     },
-    rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
-      'import/no-unresolved': 'error',
-      // Disable no-unused-modules for now, can be noisy during development
-      // 'import/no-unused-modules': ['warn', { missingExports: true, unusedExports: true }], 
-    },
-    settings: {
+    settings: { // Merge settings
       react: {
         version: 'detect', // Automatically detect React version
       },
       'import/resolver': {
         node: {
-          extensions: ['.js', '.jsx', '.scss'], // Add .scss
+          extensions: ['.js', '.jsx', '.scss'],
         },
-        alias: { // Add alias configuration
+        alias: {
           map: [
             ['@', './src'],
             ['@components', './src/components'],
@@ -49,31 +45,45 @@ export default [
             ['@styles', './src/styles'],
             ['@assets', './src/assets'],
           ],
-          extensions: ['.js', '.jsx', '.scss'], // Include extensions for alias resolver
+          extensions: ['.js', '.jsx', '.scss'],
         },
       },
     },
-  },
-  {
-    // React specific config
-    files: ['**/*.{jsx}'],
-    ...reactRecommended, // Spread recommended React rules
-    ...jsxRuntime, // Add rules for new JSX runtime
-    plugins: {
-      ...reactRecommended.plugins, // Include React plugin
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
     rules: {
+      // Base ESLint Recommended Rules
+      ...js.configs.recommended.rules,
+
+      // Base 'no-unused-vars' rule - this is the one we need react/jsx-uses-vars to influence
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+
+      // Import plugin rules
+      'import/no-unresolved': 'error',
+
+      // React Recommended Rules
       ...reactRecommended.rules,
+
+      // JSX Runtime Rules
       ...jsxRuntime.rules,
+
+      // React Hooks Rules
       ...reactHooks.configs.recommended.rules,
-      'react/prop-types': 'off', // Disable prop-types if using TypeScript or prefer not to use them
+
+      // Explicitly ensure JSX vars rule is active
+      'react/jsx-uses-vars': 'error',
+
+      // Explicitly ensure React usage rule is active (might be redundant with jsxRuntime)
+      'react/jsx-uses-react': 'error',
+
+      // Overrides/Disables for React
+      'react/prop-types': 'off', // Disable prop-types
       'react/react-in-jsx-scope': 'off', // Not needed with new JSX runtime
+
+      // React Refresh Rule
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
     },
   },
+  // Any other specific overrides can go in separate objects here if needed
 ]

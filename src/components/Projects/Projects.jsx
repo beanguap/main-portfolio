@@ -1,8 +1,8 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   motion,
-  useScroll, // Re-added used import
-  useTransform, // Re-added used import
+  useScroll,
+  useTransform,
   useInView,
 } from 'framer-motion';
 import { FaGithub, FaPlay, FaAngleDown } from 'react-icons/fa6';
@@ -13,6 +13,16 @@ import { Scene3D } from '@components/Projects/Scene3D';
 import styles from './Projects.module.scss';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Define titleVariants
+const titleVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeOut' },
+  },
+};
 
 const projectsData = [
   {
@@ -354,7 +364,7 @@ const Projects = () => {
           headingRef.current = el;
         }}
         className="projects-heading"
-        variants={titleVariants}
+        variants={titleVariants} // Use defined titleVariants
         initial="hidden"
         animate={isHeadingInView ? 'visible' : 'hidden'}
       >

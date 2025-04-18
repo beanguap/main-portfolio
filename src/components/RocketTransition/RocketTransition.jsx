@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RocketCanvas from './RocketCanvas';
 import styles from './RocketTransition.module.scss';
 import ErrorBoundary from './ErrorBoundary';
@@ -8,61 +8,37 @@ export default function RocketTransition({
   onTransitionComplete,
 }) {
   const [isLaunched, setIsLaunched] = useState(false);
-  const [showCanvas, setShowCanvas] = useState(false);
-  const [canvasError, setCanvasError] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
+  // Handle the rocket launch when startTransition prop changes
   useEffect(() => {
-    if (startTransition) {
-      setShowCanvas(true);
-      // Use timeout to ensure canvas is mounted before launching
-      const timer = setTimeout(() => {
-        setIsLaunched(true);
-      }, 100); // Small delay
-      return () => clearTimeout(timer);
-    } else {
-      setIsLaunched(false);
-      // Optionally hide canvas immediately or after fade
-      // setShowCanvas(false);
+    if (startTransition && !isLaunched) {
+      setIsLaunched(true);
     }
-  }, [startTransition]);
+
+    // Reset if transition is turned off
+    if (!startTransition && isLaunched) {
+      setIsLaunched(false);
+    }
+  }, [startTransition, isLaunched]);
 
   const handleCanvasError = () => {
-    setCanvasError(true);
-    console.error('RocketCanvas encountered an error.');
-    // Potentially trigger transition complete here too if canvas fails
-    // onTransitionComplete?.();
+    setHasError(true);
+    setTimeout(() => {
+      onTransitionComplete(); // Still trigger transition completion on error
+    }, 500);
   };
-
-  // If canvas has an error, maybe transition immediately or show fallback
-  if (canvasError) {
-    // Hide canvas and trigger completion maybe?
-    // return null; // Or render fallback
-  }
-
-  // If not starting, don't render canvas (or handle fade out)
-  if (!showCanvas && !startTransition) {
-    return null;
-  }
 
   return (
     <div
       className={`${styles.transitionContainer} ${
-        isLaunched ? styles.launched : ''
+        startTransition ? styles.active : ''
       }`}
-      style={{
-        // Add potential transition styles here if needed
-        opacity: showCanvas ? 1 : 0,
-        transition: 'opacity 0.5s ease-in-out',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 50, // Ensure it's above content but below navbar maybe
-        pointerEvents: isLaunched ? 'auto' : 'none',
-      }}
+      aria-hidden={!startTransition}
     >
-      <ErrorBoundary fallback={<p>Rocket Loading Error...</p>}>
+      <ErrorBoundary
+        fallback={<div className={styles.fallbackText}>Loading Experience...</div>}
+      >
         <RocketCanvas
           isLaunched={isLaunched}
           onError={handleCanvasError}

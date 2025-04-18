@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, PerspectiveCamera } from '@react-three/drei';
+import { Environment } from '@react-three/drei';
 import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
 import { isMobile } from '@utils/device';
 
@@ -12,13 +12,6 @@ function SceneContent() {
 
   return (
     <>
-      <PerspectiveCamera
-        makeDefault
-        position={[0, 0, isMobile() ? 25 : 30]}
-        fov={isMobile() ? 85 : 75}
-        near={0.1}
-        far={1000}
-      />
       <Environment preset="sunset" />
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={0.8} />
@@ -44,6 +37,12 @@ export function HeroScene3D() {
   return (
     <ErrorBoundary fallback={<></>}>
       <Canvas
+        camera={{
+          position: [0, 0, isMobile() ? 25 : 30],
+          fov: isMobile() ? 85 : 75,
+          near: 0.1,
+          far: 1000,
+        }}
         dpr={
           isMobileDevice
             ? Math.min(window.devicePixelRatio, 1.5)

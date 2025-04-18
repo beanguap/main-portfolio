@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef } from 'react'; // Removed unused React
+import { useState, useEffect, useRef } from 'react';
 import {
   motion,
-  // useAnimation, // Removed unused import
-  // Removed unused AnimatePresence
   useInView,
-  AnimatePresence, // Keep AnimatePresence as it's used
+  AnimatePresence,
 } from 'framer-motion';
-import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6'; // Re-added used icons
-import { HeroScene3D } from '@components/HeroSection/HeroScene3D'; // Used
+import { FaXTwitter, FaGithub, FaLinkedin, FaAngleDown } from 'react-icons/fa6';
+import { HeroScene3D } from '@components/HeroSection/HeroScene3D';
 import styles from './HeroSection.module.scss';
 
 // Import assets directly
@@ -153,9 +151,9 @@ const HeroSection = () => {
       className={styles.hero}
       ref={sectionRef}
       initial="hidden"
-      animate={controls}
+      animate={isHeroSceneInView ? 'visible' : 'hidden'} // Using isHeroSceneInView instead of controls
       id="home"
-      style={{ position: 'relative' }} // Add position relative to fix scroll calculations
+      style={{ position: 'relative' }}
     >
       {/* Conditionally render 3D Scene Background */}
       <div

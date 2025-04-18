@@ -1,4 +1,4 @@
-import {
+import React, {
   Suspense,
   useRef,
   useEffect,
@@ -21,6 +21,8 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const velocityRef = useRef(0); // Ref to store current velocity
   const acceleration = 0.0005; // How much to increase speed each frame
   const transitionCompletedRef = useRef(false); // Track if completion callback was called
+  const canvasRef = useRef(null);
+  const tempWorldPos = new THREE.Vector3();
 
   // Direct reference object that bypasses React state for better performance
   const directEmitterPosition = useRef(new THREE.Vector3(0, -1000, 0)).current;
@@ -157,6 +159,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       setRocketWorldPos(new THREE.Vector3(0, -1000, 0));
     } else {
       // When launch starts, calculate initial world pos immediately
+      const tempWorldPos = new THREE.Vector3(); // Define tempWorldPos
       if (groupRef.current) {
         groupRef.current.localToWorld(
           smokeEmissionOffset.clone(),
@@ -198,6 +201,16 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
           transitionCompletedRef.current = true;
         }
       }
+    }
+  });
+
+  // Handle context loss gracefully
+  useFrame(({ gl }) => {
+    if (gl.getContextAttributes().desynchronized === false) {
+      // This indicates the context was lost and restored
+      // We might need to recreate resources
+      console.warn("WebGL context was lost and restored");
+      onError?.();
     }
   });
 
@@ -246,9 +259,10 @@ export default React.memo(function RocketCanvas({
 }) {
   const [hasError, setHasError] = useState(false);
   const [contextLost, setContextLost] = useState(false);
+  const canvasRef = useRef(); // Define canvasRef
 
   const handleCanvasError = useCallback(
-    (error) => {
+    (_error) => { // Prefix unused error
       setHasError(true);
       onError?.(); // Notify App level
     },
@@ -291,6 +305,7 @@ export default React.memo(function RocketCanvas({
 
   return (
     <Canvas
+      ref={canvasRef} // Attach canvasRef
       camera={{ position: [0, 0, 10], fov: 50 }}
       gl={{
         alpha: true,

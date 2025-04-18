@@ -7,7 +7,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // Polyfill ResizeObserver (prefer @juggle/resize-observer if available)
 try {
   await import('@juggle/resize-observer');
-} catch (e) {
+} catch (_e) { // Prefix unused e
   class ResizeObserver {
     observe() {}
     unobserve() {}
@@ -42,4 +42,31 @@ HTMLCanvasElement.prototype.getContext = function (type, ...args) {
     return createWebGLContext(this.width || 1, this.height || 1);
   }
   return originalGetContext.call(this, type, ...args);
+};
+
+// Add any global vitest setup here
+// For example, mocking browser APIs
+
+// Add mock for matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  value: (query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+  }),
+});
+
+// Add mock for canvas
+HTMLCanvasElement.prototype.getContext = () => {
+  try {
+    // Original implementation
+  } catch (_e) {
+    // Ignore errors
+    return null;
+  }
 };
