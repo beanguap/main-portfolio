@@ -271,29 +271,6 @@ export default React.memo(function RocketCanvas({
     // We already notify parent via onError in SceneContent
   }, []);
 
-  useEffect(() => {
-    const currentCanvas = canvasRef.current;
-    // This cleanup tries to lose context gracefully if component unmounts
-    // Note: Might not always work if unmount is abrupt
-    return () => {
-      if (currentCanvas) {
-        const internalGl = currentCanvas.__r3f?.gl;
-        if (internalGl) {
-          try {
-            const loseContextExt =
-              internalGl.getExtension('WEBGL_lose_context');
-            if (loseContextExt) {
-              loseContextExt.loseContext();
-            }
-            // R3F handles disposal automatically
-          } catch (error) {
-            console.error('Error during canvas cleanup:', error);
-          }
-        }
-      }
-    };
-  }, []);
-
   if (hasError || contextLost) {
     // Optionally render a fallback message instead of null
     // return <div style={{ /* style for error message */ }}>WebGL unavailable or context lost.</div>;
@@ -305,23 +282,42 @@ export default React.memo(function RocketCanvas({
       camera={{ position: [0, 0, 10], fov: 50 }}
       gl={{
         alpha: true,
-        antialias: false, // disable default AA for better control
+        antialias: false, // Disable default AA for improved stability
+        preserveDrawingBuffer: true, // Helps prevent flickering and assists in context restoration
         powerPreference: 'high-performance',
         stencil: false,
         depth: true,
         precision: 'highp',
-        preserveDrawingBuffer: true, // prevent flickering during transitions
       }}
-      dpr={[1, 2]} // limit pixel ratio
-      style={{ position: 'relative' }}
-      onCreated={({ gl }) => {
-        gl.domElement.addEventListener(
-          'webglcontextlost',
-          handleContextLoss,
-          false
-        );
+      dpr={[1, 2]}
+      onCreated={(state) => { // Changed signature to accept single state object
+        const { gl } = state; // Destructure gl from state
+        const domElement = gl.domElement; // Access domElement via gl
+
+        // Add event listener for context loss
+        const handleContextLost = (event) => {
+          event.preventDefault();
+          console.warn("WebGL context lost in RocketCanvas.");
+          onError?.(new Error("WebGL context lost"));
+        };
+        // Add event listener for context restoration
+        const handleContextRestored = () => {
+          console.log("WebGL context restored in RocketCanvas.");
+          // Optional: Reinitialize or refresh resources if needed
+        };
+        domElement.addEventListener('webglcontextlost', handleContextLost, false);
+        domElement.addEventListener('webglcontextrestored', handleContextRestored, false);
+
+        // Cleanup listeners on unmount
+        // Attaching cleanup directly to gl.domElement might not be standard,
+        // consider using useEffect in a child component for cleanup if this causes issues.
+        gl.domElement.cleanup = () => {
+          domElement.removeEventListener('webglcontextlost', handleContextLost);
+          domElement.removeEventListener('webglcontextrestored', handleContextRestored);
+        };
         gl.shadowMap.enabled = false;
       }}
+      style={{ position: 'relative' }}
     >
       <Suspense fallback={null}>
         {/* Pass context loss handler down */}

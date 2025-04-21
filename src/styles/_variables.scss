@@ -1,12 +1,15 @@
 // =========================
 // FONTS
 // =========================
+// If you do not require the custom font, comment out its declaration to avoid MIME-type issues
+/*
 @font-face {
   font-family: 'Druk Wide Bold';
   src: url('../assets/fonts/DrukWideBold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
+*/
 
 // =========================
 // COLORS

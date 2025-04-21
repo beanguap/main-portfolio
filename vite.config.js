@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
-import path from 'path';
 import react from '@vitejs/plugin-react-swc';
+import path from 'path';
 import { fileURLToPath } from 'url'; // Import fileURLToPath
+import { defineConfig } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url); // Get current file path
 const __dirname = path.dirname(__filename); // Get current directory path
@@ -19,4 +19,6 @@ export default defineConfig({
     },
   },
   plugins: [react()],
+  // Include font file types to avoid incorrect MIME type issues
+  assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'],
 });
