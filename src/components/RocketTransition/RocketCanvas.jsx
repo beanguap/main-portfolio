@@ -16,7 +16,7 @@ import SaturnV, { FallbackRocket } from './SaturnV';
 function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const groupRef = useRef();
   const rocketModelRef = useRef(); // Ref for SaturnV model
-  const { gl, scene, viewport, get } = useThree();
+  const { scene, viewport } = useThree();
   const velocityRef = useRef(0); // Ref to store current velocity
   const acceleration = 0.0005; // How much to increase speed each frame
   const transitionCompletedRef = useRef(false); // Track if completion callback was called
@@ -57,16 +57,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       const center = new THREE.Vector3();
       box.getCenter(center);
 
-      // Commented out debug helper mesh
-      /*
-      const helperMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.1, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 'blue' })
-      );
-      helperMesh.position.copy(center);
-      scene.add(helperMesh);
-      */
-
       const emissionPoint = findEmissionPoint(rocketModelRef.current);
 
       // Set the offset with improved positioning
@@ -85,43 +75,9 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
     }
   }, [isLaunched, findEmissionPoint]);
 
-  // Handle context events
+  // Cleanup WebGL resources on unmount
   useEffect(() => {
-    const context = get().gl;    if (!context?.domElement) return; // Added check for context
-    const canvas = context.domElement;
-
-    const handleContextLost = (_event) => { // Prefixed unused event
-      console.warn('WebGL context lost in SceneContent.');
-      onError?.(new Error('WebGL context lost')); // Notify parent
-    };
-
-    const handleContextRestored = () => {
-      console.log('WebGL context restored in SceneContent.');
-      // Potentially trigger a re-render or resource reload if needed
-    };
-
-    canvas.addEventListener('webglcontextlost', handleContextLost, false);
-    canvas.addEventListener(
-      'webglcontextrestored',
-      handleContextRestored,
-      false
-    );
-
     return () => {
-      if (canvas) {
-        canvas.removeEventListener(
-          'webglcontextlost',
-          handleContextLost,
-          false
-        );
-        canvas.removeEventListener(
-          'webglcontextrestored',
-          handleContextRestored,
-          false
-        );
-      }
-
-      // Cleanup WebGL resources more safely
       // Check if scene and traverse exist before calling
       scene?.traverse?.((object) => {
         object.geometry?.dispose();
@@ -141,7 +97,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         }
       });
     };
-  }, [gl, scene, onError, onTransitionComplete, get]);
+  }, [scene]);
 
   // Effect to reset position and velocity when launch state changes
   useEffect(() => {
@@ -168,7 +124,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   }, [isLaunched, smokeEmissionOffset]);
 
   useFrame(({ clock }, delta) => {
-    // Added delta
     if (groupRef.current) {
       if (isLaunched) {
         // Increase velocity
@@ -198,16 +153,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
           transitionCompletedRef.current = true;
         }
       }
-    }
-  });
-
-  // Handle context loss gracefully
-  useFrame(({ gl }) => {
-    if (gl.getContextAttributes().desynchronized === false) {
-      // This indicates the context was lost and restored
-      // We might need to recreate resources
-      console.warn("WebGL context was lost and restored");
-      onError?.();
     }
   });
 
@@ -258,23 +203,30 @@ export default React.memo(function RocketCanvas({
   const [contextLost, setContextLost] = useState(false);
 
   const handleCanvasError = useCallback(
-    (_error) => { // Prefix unused error
+    (error) => {
+      console.error("Canvas error caught:", error);
       setHasError(true);
-      onError?.(); // Notify App level
+      onError?.(error);
     },
     [onError]
   );
 
-  const handleContextLoss = useCallback(() => {
-    console.warn('RocketCanvas notified of context loss.');
-    setContextLost(true); // Set state to indicate context loss
-    // We already notify parent via onError in SceneContent
-  }, []);
-
   if (hasError || contextLost) {
-    // Optionally render a fallback message instead of null
-    // return <div style={{ /* style for error message */ }}>WebGL unavailable or context lost.</div>;
-    return null;
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: '#111',
+          color: '#fff',
+        }}
+      >
+        WebGL context lost or error occurred.
+      </div>
+    );
   }
 
   return (
@@ -290,38 +242,53 @@ export default React.memo(function RocketCanvas({
         precision: 'highp',
       }}
       dpr={[1, 2]}
-      onCreated={(state) => { // Changed signature to accept single state object
-        const { gl } = state; // Destructure gl from state
-        const domElement = gl.domElement; // Access domElement via gl
+      onCreated={(state) => {
+        const { gl, scene } = state;
+        const domElement = gl.domElement;
 
         // Add event listener for context loss
         const handleContextLost = (event) => {
           event.preventDefault();
           console.warn("WebGL context lost in RocketCanvas.");
+          setContextLost(true);
           onError?.(new Error("WebGL context lost"));
         };
         // Add event listener for context restoration
         const handleContextRestored = () => {
           console.log("WebGL context restored in RocketCanvas.");
-          // Optional: Reinitialize or refresh resources if needed
+          setContextLost(false);
+          // Mark existing materials/textures as needing update
+          scene.traverse((obj) => {
+            if (obj.material) {
+              const mats = Array.isArray(obj.material)
+                ? obj.material
+                : [obj.material];
+              mats.forEach((mat) => {
+                if (mat) {
+                  mat.needsUpdate = true;
+                  // Also mark textures for update
+                  Object.values(mat).forEach((value) => {
+                    if (value && value.isTexture) {
+                      value.needsUpdate = true;
+                    }
+                  });
+                }
+              });
+            }
+          });
         };
         domElement.addEventListener('webglcontextlost', handleContextLost, false);
-        domElement.addEventListener('webglcontextrestored', handleContextRestored, false);
+        domElement.addEventListener(
+          'webglcontextrestored',
+          handleContextRestored,
+          false
+        );
 
-        // Cleanup listeners on unmount
-        // Attaching cleanup directly to gl.domElement might not be standard,
-        // consider using useEffect in a child component for cleanup if this causes issues.
-        gl.domElement.cleanup = () => {
-          domElement.removeEventListener('webglcontextlost', handleContextLost);
-          domElement.removeEventListener('webglcontextrestored', handleContextRestored);
-        };
         gl.shadowMap.enabled = false;
       }}
       style={{ position: 'relative' }}
     >
       <Suspense fallback={null}>
-        {/* Pass context loss handler down */}
-        {/** Memoize SceneContent to avoid re-renders */}
         <MemoSceneContent
           isLaunched={isLaunched}
           onError={handleCanvasError}
