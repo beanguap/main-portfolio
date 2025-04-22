@@ -1,18 +1,42 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useInView,
-} from 'framer-motion';
-import { FaGithub, FaPlay, FaAngleDown } from 'react-icons/fa6';
+import { Scene3D } from '@components/Projects/Scene3D';
 import Lenis from '@studio-freight/lenis';
+import {
+    AnimatePresence,
+    motion,
+    useInView,
+    useScroll,
+    useTransform,
+} from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Scene3D } from '@components/Projects/Scene3D';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FaAngleDown, FaGithub, FaPlay } from 'react-icons/fa6';
 import styles from './Projects.module.scss';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Section transition variants - new for magnetic detaching effect
+const sectionVariants = {
+  initial: { opacity: 0 },
+  enter: { 
+    opacity: 1,
+    transition: { 
+      duration: 0.5,
+      when: "beforeChildren",
+      ease: [0.25, 0.1, 0.25, 1.0], // Smooth entrance
+    }
+  },
+  exit: { 
+    opacity: 0,
+    scale: 0.98,
+    y: 30, // Exit downward unlike hero section's upward exit for direction variety
+    transition: { 
+      duration: 0.4,
+      ease: [0.36, 0, 0.66, -0.56], // Elastic/magnetic-like exit
+      when: "afterChildren" 
+    }
+  }
+};
 
 // Define titleVariants
 const titleVariants = {
@@ -105,7 +129,7 @@ const ScrollDownIndicator = () => {
   );
 };
 
-const Projects = () => {
+const Projects = ({ isActive }) => {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const sceneContainerRef = useRef(null);
@@ -309,79 +333,82 @@ const Projects = () => {
   ); // Memoize card render function
 
   return (
-    <motion.section
-      className={styles.projectsSection}
-      id="projects"
-      ref={sectionRef}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.1 }}
-      style={{ position: 'relative' }}
-    >
-      <div className={styles.projectsIndicator}>
-        <motion.div
-          className={styles.scrollIndicator}
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
+    <AnimatePresence mode="wait">
+      {isActive && (
+        <motion.section
+          className={styles.projectsSection}
+          id="projects"
+          ref={sectionRef}
+          variants={sectionVariants}
+          initial="initial"
+          animate="enter"
+          exit="exit"
+          style={{ position: 'relative' }}
         >
-          <FaAngleDown />
-        </motion.div>
-      </div>
+          <div className={styles.projectsIndicator}>
+            <motion.div
+              className={styles.scrollIndicator}
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <FaAngleDown />
+            </motion.div>
+          </div>
 
-      <motion.div
-        className={styles.backgroundScene}
-        style={{
-          opacity: backgroundOpacity,
-          scale: backgroundScale,
-          rotateY: backgroundRotateY,
-          rotateX: backgroundRotateX,
-          position: 'fixed',
-          width: '100%',
-          height: '100vh',
-          pointerEvents: showScene ? 'auto' : 'none',
-          transformPerspective: 1000,
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        {showScene && (
-          <div
-            ref={sceneContainerRef}
-            className="scene-container"
+          <motion.div
+            className={styles.backgroundScene}
             style={{
-              position: 'relative',
+              opacity: backgroundOpacity,
+              scale: backgroundScale,
+              rotateY: backgroundRotateY,
+              rotateX: backgroundRotateX,
+              position: 'fixed',
               width: '100%',
-              height: '100%',
+              height: '100vh',
+              pointerEvents: 'auto',
+              transformPerspective: 1000,
               transformStyle: 'preserve-3d',
             }}
           >
-            <Scene3D projects={projectsData} />
-          </div>
-        )}
-      </motion.div>
+            <div
+              ref={sceneContainerRef}
+              className="scene-container"
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              <Scene3D projects={projectsData} />
+            </div>
+          </motion.div>
 
-      <motion.h2
-        ref={(el) => {
-          headingRef.current = el;
-        }}
-        className="projects-heading"
-        variants={titleVariants} // Use defined titleVariants
-        initial="hidden"
-        animate={isHeadingInView ? 'visible' : 'hidden'}
-      >
-        <span className={styles.headingAccent}>Featured</span> Projects
-      </motion.h2>
+          <motion.h2
+            ref={(el) => {
+              headingRef.current = el;
+            }}
+            className="projects-heading"
+            variants={titleVariants} // Use defined titleVariants
+            initial="hidden"
+            animate={isHeadingInView ? 'visible' : 'hidden'}
+          >
+            <span className={styles.headingAccent}>Featured</span> Projects
+          </motion.h2>
 
-      <motion.div
-        className={styles.projectsGrid}
-        initial={false} // Disable initial animation for container
-      >
-        {projectsData.map((project, index) =>
-          renderProjectCard({ project, index })
-        )}
-      </motion.div>
+          <motion.div
+            className={styles.projectsGrid}
+            initial={false} // Disable initial animation for container
+          >
+            {projectsData.map((project, index) =>
+              renderProjectCard({ project, index })
+            )}
+          </motion.div>
 
-      <ScrollDownIndicator />
-    </motion.section>
+          <ScrollDownIndicator />
+        </motion.section>
+      )}
+    </AnimatePresence>
   );
 };
 

@@ -1,17 +1,41 @@
-import { useState, useEffect, useRef } from 'react';
-import {
-  motion,
-  useInView,
-  AnimatePresence,
-} from 'framer-motion';
-import { FaXTwitter, FaGithub, FaLinkedin } from 'react-icons/fa6';
 import { HeroScene3D } from '@components/HeroSection/HeroScene3D';
+import {
+    AnimatePresence,
+    motion,
+    useInView,
+} from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { FaGithub, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 import styles from './HeroSection.module.scss';
 
 // Import assets directly
-import abstractImage from '@assets/image-from-rawpixel-id-6171907-png.png';
 import decorativeImage46 from '@assets/46.png';
+import abstractImage from '@assets/image-from-rawpixel-id-6171907-png.png';
 import keyboardImage from '@assets/NOBACKGROUNDJMFKEYBOARD .png';
+
+// Section transition variants - new for magnetic detaching effect
+const sectionVariants = {
+  initial: { opacity: 0 },
+  enter: { 
+    opacity: 1,
+    transition: { 
+      duration: 0.5,
+      when: "beforeChildren",
+      staggerChildren: 0.1,
+      ease: [0.25, 0.1, 0.25, 1.0], // Smooth entrance
+    }
+  },
+  exit: { 
+    opacity: 0,
+    scale: 0.95,
+    y: -20,
+    transition: { 
+      duration: 0.4,
+      ease: [0.36, 0, 0.66, -0.56], // Elastic/magnetic-like exit
+      when: "afterChildren" 
+    }
+  }
+};
 
 // Animation variants for staggered animations
 const nameVariants = {
@@ -130,7 +154,7 @@ const skillItemVariants = {
   },
 };
 
-const HeroSection = () => {
+const HeroSection = ({ isActive }) => {
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const sectionRef = useRef(null);
   const isHeroSceneInView = useInView(sectionRef, { once: false, amount: 0.1 });
@@ -147,229 +171,235 @@ const HeroSection = () => {
   };
 
   return (
-    <motion.section
-      className={styles.hero}
-      ref={sectionRef}
-      initial="hidden"
-      animate={isHeroSceneInView ? 'visible' : 'hidden'} // Using isHeroSceneInView instead of controls
-      id="home"
-      style={{ position: 'relative' }}
-    >
-      {/* Conditionally render 3D Scene Background */}
-      <div
-        className={styles.heroBackground}
-        style={{ pointerEvents: isHeroSceneInView ? 'auto' : 'none' }}
-      >
-        {isHeroSceneInView && <HeroScene3D />}
-      </div>
-
-      {/* Animated Name */}
-      <div className={styles.heroName}>
-        <motion.span
-          className={styles.firstName}
-          variants={nameVariants}
-          custom={0}
-        >
-          JERIEL
-        </motion.span>
-        <motion.span
-          className={styles.middleName}
-          variants={nameVariants}
-          custom={1}
-        >
-          MARTINEZ
-        </motion.span>
-        <motion.span
-          className={styles.lastName}
-          variants={nameVariants}
-          custom={2}
-        >
-          FLORES
-        </motion.span>
-      </div>
-
-      {/* Top-right decorative image */}
-      <motion.img
-        src={abstractImage} // Use imported variable
-        alt="Abstract geometric blue and white pattern"
-        className={styles.topRightImage}
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 0.7, x: 0 }}
-        transition={{
-          duration: 1.2,
-          delay: 1,
-          ease: [0.25, 0.25, 0, 1],
-        }}
-      />
-
-      {/* Social Media Links */}
-      <div className={styles.socialLinks}>
-        <motion.a
-          href="https://twitter.com/yourprofile"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Twitter profile"
-          variants={iconVariants}
-          custom={0}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <FaXTwitter />
-        </motion.a>
-        <motion.a
-          href="https://github.com/yourprofile"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="GitHub profile"
-          variants={iconVariants}
-          custom={1}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <FaGithub />
-        </motion.a>
-        <motion.a
-          href="https://linkedin.com/in/yourprofile"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="LinkedIn profile"
-          variants={iconVariants}
-          custom={2}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <FaLinkedin />
-        </motion.a>
-      </div>
-
-      {/* CTA Buttons */}
-      <div className={styles.ctaButtonsLeft} style={{ position: 'relative' }}>
-        <motion.button
-          className={styles.sayHelloBtn}
-          variants={buttonVariants}
-          custom={0}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          SAY HELLO
-        </motion.button>
-        <motion.button
-          className={styles.downloadCvBtn}
-          variants={buttonVariants}
-          custom={1}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          DOWNLOAD CV
-        </motion.button>
-      </div>
-
-      {/* Decorative Image */}
-      <motion.img
-        src={decorativeImage46} // Use imported variable
-        alt="Decorative graphic"
-        className={styles.decorativeImage46}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 0.8, scale: 1 }}
-        transition={{ duration: 1.5, delay: 1.2 }}
-      />
-
-      {/* Footer Text Block */}
-      <motion.div
-        className={styles.footerTextBlock}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 2 }}
-      >
-        <p>Full Stack</p>
-        <p>Solutions for a</p>
-        <p>Digital World</p>
-        <p className={styles.yearText}>2025</p>
-      </motion.div>
-
-      {/* Info Button */}
-      <motion.button
-        className={styles.infoButton}
-        aria-label="More Information"
-        onClick={handleInfoButtonClick}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          type: 'spring',
-          stiffness: 400,
-          damping: 10,
-          delay: 2.5,
-        }}
-        whileHover={{
-          scale: 1.1,
-          backgroundColor: '#666',
-          transition: { duration: 0.2 },
-        }}
-        whileTap={{ scale: 0.95 }}
-      >
-        +
-      </motion.button>
-
-      {/* Info Panel with AnimatePresence for smooth mounting/unmounting */}
-      <AnimatePresence>
-        {isInfoVisible && (
-          <motion.div
-            className={styles.infoPanel}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          >
-            <p>Made with React, SCSS, and ❤️</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Skills List with staggered animation */}
-      <motion.div className={styles.skillsList} variants={skillsVariants}>
-        {[
-          'FULL STACK',
-          'DEVELOPER',
-          'SOFTWARE',
-          'ENGINEER',
-          'ANIMATION',
-          'UI',
-          'UX',
-          'AI',
-        ].map((skill, index) => (
-          <motion.span key={index} variants={skillItemVariants}>
-            {skill}
-          </motion.span>
-        ))}
-      </motion.div>
-
-      {/* Main Content with Keyboard */}
-      <div className={styles.heroContent} style={{ position: 'relative' }}>
-        <motion.div
-          className={styles.heroImage}
-          variants={keyboardVariants}
-          animate="float"
+    <AnimatePresence mode="wait">
+      {isActive && (
+        <motion.section
+          className={styles.hero}
+          ref={sectionRef}
+          variants={sectionVariants}
+          initial="initial"
+          animate="enter"
+          exit="exit"
+          id="home"
           style={{ position: 'relative' }}
         >
+          {/* Conditionally render 3D Scene Background */}
+          <div
+            className={styles.heroBackground}
+            style={{ pointerEvents: 'auto' }}
+          >
+            <HeroScene3D />
+          </div>
+
+          {/* Animated Name */}
+          <div className={styles.heroName}>
+            <motion.span
+              className={styles.firstName}
+              variants={nameVariants}
+              custom={0}
+            >
+              JERIEL
+            </motion.span>
+            <motion.span
+              className={styles.middleName}
+              variants={nameVariants}
+              custom={1}
+            >
+              MARTINEZ
+            </motion.span>
+            <motion.span
+              className={styles.lastName}
+              variants={nameVariants}
+              custom={2}
+            >
+              FLORES
+            </motion.span>
+          </div>
+
+          {/* Top-right decorative image */}
           <motion.img
-            src={keyboardImage} // Use imported variable
-            alt="JMF Keyboard"
-            className={styles.keyboard}
-            variants={keyboardVariants}
+            src={abstractImage} // Use imported variable
+            alt="Abstract geometric blue and white pattern"
+            className={styles.topRightImage}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 0.7, x: 0 }}
+            transition={{
+              duration: 1.2,
+              delay: 1,
+              ease: [0.25, 0.25, 0, 1],
+            }}
           />
 
-          {/* Text near keyboard */}
+          {/* Social Media Links */}
+          <div className={styles.socialLinks}>
+            <motion.a
+              href="https://twitter.com/yourprofile"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter profile"
+              variants={iconVariants}
+              custom={0}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <FaXTwitter />
+            </motion.a>
+            <motion.a
+              href="https://github.com/yourprofile"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub profile"
+              variants={iconVariants}
+              custom={1}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <FaGithub />
+            </motion.a>
+            <motion.a
+              href="https://linkedin.com/in/yourprofile"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn profile"
+              variants={iconVariants}
+              custom={2}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <FaLinkedin />
+            </motion.a>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className={styles.ctaButtonsLeft} style={{ position: 'relative' }}>
+            <motion.button
+              className={styles.sayHelloBtn}
+              variants={buttonVariants}
+              custom={0}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              SAY HELLO
+            </motion.button>
+            <motion.button
+              className={styles.downloadCvBtn}
+              variants={buttonVariants}
+              custom={1}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              DOWNLOAD CV
+            </motion.button>
+          </div>
+
+          {/* Decorative Image */}
+          <motion.img
+            src={decorativeImage46} // Use imported variable
+            alt="Decorative graphic"
+            className={styles.decorativeImage46}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 0.8, scale: 1 }}
+            transition={{ duration: 1.5, delay: 1.2 }}
+          />
+
+          {/* Footer Text Block */}
           <motion.div
-            className={styles.keyboardInfoText}
-            variants={textVariants}
-            custom={0}
+            className={styles.footerTextBlock}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 2 }}
           >
-            <p>From Concept to Code – I Make It Happen /</p>
-            <p>Design, Develop, Deploy – The Future Is Built Here</p>
+            <p>Full Stack</p>
+            <p>Solutions for a</p>
+            <p>Digital World</p>
+            <p className={styles.yearText}>2025</p>
           </motion.div>
-        </motion.div>
-      </div>
-    </motion.section>
+
+          {/* Info Button */}
+          <motion.button
+            className={styles.infoButton}
+            aria-label="More Information"
+            onClick={handleInfoButtonClick}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 10,
+              delay: 2.5,
+            }}
+            whileHover={{
+              scale: 1.1,
+              backgroundColor: '#666',
+              transition: { duration: 0.2 },
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            +
+          </motion.button>
+
+          {/* Info Panel with AnimatePresence for smooth mounting/unmounting */}
+          <AnimatePresence>
+            {isInfoVisible && (
+              <motion.div
+                className={styles.infoPanel}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <p>Made with React, SCSS, and ❤️</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Skills List with staggered animation */}
+          <motion.div className={styles.skillsList} variants={skillsVariants}>
+            {[
+              'FULL STACK',
+              'DEVELOPER',
+              'SOFTWARE',
+              'ENGINEER',
+              'ANIMATION',
+              'UI',
+              'UX',
+              'AI',
+            ].map((skill, index) => (
+              <motion.span key={index} variants={skillItemVariants}>
+                {skill}
+              </motion.span>
+            ))}
+          </motion.div>
+
+          {/* Main Content with Keyboard */}
+          <div className={styles.heroContent} style={{ position: 'relative' }}>
+            <motion.div
+              className={styles.heroImage}
+              variants={keyboardVariants}
+              animate="float"
+              style={{ position: 'relative' }}
+            >
+              <motion.img
+                src={keyboardImage} // Use imported variable
+                alt="JMF Keyboard"
+                className={styles.keyboard}
+                variants={keyboardVariants}
+              />
+
+              {/* Text near keyboard */}
+              <motion.div
+                className={styles.keyboardInfoText}
+                variants={textVariants}
+                custom={0}
+              >
+                <p>From Concept to Code – I Make It Happen /</p>
+                <p>Design, Develop, Deploy – The Future Is Built Here</p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.section>
+      )}
+    </AnimatePresence>
   );
 };
 

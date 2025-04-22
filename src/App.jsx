@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import '@/App.scss';
+import HeroSection from '@components/HeroSection/HeroSection';
+import Navbar from '@components/Navbar/Navbar';
+import PageIndicator from '@components/PageIndicator/PageIndicator';
+import Projects from '@components/Projects/Projects';
+import ExperiencePanel from '@components/RocketTransition/ExperiencePanel';
+import RocketTransition from '@components/RocketTransition/RocketTransition';
 import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Navbar from '@components/Navbar/Navbar';
-import HeroSection from '@components/HeroSection/HeroSection';
-import Projects from '@components/Projects/Projects';
-import RocketTransition from '@components/RocketTransition/RocketTransition';
-import ExperiencePanel from '@components/RocketTransition/ExperiencePanel';
-import PageIndicator from '@components/PageIndicator/PageIndicator';
-import '@/App.scss';
+import { useEffect, useRef, useState } from 'react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +20,7 @@ function App() {
   const [showExperience, setShowExperience] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const lenisRef = useRef(null);
+  const isSnappingRef = useRef(false); // Prevent scroll events during snap
 
   const handleTransitionComplete = () => {
     setShowExperience(true);
@@ -28,6 +29,7 @@ function App() {
         lenisRef.current.scrollTo(experienceRef.current, { immediate: true });
         setActiveSection('experience');
         ScrollTrigger.refresh();
+        isSnappingRef.current = false;
       }
     }, 100);
   };
@@ -42,78 +44,119 @@ function App() {
     gsap.ticker.add(updateScroll);
     gsap.ticker.lagSmoothing(0);
 
-    lenis.on('scroll', ScrollTrigger.update);
+    // Only update ScrollTrigger if not currently snapping
+    lenis.on('scroll', (e) => {
+      if (!isSnappingRef.current) {
+        ScrollTrigger.update(e.scroll);
+      }
+    });
 
     const sections = [
       { id: 'home', ref: heroRef },
       { id: 'projects', ref: projectsRef },
       { id: 'experience', ref: experienceRef },
     ];
+    const sectionElements = sections.map(s => s.ref.current).filter(Boolean);
 
-    sections.forEach((section) => {
-      if (section.ref.current) {
-        ScrollTrigger.create({
-          trigger: section.ref.current,
-          start: 'top center+=100px',
-          end: 'bottom center-=100px',
-          onEnter: () => {
-            if (!startRocketTransition) {
-              setActiveSection(section.id);
-            }
+    let snapTrigger;
+    const createSnapTrigger = () => {
+      if (snapTrigger) snapTrigger.kill();
+      snapTrigger = ScrollTrigger.create({
+        trigger: document.body,
+        start: 'top top',
+        end: 'bottom bottom',
+        snap: {
+          snapTo: 'labelsDirectional',
+          duration: { min: 0.2, max: 0.6 },
+          delay: 0.05,
+          ease: 'power2.inOut',
+          onStart: () => { isSnappingRef.current = true; },
+          onComplete: (self) => {
+            isSnappingRef.current = false;
+            setActiveSection(self.vars.snap.label);
           },
-          onEnterBack: () => {
-            if (!startRocketTransition) {
-              setActiveSection(section.id);
+          enabled: !startRocketTransition,
+        },
+        onRefresh: self => {
+          // Instead of trying to clear labels (which doesn't exist), 
+          // we'll store all added labels in a ref and track them manually
+          
+          // First add base home label
+          self.addLabel('home', 0);
+          
+          // Then add other section labels if they should be included
+          sectionElements.forEach(el => {
+            const id = el.id;
+            if (id) {
+              const startPos = (el.offsetTop + 1) / self.scroller.scrollHeight;
+              if (id === 'experience' && !showExperience) return;
+              self.addLabel(id, startPos);
             }
-          },
-        });
-      }
-    });
+          });
+        },
+        onUpdate: self => {
+          if (!isSnappingRef.current && !startRocketTransition) {
+            const scroll = self.scroll();
+            let currentSection = 'home';
+            for (const label in self.labels) {
+              if (scroll >= self.labels[label] * self.maxScroll - 1) {
+                currentSection = label;
+              } else {
+                break;
+              }
+            }
+            setActiveSection(currentSection);
+          }
+        }
+      });
+    };
 
-    ScrollTrigger.create({
+    // Rocket transition trigger
+    const rocketTrigger = ScrollTrigger.create({
       trigger: projectsRef.current,
       start: 'bottom bottom-=200px',
       end: 'bottom top',
       onEnter: () => {
-        setStartRocketTransition(true);
-        setActiveSection(null);
+        if (!startRocketTransition) {
+          setStartRocketTransition(true);
+          setActiveSection(null);
+          isSnappingRef.current = true;
+          snapTrigger?.disable();
+        }
       },
       onLeaveBack: () => {
         setStartRocketTransition(false);
         setShowExperience(false);
         setActiveSection('projects');
-        ScrollTrigger.refresh();
+        isSnappingRef.current = false;
+        setTimeout(() => {
+          snapTrigger?.enable();
+          ScrollTrigger.refresh();
+        }, 50);
       },
     });
 
+    createSnapTrigger();
     ScrollTrigger.refresh();
-    setTimeout(() => {
-      const scrollY = window.scrollY;
-      let currentSection = 'home';
-      sections.forEach((section) => {
-        if (section.ref.current) {
-          const top = section.ref.current.offsetTop;
-          const bottom = top + section.ref.current.offsetHeight;
-          if (
-            scrollY + window.innerHeight / 2 >= top &&
-            scrollY + window.innerHeight / 2 <= bottom
-          ) {
-            currentSection = section.id;
-          }
-        }
-      });
-      if (!startRocketTransition) {
-        setActiveSection(currentSection);
-      }
+    const initialCheckTimeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+      snapTrigger?.update();
     }, 150);
 
     return () => {
+      clearTimeout(initialCheckTimeout);
       gsap.ticker.remove(updateScroll);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      snapTrigger?.kill();
+      rocketTrigger?.kill();
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger !== snapTrigger && trigger !== rocketTrigger) {
+          trigger.kill();
+        }
+      });
       lenisRef.current?.destroy();
       lenisRef.current = null;
     };
-  }, [startRocketTransition]);
+  }, [startRocketTransition, showExperience]);
 
   return (
     <div className="app">
@@ -124,10 +167,10 @@ function App() {
       />
       <main>
         <section ref={heroRef} id="home">
-          <HeroSection />
+          <HeroSection isActive={activeSection === 'home'} />
         </section>
         <section ref={projectsRef} id="projects">
-          <Projects />
+          <Projects isActive={activeSection === 'projects'} />
         </section>
         <RocketTransition
           startTransition={startRocketTransition}
