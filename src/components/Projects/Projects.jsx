@@ -1,11 +1,11 @@
 import { Scene3D } from '@components/Projects/Scene3D';
 import Lenis from '@studio-freight/lenis';
 import {
-    AnimatePresence,
-    motion,
-    useInView,
-    useScroll,
-    useTransform,
+  AnimatePresence,
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
 } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -174,6 +174,7 @@ const Projects = ({ isActive }) => {
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start end', 'end start'],
+    layoutEffect: false, // Add this line to fix hydration warning
   });
 
   // Enhanced transform values for more dramatic effect

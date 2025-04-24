@@ -1,47 +1,50 @@
-import { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react'; // Import lazy, Suspense
 import ErrorBoundary from './ErrorBoundary';
-import RocketCanvas from './RocketCanvas';
 import styles from './RocketTransition.module.scss';
+
+// Lazy load the canvas component
+const RocketCanvas = lazy(() => import('./RocketCanvas'));
 
 export default function RocketTransition({
   startTransition,
   onTransitionComplete,
 }) {
-  const [isLaunched, setIsLaunched] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Handle the rocket launch when startTransition prop changes
   useEffect(() => {
-    if (startTransition && !isLaunched) {
-      setIsLaunched(true);
+    if (startTransition) {
+      setIsVisible(true);
     }
+    // Optionally hide after transition completes and panel is shown,
+    // depending on desired behavior (e.g., keep canvas mounted but hidden)
+  }, [startTransition]);
 
-    // Reset if transition is turned off
-    if (!startTransition && isLaunched) {
-      setIsLaunched(false);
-    }
-  }, [startTransition, isLaunched]);
-
-  const handleCanvasError = () => {
-    setTimeout(() => {
-      onTransitionComplete(); // Still trigger transition completion on error
-    }, 500);
+  // Handle errors from the lazy-loaded component or canvas itself
+  const handleCanvasError = (error) => {
+    console.error("RocketCanvas failed to load or render:", error);
+    // Optionally show a fallback UI here instead of just console logging
   };
+
+  // Render null if not visible to avoid mounting the canvas prematurely
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div
-      className={`${styles.transitionContainer} ${
-        startTransition ? styles.active : ''
+      className={`${styles.rocketTransitionContainer} ${
+        startTransition ? styles.visible : ''
       }`}
-      aria-hidden={!startTransition}
+      aria-hidden={!startTransition} // Hide from screen readers when inactive
     >
-      <ErrorBoundary
-        fallback={<div className={styles.fallbackText}>Loading Experience...</div>}
-      >
-        <RocketCanvas
-          isLaunched={isLaunched}
-          onError={handleCanvasError}
-          onTransitionComplete={onTransitionComplete} // Pass the callback down
-        />
+      <ErrorBoundary fallback={<div className={styles.errorFallback}>Rocket failed to launch!</div>}>
+        <Suspense fallback={<div className={styles.loadingFallback}>Loading Rocket...</div>}>
+          <RocketCanvas
+            isLaunched={startTransition}
+            onError={handleCanvasError}
+            onTransitionComplete={onTransitionComplete}
+          />
+        </Suspense>
       </ErrorBoundary>
     </div>
   );

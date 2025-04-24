@@ -1,9 +1,9 @@
 import { useGLTF } from '@react-three/drei';
-import { useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, useEffect, useMemo } from 'react'; // Import forwardRef
 import * as THREE from 'three';
 
 // Define FallbackRocket using memoized material
-export const FallbackRocket = (props) => {
+export const FallbackRocket = React.memo((props) => { // Memoize FallbackRocket
   // Wrap material creation in useMemo
   const rocketMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#ffffff',
@@ -36,46 +36,38 @@ export const FallbackRocket = (props) => {
       ))}
     </group>
   );
-};
+});
+FallbackRocket.displayName = 'FallbackRocket'; // Add display name
 
-export default function SaturnV({ _isLaunched, ...props }) { // Prefixed unused prop
-  // Preload GLTF within component (inside Canvas context)
-  useEffect(() => {
-    useGLTF.preload('/scene.gltf');
-  }, []);
+// Load the Draco-compressed model
+// IMPORTANT: Replace '/models/scene-draco.glb' with the actual path to your compressed model
+// You need to generate this file using tools like gltf-pipeline or Blender's Draco exporter
+const MODEL_PATH = '/models/scene-draco.glb'; // ADJUST THIS PATH
+// Ensure the DRACO decoder libraries are available, usually handled by drei if installed correctly
+useGLTF.preload(MODEL_PATH, true); // Preload with Draco flag
 
-  const rocketRef = useRef();
-  const { scene, materials, nodes } = useGLTF('/scene.gltf');
+const SaturnV = forwardRef((props, ref) => { // Use forwardRef
+  // Load the GLTF model with Draco enabled
+  const { nodes, materials } = useGLTF(MODEL_PATH, true); // Pass true for Draco
 
-  // Cleanup function for GLTF materials, geometries and cache
+  // Cleanup materials (optional but good practice)
   useEffect(() => {
     return () => {
-      try {
-        if (materials) {
-          Object.values(materials).forEach((mat) => {
-            mat.map?.dispose();
-            mat.dispose();
-          });
-        }
-        if (nodes) {
-          Object.values(nodes).forEach((node) => node.geometry?.dispose());
-        }
-        useGLTF.clear('/scene.gltf');
-      } catch (_err) { // Prefix unused 'err' with underscore
-        console.error('Error disposing GLTF resources in SaturnV:', _err);
-      }
+      Object.values(materials).forEach(material => material.dispose());
     };
-  }, [materials, nodes]);
+  }, [materials]);
 
-  // Clone the scene for rendering
-  const clonedScene = scene ? scene.clone(true) : null;
+  // Ensure the structure matches your GLTF file
+  // This is a placeholder structure - replace with your actual node names
+  return (
+    <group ref={ref} {...props} dispose={null}> {/* Pass ref to the group */}
+      {nodes.Scene && (
+         <primitive object={nodes.Scene} />
+      )}
+    </group>
+  );
+});
 
-  // Check if scene loaded
-  if (!scene) {
-    console.warn('GLTF scene not loaded, using fallback');
-    // Pass props to FallbackRocket
-    return <FallbackRocket {...props} />;
-  }
+SaturnV.displayName = 'SaturnV'; // Add display name for DevTools
 
-  return <primitive ref={rocketRef} object={clonedScene} {...props} />;
-}
+export default SaturnV;

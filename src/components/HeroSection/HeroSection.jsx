@@ -1,10 +1,9 @@
-import { HeroScene3D } from '@components/HeroSection/HeroScene3D';
 import {
     AnimatePresence,
     motion,
     useInView,
 } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react'; // Import lazy, Suspense
 import { FaGithub, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 import styles from './HeroSection.module.scss';
 
@@ -12,6 +11,11 @@ import styles from './HeroSection.module.scss';
 import decorativeImage46 from '@assets/46.png';
 import abstractImage from '@assets/image-from-rawpixel-id-6171907-png.png';
 import keyboardImage from '@assets/NOBACKGROUNDJMFKEYBOARD .png';
+
+// Lazy load the 3D scene
+const HeroScene3D = lazy(() =>
+  import('@components/HeroSection/HeroScene3D').then(module => ({ default: module.HeroScene3D }))
+);
 
 // Section transition variants - new for magnetic detaching effect
 const sectionVariants = {
@@ -183,12 +187,14 @@ const HeroSection = ({ isActive }) => {
           id="home"
           style={{ position: 'relative' }}
         >
-          {/* Conditionally render 3D Scene Background */}
+          {/* Conditionally render 3D Scene Background with Suspense */}
           <div
             className={styles.heroBackground}
             style={{ pointerEvents: 'auto' }}
           >
-            <HeroScene3D />
+            <Suspense fallback={<div className={styles.sceneFallback}>Loading 3D Scene...</div>}>
+              {(isActive || isHeroSceneInView) && <HeroScene3D />}
+            </Suspense>
           </div>
 
           {/* Animated Name */}

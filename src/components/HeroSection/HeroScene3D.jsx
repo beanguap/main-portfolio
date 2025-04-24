@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
+import { Environment } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { isMobile } from '@utils/device';
+import { useEffect, useState } from 'react';
 
 // Scene content that uses hooks - must be inside Canvas
 function SceneContent() {
@@ -43,11 +43,8 @@ export function HeroScene3D() {
           near: 0.1,
           far: 1000,
         }}
-        dpr={
-          isMobileDevice
-            ? Math.min(window.devicePixelRatio, 1.5)
-            : window.devicePixelRatio
-        }
+        // Cap DPR
+        dpr={Math.min(window.devicePixelRatio || 1, 2)}
         gl={{
           alpha: true,
           powerPreference: 'high-performance',
