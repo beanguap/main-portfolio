@@ -1,6 +1,6 @@
-import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import HeroSection from '@components/HeroSection/HeroSection';
@@ -86,12 +86,16 @@ function App() {
         end: 'bottom bottom',
         scrub: false,
         snap: {
-          snapTo: (value, self) => {
-            // Safe check to prevent "Cannot read properties of undefined (reading 'labels')"
+          snapTo: (value) => {
+            // Safe check to prevent 'Cannot read properties of undefined (reading \'labels\')'
             if (!timeline || !timeline.labels || Object.keys(timeline.labels).length === 0) {
               return 0;
             }
-            return self.snapIncrementOffset(value, 0.01, true);
+            // Snap to the closest label position
+            const positions = Object.values(timeline.labels);
+            return positions.reduce((prev, curr) =>
+              Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+            );
           },
           duration: { min: 0.4, max: 0.8 },
           delay: 0.05,
@@ -164,8 +168,9 @@ function App() {
       gsap.ticker.remove(updateScroll);
       snapTrigger?.kill();
       rocketTrigger?.kill();
-      timeline?.kill();
+      // Kill all ScrollTriggers before killing the timeline to avoid GSAP internal errors
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      timeline?.kill();
       lenisRef.current?.destroy();
       lenisRef.current = null;
     };

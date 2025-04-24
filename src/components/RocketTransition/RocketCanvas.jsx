@@ -1,11 +1,11 @@
 import { Environment } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import React, {
-    Suspense,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 import * as THREE from 'three';
 import ErrorBoundary from './ErrorBoundary';
@@ -28,7 +28,7 @@ const disposeMaterialTextures = (material) => {
 };
 
 // Scene content component that uses hooks
-function SceneContent({ isLaunched, onError, onTransitionComplete }) {
+function SceneContent({ isLaunched, _onError, onTransitionComplete }) {
   const groupRef = useRef();
   const rocketModelRef = useRef();
   const { scene, viewport } = useThree();
@@ -38,9 +38,6 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 
   const directEmitterPosition = useRef(new THREE.Vector3()); // Keep stable ref
 
-  const [rocketWorldPos, setRocketWorldPos] = useState(
-    () => new THREE.Vector3(0, -1000, 0) // Initialize with function
-  );
   const [smokeEmissionOffset, setSmokeEmissionOffset] = useState(
     () => new THREE.Vector3(0, -1.5, 0) // Default offset, adjust as needed
   );
@@ -91,19 +88,17 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         groupRef.current.position.y = -3;
         groupRef.current.rotation.y = 0;
       }
-      setRocketWorldPos(tempVec3.set(0, -1000, 0)); // Use tempVec3
     } else {
       // When launch starts, calculate initial world pos immediately
       if (groupRef.current && smokeEmissionOffset) {
         // Use tempVec3 for calculation
         groupRef.current.localToWorld(smokeEmissionOffset.clone(), tempVec3);
-        setRocketWorldPos(tempVec3.clone()); // Clone result into state
         directEmitterPosition.current.copy(tempVec3); // Update direct ref
       }
     }
   }, [isLaunched, smokeEmissionOffset]); // smokeEmissionOffset added
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock }, _delta) => {
     if (groupRef.current) {
       if (isLaunched) {
         velocityRef.current += acceleration;
@@ -174,7 +169,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 // Main canvas component
 export default React.memo(function RocketCanvas({
   isLaunched,
-  onError,
+  _onError,
   onTransitionComplete,
 }) {
   const [hasError, setHasError] = useState(false);
@@ -185,9 +180,9 @@ export default React.memo(function RocketCanvas({
     (error) => {
       console.error('Canvas error caught:', error);
       setHasError(true);
-      onError?.(error);
+      _onError?.(error);
     },
-    [onError]
+    [_onError]
   );
 
   const handleContextLost = useCallback(
@@ -195,9 +190,9 @@ export default React.memo(function RocketCanvas({
       event.preventDefault();
       console.warn('WebGL context lost!');
       setContextLost(true);
-      onError?.(new Error('WebGL context lost'));
+      _onError?.(new Error('WebGL context lost'));
     },
-    [onError]
+    [_onError]
   );
 
   const handleContextRestored = useCallback(() => {
@@ -280,7 +275,7 @@ export default React.memo(function RocketCanvas({
       <Suspense fallback={null}>
         <MemoSceneContent
           isLaunched={isLaunched}
-          onError={handleCanvasError}
+          _onError={handleCanvasError}
           onTransitionComplete={onTransitionComplete}
         />
       </Suspense>

@@ -1,46 +1,45 @@
+// eslint.config.js - ESLint 9 flat-config (ASCII-only)
+// -----------------------------------------------
+// Imports
 import js from '@eslint/js';
-import { default as reactThreePlugin } from '@react-three/eslint-plugin';
+import reactThreePlugin from '@react-three/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
-import reactHooks from 'eslint-plugin-react-hooks';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
-import jsxRuntime from 'eslint-plugin-react/configs/jsx-runtime.js';
-import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
-import pluginUnused from "eslint-plugin-unused-imports";
+import unusedPlugin from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'] }, // Ignore config/lock files
+  // Ignore generated and lock files
+  { ignores: ['dist', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'] },
+
+  // Built-in recommended rules
+  js.configs.recommended,
+
+  // React presets (flat-ready)
+  reactPlugin.configs.flat.recommended,
+  reactPlugin.configs.flat['jsx-runtime'],
+
+  // Manual wiring for React Hooks (not flat-ready yet)
   {
-    // Combined JS/JSX config
-    files: ['**/*.{js,jsx}'], // Apply to both JS and JSX files
+    plugins: { 'react-hooks': reactHooksPlugin },
+    rules: reactHooksPlugin.configs.recommended.rules,
+  },
+
+  // Project-specific settings and extra plugins
+  {
+    files: ['**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: {
-        ...globals.browser,
-      },
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true, // Enable JSX parsing
-        },
-      },
+      parserOptions: { ecmaFeatures: { jsx: true } },
+      globals: { ...globals.browser },
     },
-    plugins: { // Include all relevant plugins here
-      import: importPlugin,
-      'react': reactRecommended.plugins.react, // Use the actual plugin object
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-      '@react-three': reactThreePlugin, // replaced require() with reactThreePlugin
-      "unused-imports": pluginUnused
-    },
-    settings: { // Merge settings
-      react: {
-        version: 'detect', // Automatically detect React version
-      },
+    settings: {
+      react: { version: 'detect' },
       'import/resolver': {
-        node: {
-          extensions: ['.js', '.jsx', '.scss'],
-        },
+        node: { extensions: ['.js', '.jsx', '.scss'] },
         alias: {
           map: [
             ['@', './src'],
@@ -53,47 +52,37 @@ export default [
         },
       },
     },
+    plugins: {
+      import: importPlugin,
+      'react-refresh': reactRefresh,
+      '@react-three': reactThreePlugin,
+      'unused-imports': unusedPlugin,
+    },
     rules: {
-      // Base ESLint Recommended Rules
-      ...js.configs.recommended.rules,
-
-      // Base 'no-unused-vars' rule - this is the one we need react/jsx-uses-vars to influence
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
-
-      // Import plugin rules
+      // Base
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      // Import plugin
       'import/no-unresolved': 'error',
-
-      // React Recommended Rules
-      ...reactRecommended.rules,
-
-      // JSX Runtime Rules
-      ...jsxRuntime.rules,
-
-      // React Hooks Rules
-      ...reactHooks.configs.recommended.rules,
-
-      // Explicitly ensure JSX vars rule is active
+      // React
       'react/jsx-uses-vars': 'error',
-
-      // Explicitly ensure React usage rule is active (might be redundant with jsxRuntime)
       'react/jsx-uses-react': 'error',
-
-      // Overrides/Disables for React
-      'react/prop-types': 'off', // Disable prop-types
-      'react/react-in-jsx-scope': 'off', // Not needed with new JSX runtime
-
-      // Disable unknown property checking for three‑fiber props
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
       'react/no-unknown-property': 'off',
-
-      // React Refresh Rule
+      // React Refresh
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
-
-      // New rules:
-      "unused-imports/no-unused-imports": "error"
+      // Unused imports
+      'unused-imports/no-unused-imports': 'error',
     },
   },
-  // Any other specific overrides can go in separate objects here if needed
-]
+];

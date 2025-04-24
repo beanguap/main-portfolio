@@ -18,8 +18,6 @@ const GRAVITY = 0.002; // Add gravity effect
 // Hoist reusable THREE objects
 const tempColor = new THREE.Color();
 const tempVec3 = new THREE.Vector3();
-const tempEuler = new THREE.Euler();
-const tempMatrix = new THREE.Matrix4(); // For setting matrix directly if needed
 
 // Vertex Shader with improved handling
 const vertexShader = `

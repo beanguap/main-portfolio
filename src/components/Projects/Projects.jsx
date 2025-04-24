@@ -1,6 +1,5 @@
 import projectsData from '@assets/projectsData';
 import { Scene3D } from '@components/Projects/Scene3D';
-import Lenis from '@studio-freight/lenis';
 import {
   AnimatePresence,
   motion,
@@ -10,6 +9,7 @@ import {
 } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaAngleDown, FaGithub, FaPlay } from 'react-icons/fa6';
 import styles from './Projects.module.scss';
