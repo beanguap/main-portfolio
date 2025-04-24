@@ -1,7 +1,7 @@
 import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
 import { Environment } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { isMobile } from '@utils/device';
+import { device } from '@utils/device';
 import { useEffect, useState } from 'react';
 
 // Scene content that uses hooks - must be inside Canvas
@@ -22,7 +22,7 @@ function SceneContent() {
 // Main scene component
 export function HeroScene3D() {
   const [isMounted, setIsMounted] = useState(false);
-  const isMobileDevice = isMobile();
+  const { isMobile: isMobileDevice } = device;
 
   useEffect(() => {
     setIsMounted(true);
@@ -38,8 +38,8 @@ export function HeroScene3D() {
     <ErrorBoundary fallback={<></>}>
       <Canvas
         camera={{
-          position: [0, 0, isMobile() ? 25 : 30],
-          fov: isMobile() ? 85 : 75,
+          position: [0, 0, isMobileDevice ? 25 : 30],
+          fov: isMobileDevice ? 85 : 75,
           near: 0.1,
           far: 1000,
         }}

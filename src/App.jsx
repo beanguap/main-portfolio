@@ -86,8 +86,13 @@ function App() {
         end: 'bottom bottom',
         scrub: false,
         snap: {
-          snapTo: 'labels',
-          timeline: timeline,
+          snapTo: (value, self) => {
+            // Safe check to prevent "Cannot read properties of undefined (reading 'labels')"
+            if (!timeline || !timeline.labels || Object.keys(timeline.labels).length === 0) {
+              return 0;
+            }
+            return self.snapIncrementOffset(value, 0.01, true);
+          },
           duration: { min: 0.4, max: 0.8 },
           delay: 0.05,
           ease: 'power3.out',
@@ -97,7 +102,7 @@ function App() {
             const snappedValue = self.snap;
             let closestLabel = 'home';
             let minDist = 1;
-            if (timeline && timeline.labels) {
+            if (timeline && timeline.labels && Object.keys(timeline.labels).length > 0) {
               for (const label in timeline.labels) {
                 const dist = Math.abs(snappedValue - timeline.labels[label]);
                 if (dist < minDist) {
@@ -108,10 +113,10 @@ function App() {
             }
             setActiveSection(closestLabel);
           },
-          enabled: () => !startRocketTransition,
+          enabled: () => !startRocketTransition && timeline && timeline.labels && Object.keys(timeline.labels).length > 0,
         },
         onUpdate: self => {
-          if (!isSnappingRef.current && !startRocketTransition && timeline && timeline.labels) {
+          if (!isSnappingRef.current && !startRocketTransition && timeline && timeline.labels && Object.keys(timeline.labels).length > 0) {
             const progress = self.progress;
             let currentSection = 'home';
             const labels = timeline.labels;
