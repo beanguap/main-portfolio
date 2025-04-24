@@ -29,8 +29,8 @@ export default function RocketTransition({
 
   return (
     <div
-      className={`${styles.rocketTransitionWrapper} ${
-        startTransition ? styles.launched : ''
+      className={`${styles.transitionContainer} ${
+        startTransition ? styles.active : ''
       }`}
       aria-hidden={!startTransition}
     >

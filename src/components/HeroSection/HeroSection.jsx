@@ -7,17 +7,17 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { FaGithub, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 import styles from './HeroSection.module.scss';
-import { sectionVariants, titleVariants, cardVariants } from '@styles/animationVariants';
 
 // Import assets directly
 import decorativeImage46 from '@assets/46.png';
 import abstractImage from '@assets/image-from-rawpixel-id-6171907-png.png';
 import keyboardImage from '@assets/NOBACKGROUNDJMFKEYBOARD .png';
 
-// Social icon animation
-const iconVariants = {
-  hidden: { opacity: 0, scale: 0 },
-  visible: (custom) => ({
+// Section transition variants - new for magnetic detaching effect
+const sectionVariants = {
+  initial: { opacity: 0 },
+  enter: { 
+    opacity: 1,
     transition: { 
       duration: 0.5,
       when: "beforeChildren",
@@ -233,7 +233,7 @@ const HeroSection = ({ isActive }) => {
           {/* Social Media Links */}
           <div className={styles.socialLinks}>
             <motion.a
-              href="https://twitter.com/jerielmartinez"
+              href="https://twitter.com/yourprofile"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Twitter profile"
@@ -245,7 +245,7 @@ const HeroSection = ({ isActive }) => {
               <FaXTwitter />
             </motion.a>
             <motion.a
-              href="https://github.com/jerielmartinez"
+              href="https://github.com/yourprofile"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub profile"
@@ -257,7 +257,7 @@ const HeroSection = ({ isActive }) => {
               <FaGithub />
             </motion.a>
             <motion.a
-              href="https://linkedin.com/in/jerielmartinez"
+              href="https://linkedin.com/in/yourprofile"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn profile"
@@ -295,7 +295,6 @@ const HeroSection = ({ isActive }) => {
           {/* Decorative Image */}
           <motion.img
             src={decorativeImage46} // Use imported variable
-            srcSet="@assets/46.webp 1x, @assets/46.png 2x"
             alt="Decorative graphic"
             className={styles.decorativeImage46}
             initial={{ opacity: 0, scale: 0.9 }}

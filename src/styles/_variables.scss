@@ -19,8 +19,6 @@ $color-text: #ffffff;
 $color-text-secondary: #cccccc;
 $color-accent: #999999;
 $color-background: #000000;
-$color-on-primary: #ffffff; // Text color on primary background
-$color-surface: rgba(255, 255, 255, 0.05); // Card surface color
 $background-texture: '/cloth.png';
 
 // =========================
@@ -59,11 +57,6 @@ $space-sm: 1rem; // 16px
 $space-md: 1.5rem; // 24px
 $space-lg: 2rem; // 32px
 $space-xl: 2.5rem; // 40px
-
-// =========================
-// SHADOWS
-// =========================
-$shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.3); // Medium box shadow
 
 // =========================
 // BORDER RADIUS
