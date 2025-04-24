@@ -35,7 +35,12 @@ function App() {
   };
 
   useEffect(() => {
-    const lenis = new Lenis();
+    const lenis = new Lenis({
+      duration: 1.2, // Tune for resistance feel
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      smoothWheel: true,
+    });
     lenisRef.current = lenis;
 
     const updateScroll = (time) => {
@@ -44,7 +49,6 @@ function App() {
     gsap.ticker.add(updateScroll);
     gsap.ticker.lagSmoothing(0);
 
-    // Only update ScrollTrigger if not currently snapping
     lenis.on('scroll', (e) => {
       if (!isSnappingRef.current) {
         ScrollTrigger.update(e.scroll);
@@ -58,18 +62,51 @@ function App() {
     ];
     const sectionElements = sections.map(s => s.ref.current).filter(Boolean);
 
+    // Create a timeline for our labels
+    const timeline = gsap.timeline();
     let snapTrigger;
     const createSnapTrigger = () => {
       if (snapTrigger) snapTrigger.kill();
+      timeline.clear();
+      timeline.addLabel('home', 0);
+      sectionElements.forEach(el => {
+        const id = el.id;
+        if (id) {
+          const scrollerHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+          const startPos = (el.offsetTop + 1) / scrollerHeight;
+          if (id === 'experience' && !showExperience) return;
+          timeline.addLabel(id, startPos);
+        }
+      });
+      // Custom snap function for resistance
       snapTrigger = ScrollTrigger.create({
         trigger: document.body,
         start: 'top top',
         end: 'bottom bottom',
+        animation: timeline,
         snap: {
-          snapTo: 'labelsDirectional',
-          duration: { min: 0.2, max: 0.6 },
+          snapTo: (progress) => {
+            // Find closest label
+            let closest = progress;
+            let minDist = 1;
+            for (const label in timeline.labels) {
+              const dist = Math.abs(progress - timeline.labels[label]);
+              if (dist < minDist) {
+                minDist = dist;
+                closest = timeline.labels[label];
+              }
+            }
+            // Add resistance: only snap if within 5% of a label
+            if (minDist < 0.05) {
+              return closest;
+            } else {
+              // Resistance: slow approach
+              return progress * 0.92 + closest * 0.08;
+            }
+          },
+          duration: { min: 0.4, max: 0.8 },
           delay: 0.05,
-          ease: 'power2.inOut',
+          ease: 'power3.out',
           onStart: () => { isSnappingRef.current = true; },
           onComplete: (self) => {
             isSnappingRef.current = false;
@@ -77,29 +114,12 @@ function App() {
           },
           enabled: !startRocketTransition,
         },
-        onRefresh: self => {
-          // Instead of trying to clear labels (which doesn't exist), 
-          // we'll store all added labels in a ref and track them manually
-          
-          // First add base home label
-          self.addLabel('home', 0);
-          
-          // Then add other section labels if they should be included
-          sectionElements.forEach(el => {
-            const id = el.id;
-            if (id) {
-              const startPos = (el.offsetTop + 1) / self.scroller.scrollHeight;
-              if (id === 'experience' && !showExperience) return;
-              self.addLabel(id, startPos);
-            }
-          });
-        },
         onUpdate: self => {
           if (!isSnappingRef.current && !startRocketTransition) {
             const scroll = self.scroll();
             let currentSection = 'home';
-            for (const label in self.labels) {
-              if (scroll >= self.labels[label] * self.maxScroll - 1) {
+            for (const label in timeline.labels) {
+              if (scroll >= timeline.labels[label] * self.maxScroll - 1) {
                 currentSection = label;
               } else {
                 break;
@@ -169,6 +189,7 @@ function App() {
         <section ref={heroRef} id="home">
           <HeroSection isActive={activeSection === 'home'} />
         </section>
+        {/* Always mount Projects and ExperiencePanel, control visibility with props and CSS */}
         <section ref={projectsRef} id="projects">
           <Projects isActive={activeSection === 'projects'} />
         </section>
@@ -177,7 +198,7 @@ function App() {
           onTransitionComplete={handleTransitionComplete}
         />
         <section ref={experienceRef} id="experience">
-          {showExperience && <ExperiencePanel />}
+          <ExperiencePanel isActive={activeSection === 'experience'} show={showExperience} />
         </section>
       </main>
     </div>

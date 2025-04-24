@@ -1,15 +1,17 @@
-import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { isMobile } from '@utils/device'; // Import mobile detection
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
-// Enhanced particle constants for more dramatic visual effect
-const PARTICLE_COUNT = 2500; // Increased for denser trail
-const PARTICLE_SIZE = 0.15; // Slightly larger particles for better visibility
-const MAX_LIFE = 8; // Longer max lifetime for longer trails
-const MIN_LIFE = 4; // Minimum lifetime
-const SPAWN_RATE = 25; // Higher spawn rate
-const INITIAL_Y_VELOCITY = -3.5; // Increased downward velocity
-const SPREAD_FACTOR = 3.0; // Wider spread for more voluminous smoke
+// Adjust particle count based on device
+const BASE_PARTICLE_COUNT = isMobile() ? 800 : 2500; // Reduced count for mobile
+const PARTICLE_COUNT = BASE_PARTICLE_COUNT;
+const PARTICLE_SIZE = isMobile() ? 0.12 : 0.15;
+const MAX_LIFE = isMobile() ? 6 : 8;
+const MIN_LIFE = isMobile() ? 3 : 4;
+const SPAWN_RATE = isMobile() ? 15 : 25;
+const INITIAL_Y_VELOCITY = isMobile() ? -2.5 : -3.5;
+const SPREAD_FACTOR = isMobile() ? 2.0 : 3.0;
 const DRAG_FACTOR = 0.98; // Slight drag for realistic physics
 const SMALL_OFFSET_FACTOR = 0.4; // Slightly larger spawn area
 const GRAVITY = 0.002; // Add gravity effect
@@ -62,9 +64,10 @@ const PixelSmokeEffect = ({
   const emitterRef = useRef(
     new THREE.Vector3().copy(rocketWorldPos || new THREE.Vector3(0, -1000, 0))
   );
-  const [spawnIndex, setSpawnIndex] = useState(0);
+  const spawnIndexRef = useRef(0); // Use ref instead of state
   const lastSpawnTimeRef = useRef(0);
   const frameCountRef = useRef(0);
+  const dummy = useMemo(() => new THREE.Object3D(), []); // Hoist dummy
 
   // Base geometry for particles
   const geometry = useMemo(
@@ -90,6 +93,7 @@ const PixelSmokeEffect = ({
   // Cleanup geometry and material
   useEffect(() => {
     return () => {
+      if (particlesRef.current) particlesRef.current.dispose();
       geometry?.dispose();
       material?.dispose();
     };
@@ -100,6 +104,8 @@ const PixelSmokeEffect = ({
     const state = [];
     const initialColor = new Float32Array(PARTICLE_COUNT * 3);
     const initialOpacity = new Float32Array(PARTICLE_COUNT);
+    const tempColor = new THREE.Color(); // Reuse color object
+    const localDummy = new THREE.Object3D(); // Keep local dummy for initialization
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       // Particle color - warm orange/red hues for realistic rocket exhaust
@@ -107,7 +113,6 @@ const PixelSmokeEffect = ({
       const saturation = 0.7 + Math.random() * 0.3;
       const lightness = 0.6 + Math.random() * 0.3;
 
-      const tempColor = new THREE.Color();
       tempColor.setHSL(hue, saturation, lightness);
       tempColor.toArray(initialColor, i * 3);
 
@@ -127,8 +132,7 @@ const PixelSmokeEffect = ({
       // Initialize attributes
       initialOpacity[i] = 0;
 
-      // Set initial matrix using a local dummy object
-      const localDummy = new THREE.Object3D();
+      // Set initial matrix using the local dummy object
       localDummy.position.copy(state[i].position);
       localDummy.rotation.copy(state[i].rotation);
       localDummy.scale.set(state[i].scale, state[i].scale, state[i].scale);
@@ -136,7 +140,7 @@ const PixelSmokeEffect = ({
     }
 
     return { state, initialColor, initialOpacity };
-  }, []);
+  }, []); // Removed PARTICLE_COUNT dependency as it's constant within component lifecycle
 
   // Update emitter reference when rocket position changes
   useEffect(() => {
@@ -164,23 +168,24 @@ const PixelSmokeEffect = ({
     mesh.geometry.attributes.instanceOpacity.needsUpdate = true;
   }, [geometry, particleState]);
 
-  // Main animation frame handler
+  // Main animation frame handler - Use dummy object
   useFrame((state, delta) => {
     if (!particlesRef.current || !isLaunched) return;
 
-    // Use the direct emitter reference if available or fall back to React state
     const emitterPos = directEmitter || emitterRef.current;
 
-    // Performance optimization: throttle updates on high refresh rates
     frameCountRef.current++;
-    if (frameCountRef.current % 2 !== 0) return;
+    if (frameCountRef.current % 2 !== 0 && !isMobile()) return; // Keep throttling on non-mobile
 
     const mesh = particlesRef.current;
-    const positionAttribute = mesh.instanceMatrix;
+    const positionAttribute = mesh.instanceMatrix; // This is the matrix attribute
     if (!positionAttribute) return;
 
     const opacityAttribute = mesh.geometry.attributes.instanceOpacity;
     if (!opacityAttribute) return;
+
+    const time = state.clock.getElapsedTime();
+    let currentIndex = spawnIndexRef.current;
 
     // Update existing particles
     for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -190,94 +195,76 @@ const PixelSmokeEffect = ({
         // Physics update
         p.velocity.multiplyScalar(DRAG_FACTOR);
         p.velocity.x += (Math.random() - 0.5) * 0.3;
+        p.velocity.y += GRAVITY; // Apply gravity
         p.velocity.z += (Math.random() - 0.5) * 0.3;
-        p.velocity.y += (Math.random() - 0.5) * 0.15;
-        p.velocity.y -= GRAVITY;
-        p.position.addScaledVector(p.velocity, delta * 2);
+        p.position.addScaledVector(p.velocity, delta);
         p.rotation.z += p.rotationSpeed * delta;
         p.life -= delta;
 
-        // Fade out at end of life
-        const fadeTime = p.maxLife * 0.3;
-        p.opacity = p.life <= fadeTime ? p.life / fadeTime : 1;
+        // Fade out
+        p.opacity = Math.max(0, (p.life / p.maxLife) * 0.8); // Ensure opacity doesn't exceed 1
 
-        // Update matrix
-        if (p.life > 0) {
-          const localDummy = new THREE.Object3D();
-          localDummy.position.copy(p.position);
-          localDummy.rotation.copy(p.rotation);
-          localDummy.scale.set(p.scale, p.scale, p.scale);
-          localDummy.updateMatrix();
-          mesh.setMatrixAt(i, localDummy.matrix);
-          opacityAttribute.setX(i, p.opacity);
-        } else {
-          const localDummy = new THREE.Object3D();
-          localDummy.position.set(0, -1000, 0);
-          localDummy.updateMatrix();
-          mesh.setMatrixAt(i, localDummy.matrix);
-          opacityAttribute.setX(i, 0);
-        }
+        // Update matrix using the dummy object
+        dummy.position.copy(p.position);
+        dummy.rotation.copy(p.rotation);
+        dummy.scale.set(p.scale, p.scale, p.scale);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+
+        opacityAttribute.setX(i, p.opacity);
+      } else {
+        // Mark as dead (invisible)
+        dummy.scale.set(0, 0, 0);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+        opacityAttribute.setX(i, 0);
       }
     }
 
-    // Spawn new particles at controlled rate
-    const currentTime = state.clock.getElapsedTime();
+    // Spawn new particles
+    const timeSinceLastSpawn = time - lastSpawnTimeRef.current;
+    const spawnCount = Math.min(
+      PARTICLE_COUNT - currentIndex, // Don't exceed count
+      Math.floor(timeSinceLastSpawn * SPAWN_RATE)
+    );
 
-    if (currentTime - lastSpawnTimeRef.current > 0.016) { // Used difference directly
-      lastSpawnTimeRef.current = currentTime;
-
-      let spawnCount = 0;
-      let attempts = 0;
-      let currentIndex = spawnIndex;
-
-      while (spawnCount < SPAWN_RATE && attempts < PARTICLE_COUNT) {
-        attempts++;
+    if (spawnCount > 0) {
+      lastSpawnTimeRef.current = time;
+      for (let i = 0; i < spawnCount; i++) {
         const p = particleState.state[currentIndex];
 
-        if (p.life <= 0) {
-          // Reset particle at rocket position with offset
-          const tempVec3 = new THREE.Vector3();
-          p.position
-            .copy(emitterPos)
-            .add(
-              tempVec3.set(
-                (Math.random() - 0.5) * SMALL_OFFSET_FACTOR,
-                (Math.random() - 0.5) * SMALL_OFFSET_FACTOR * 0.2,
-                (Math.random() - 0.5) * SMALL_OFFSET_FACTOR
-              )
-            );
+        // Reset particle state at emitter position
+        p.position.copy(emitterPos);
+        // Add small random offset
+        p.position.x += (Math.random() - 0.5) * SMALL_OFFSET_FACTOR;
+        p.position.y += (Math.random() - 0.5) * SMALL_OFFSET_FACTOR;
+        p.position.z += (Math.random() - 0.5) * SMALL_OFFSET_FACTOR;
 
-          // Set velocity
-          p.velocity.set(
-            (Math.random() - 0.5) * SPREAD_FACTOR,
-            INITIAL_Y_VELOCITY * (0.7 + Math.random() * 0.6),
-            (Math.random() - 0.5) * SPREAD_FACTOR
-          );
+        // Initial velocity
+        p.velocity.set(
+          (Math.random() - 0.5) * SPREAD_FACTOR,
+          INITIAL_Y_VELOCITY + (Math.random() - 0.5) * 1.5, // Add some variance
+          (Math.random() - 0.5) * SPREAD_FACTOR
+        );
+        p.life = p.maxLife;
+        p.opacity = 0.8;
+        p.rotation.z = Math.random() * Math.PI * 2;
 
-          // Reset lifecycle
-          p.life = p.maxLife;
-          p.opacity = 1;
-          p.rotation.z = Math.random() * Math.PI * 2;
+        // Update matrix for the newly spawned particle
+        dummy.position.copy(p.position);
+        dummy.rotation.copy(p.rotation);
+        dummy.scale.set(p.scale, p.scale, p.scale);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(currentIndex, dummy.matrix);
 
-          // Update matrix
-          const localDummy = new THREE.Object3D();
-          localDummy.position.copy(p.position);
-          localDummy.rotation.copy(p.rotation);
-          localDummy.scale.set(p.scale, p.scale, p.scale);
-          localDummy.updateMatrix();
-          mesh.setMatrixAt(currentIndex, localDummy.matrix);
-          opacityAttribute.setX(currentIndex, p.opacity);
-
-          spawnCount++;
-        }
+        opacityAttribute.setX(currentIndex, p.opacity);
 
         currentIndex = (currentIndex + 1) % PARTICLE_COUNT;
       }
-
-      setSpawnIndex(currentIndex);
+      spawnIndexRef.current = currentIndex;
     }
 
-    // Update instance attributes
+    // Mark attributes for update
     positionAttribute.needsUpdate = true;
     opacityAttribute.needsUpdate = true;
   });

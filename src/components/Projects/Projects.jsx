@@ -1,113 +1,23 @@
-import { Scene3D } from '@components/Projects/Scene3D';
-import Lenis from '@studio-freight/lenis';
+import projectsData from '@assets/projectsData';
+import { cardVariants, sectionVariants, titleVariants } from '@styles/animationVariants';
 import {
-    AnimatePresence,
-    motion,
-    useInView,
-    useScroll,
-    useTransform,
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
 } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaAngleDown, FaGithub, FaPlay } from 'react-icons/fa6';
 import styles from './Projects.module.scss';
 
+// Lazy load the Scene3D component
+const LazyScene3D = lazy(() =>
+  import('@components/Projects/Scene3D').then(module => ({ default: module.Scene3D }))
+);
+
 gsap.registerPlugin(ScrollTrigger);
-
-// Section transition variants - new for magnetic detaching effect
-const sectionVariants = {
-  initial: { opacity: 0 },
-  enter: { 
-    opacity: 1,
-    transition: { 
-      duration: 0.5,
-      when: "beforeChildren",
-      ease: [0.25, 0.1, 0.25, 1.0], // Smooth entrance
-    }
-  },
-  exit: { 
-    opacity: 0,
-    scale: 0.98,
-    y: 30, // Exit downward unlike hero section's upward exit for direction variety
-    transition: { 
-      duration: 0.4,
-      ease: [0.36, 0, 0.66, -0.56], // Elastic/magnetic-like exit
-      when: "afterChildren" 
-    }
-  }
-};
-
-// Define titleVariants
-const titleVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: 'easeOut' },
-  },
-};
-
-const projectsData = [
-  {
-    id: 1,
-    title: 'AI Finger Drummer',
-    description:
-      'Computer vision-based hand tracking application that turns hand gestures into drum beats. Built with Python for ML processing and JavaScript for the web interface.',
-    imageUrl: '@assets/129.jpg',
-    tech: ['Python', 'JavaScript', 'TensorFlow', 'MediaPipe', 'WebAudio API'],
-    links: {
-      github: 'https://github.com/yourusername/ai-finger-drummer',
-      demo: 'https://demo-url.com/finger-drummer',
-    },
-  },
-  {
-    id: 2,
-    title: 'Tank Battle Mobile',
-    description:
-      'A React Native mobile game featuring tank battles with real-time physics and multiplayer capabilities. Available on iOS.',
-    imageUrl: '@assets/156.jpg',
-    tech: ['React Native', 'TypeScript', 'Redux', 'React Game Engine', 'iOS'],
-    links: {
-      github: 'https://github.com/yourusername/tank-battle',
-      demo: 'https://apps.apple.com/app/tank-battle',
-    },
-  },
-  {
-    id: 3,
-    title: 'Brain Progress Animation',
-    description:
-      'Custom React component featuring an animated "unwinding" brain logo effect using SVG animations. Perfect for loading states or progress indicators.',
-    imageUrl: '@assets/MockPortfolioLanding.png',
-    tech: ['React', 'TypeScript', 'SVG', 'Framer Motion', 'SCSS'],
-    links: {
-      github: 'https://github.com/yourusername/brain-progress',
-      demo: 'https://demo-url.com/brain-progress',
-    },
-  },
-];
-
-// Optimize animation variants for better performance
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 }, // Reduced y distance
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.4, // Slightly faster
-      ease: 'easeOut', // Simpler easing function
-    },
-  }),
-  hover: {
-    y: -5, // Reduced movement
-    transition: { duration: 0.2 }, // Faster transition
-  },
-  tap: {
-    scale: 0.98,
-    transition: { duration: 0.1 },
-  },
-};
 
 // Scroll down indicator component
 const ScrollDownIndicator = () => {
@@ -138,22 +48,9 @@ const Projects = ({ isActive }) => {
   const isHeadingInView = useInView(headingRef, { once: true, amount: 0.8 });
   const [showScene, setShowScene] = useState(false);
 
-  // Initialize smooth scrolling
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      smoothWheel: true,
-    });
-
-    const raf = (time) => {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // Trigger for showing/hiding the scene
+  // Set up ScrollTrigger after ref is attached
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
     const sceneTrigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top bottom',
@@ -163,17 +60,16 @@ const Projects = ({ isActive }) => {
       onEnterBack: () => setShowScene(true),
       onLeaveBack: () => setShowScene(false),
     });
-
     return () => {
-      lenis.destroy();
       sceneTrigger.kill();
     };
-  }, []);
+  }, [sectionRef]);
 
-  // Enhanced scroll-based animations with wider transform range
+  // Call useScroll unconditionally
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start end', 'end start'],
+    layoutEffect: false
   });
 
   // Enhanced transform values for more dramatic effect
@@ -184,10 +80,15 @@ const Projects = ({ isActive }) => {
     { clamp: true }
   );
 
+  useEffect(() => {
+    const unsubscribe = backgroundOpacity.on('change', () => {});
+    return unsubscribe;
+  }, [backgroundOpacity]);
+
   const backgroundScale = useTransform(
     scrollYProgress,
     [0, 0.2, 0.8, 1],
-    [0.85, 1.1, 1.1, 0.85], // Increased scale range for more dramatic effect
+    [0.85, 1.1, 1.1, 0.85],
     { clamp: true }
   );
 
@@ -332,83 +233,88 @@ const Projects = ({ isActive }) => {
     []
   ); // Memoize card render function
 
+  // Always render the section, use CSS classes for visibility
   return (
-    <AnimatePresence mode="wait">
-      {isActive && (
-        <motion.section
-          className={styles.projectsSection}
-          id="projects"
-          ref={sectionRef}
-          variants={sectionVariants}
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          style={{ position: 'relative' }}
+    <motion.section
+      className={
+        styles.projectsSection +
+        ' ' + (isActive ? styles.visible : styles.hidden)
+      }
+      id="projects"
+      ref={sectionRef}
+      variants={sectionVariants}
+      initial="initial"
+      animate="enter"
+      exit="exit"
+      style={{ position: 'relative' }}
+    >
+      <div className={styles.projectsIndicator}>
+        <motion.div
+          className={styles.scrollIndicator}
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          <div className={styles.projectsIndicator}>
-            <motion.div
-              className={styles.scrollIndicator}
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-            >
-              <FaAngleDown />
-            </motion.div>
-          </div>
+          <FaAngleDown />
+        </motion.div>
+      </div>
 
-          <motion.div
-            className={styles.backgroundScene}
-            style={{
-              opacity: backgroundOpacity,
-              scale: backgroundScale,
-              rotateY: backgroundRotateY,
-              rotateX: backgroundRotateX,
-              position: 'fixed',
-              width: '100%',
-              height: '100vh',
-              pointerEvents: 'auto',
-              transformPerspective: 1000,
-              transformStyle: 'preserve-3d',
-            }}
-          >
-            <div
-              ref={sceneContainerRef}
-              className="scene-container"
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-                transformStyle: 'preserve-3d',
-              }}
-            >
-              <Scene3D projects={projectsData} />
-            </div>
-          </motion.div>
+      <motion.div
+        className={styles.backgroundScene}
+        style={{
+          opacity: backgroundOpacity,
+          scale: backgroundScale,
+          rotateY: backgroundRotateY,
+          rotateX: backgroundRotateX,
+          position: 'fixed',
+          zIndex: -1, // Ensure background is behind content
+          width: '100%',
+          height: '100vh',
+          pointerEvents: 'auto',
+          transformPerspective: 1000,
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        <div
+          ref={sceneContainerRef}
+          className="scene-container"
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          <Suspense fallback={null}>
+            {showScene && <LazyScene3D projects={projectsData} />}
+          </Suspense>
+        </div>
+      </motion.div>
 
-          <motion.h2
-            ref={(el) => {
-              headingRef.current = el;
-            }}
-            className="projects-heading"
-            variants={titleVariants} // Use defined titleVariants
-            initial="hidden"
-            animate={isHeadingInView ? 'visible' : 'hidden'}
-          >
-            <span className={styles.headingAccent}>Featured</span> Projects
-          </motion.h2>
+      <motion.h2
+        ref={(el) => {
+          headingRef.current = el;
+        }}
+        className="projects-heading"
+        variants={titleVariants}
+        initial="hidden"
+        animate={isHeadingInView ? 'visible' : 'hidden'}
+        style={{ position: 'relative', zIndex: 1 }} // Ensure heading is above background
+      >
+        <span className={styles.headingAccent}>Featured</span> Projects
+      </motion.h2>
 
-          <motion.div
-            className={styles.projectsGrid}
-            initial={false} // Disable initial animation for container
-          >
-            {projectsData.map((project, index) =>
-              renderProjectCard({ project, index })
-            )}
-          </motion.div>
+      <motion.div
+        className={styles.projectsGrid}
+        initial={false}
+        style={{ position: 'relative', zIndex: 1 }} // Ensure grid is above background
+      >
+        {projectsData.map((project, index) =>
+          renderProjectCard({ project, index })
+        )}
+      </motion.div>
 
-          <ScrollDownIndicator />
-        </motion.section>
-      )}
-    </AnimatePresence>
+      <ScrollDownIndicator />
+    </motion.section>
   );
 };
 

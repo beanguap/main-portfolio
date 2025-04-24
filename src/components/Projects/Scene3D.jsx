@@ -1,3 +1,4 @@
+import projectsData from '@assets/projectsData';
 import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
 import { Environment, Float } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -244,7 +245,7 @@ function BackgroundGlow() {
 }
 
 // Main scene component with optimized rendering
-export function Scene3D({ projects }) {
+export function Scene3D({ projects = projectsData }) {
   const [isMounted, setIsMounted] = useState(false);
   const isMobileDevice = isMobile();
   const isIPhone12 = isIPhone12Pro();

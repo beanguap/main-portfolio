@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import styles from './Navbar.module.scss';
 import logoImg from '../../assets/logo-transparent.png';
+import styles from './Navbar.module.scss';
 
 const Navbar = ({ activeSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -42,6 +42,7 @@ const Navbar = ({ activeSection }) => {
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Toggle Menu"
         aria-expanded={menuOpen}
+        type="button"
       >
         <span className={styles.hamburgerBar}></span>
         <span className={styles.hamburgerBar}></span>

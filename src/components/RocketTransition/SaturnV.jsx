@@ -1,9 +1,12 @@
 import { useGLTF } from '@react-three/drei';
-import { useEffect, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useMemo } from 'react'; // Added forwardRef
 import * as THREE from 'three';
 
+// Preload GLTF outside the component (at module scope)
+useGLTF.preload('/scene.gltf');
+
 // Define FallbackRocket using memoized material
-export const FallbackRocket = (props) => {
+export const FallbackRocket = forwardRef((props, ref) => { // Use forwardRef
   // Wrap material creation in useMemo
   const rocketMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#ffffff',
@@ -17,7 +20,7 @@ export const FallbackRocket = (props) => {
   }, [rocketMaterial]);
 
   return (
-    <group {...props}>
+    <group {...props} ref={ref}> {/* Attach ref here */}
       <mesh material={rocketMaterial}>
         <cylinderGeometry args={[0.5, 0.5, 4, 32]} />
       </mesh>
@@ -36,15 +39,10 @@ export const FallbackRocket = (props) => {
       ))}
     </group>
   );
-};
+});
+FallbackRocket.displayName = 'FallbackRocket'; // Add display name
 
-export default function SaturnV({ _isLaunched, ...props }) { // Prefixed unused prop
-  // Preload GLTF within component (inside Canvas context)
-  useEffect(() => {
-    useGLTF.preload('/scene.gltf');
-  }, []);
-
-  const rocketRef = useRef();
+const SaturnV = forwardRef(({ _isLaunched, ...props }, ref) => { // Use forwardRef and accept ref
   const { scene, materials, nodes } = useGLTF('/scene.gltf');
 
   // Cleanup function for GLTF materials, geometries and cache
@@ -53,29 +51,41 @@ export default function SaturnV({ _isLaunched, ...props }) { // Prefixed unused 
       try {
         if (materials) {
           Object.values(materials).forEach((mat) => {
-            mat.map?.dispose();
-            mat.dispose();
+            if (mat) {
+              Object.values(mat).forEach(prop => {
+                if (prop && prop.isTexture) {
+                  prop.dispose();
+                }
+              });
+              mat.dispose();
+            }
           });
         }
         if (nodes) {
-          Object.values(nodes).forEach((node) => node.geometry?.dispose());
+          Object.values(nodes).forEach((node) => {
+            if (node && node.geometry) {
+              node.geometry.dispose();
+            }
+          });
         }
         useGLTF.clear('/scene.gltf');
-      } catch (_err) { // Prefix unused 'err' with underscore
+      } catch (_err) {
         console.error('Error disposing GLTF resources in SaturnV:', _err);
       }
     };
   }, [materials, nodes]);
 
-  // Clone the scene for rendering
-  const clonedScene = scene ? scene.clone(true) : null;
+  // Memoize the cloned scene
+  const clonedScene = useMemo(() => scene?.clone(true), [scene]);
 
   // Check if scene loaded
-  if (!scene) {
-    console.warn('GLTF scene not loaded, using fallback');
-    // Pass props to FallbackRocket
-    return <FallbackRocket {...props} />;
+  if (!clonedScene) {
+    console.warn('GLTF scene not loaded or cloned, using fallback');
+    return <FallbackRocket {...props} ref={ref} />;
   }
 
-  return <primitive ref={rocketRef} object={clonedScene} {...props} />;
-}
+  return <primitive ref={ref} object={clonedScene} {...props} />;
+});
+SaturnV.displayName = 'SaturnV'; // Add display name
+
+export default SaturnV;

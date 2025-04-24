@@ -1,11 +1,12 @@
 import { Environment } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
+    memo,
+    Suspense,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 import * as THREE from 'three';
 import ErrorBoundary from './ErrorBoundary';
@@ -22,12 +23,8 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
   const transitionCompletedRef = useRef(false); // Track if completion callback was called
 
   // Define a stable ref for the direct emitter position
-  const directEmitterPosition = useRef(new THREE.Vector3());
+  const directEmitterPosition = useRef(new THREE.Vector3(0, -1000, 0)); // Start off-screen
 
-  // State to hold the world position for smoke emission
-  const [rocketWorldPos, setRocketWorldPos] = useState(
-    new THREE.Vector3(0, -1000, 0)
-  ); // Start off-screen
   // State for the local offset for smoke emission (computed from bounding box)
   const [smokeEmissionOffset, setSmokeEmissionOffset] = useState(
     new THREE.Vector3(0, -4.2, 0)
@@ -52,25 +49,16 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
       // Get the world matrix of the rocket model
       rocketModelRef.current.updateWorldMatrix(true, true);
 
-      // Get the bounding box in local space
-      const box = new THREE.Box3().setFromObject(rocketModelRef.current);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-
       const emissionPoint = findEmissionPoint(rocketModelRef.current);
 
       // Set the offset with improved positioning
       setSmokeEmissionOffset(emissionPoint);
 
-      // Immediately update world position if launched
+      // Immediately update directEmitterPosition ref if launched
       if (isLaunched) {
-        const worldPos = new THREE.Vector3();
+        const worldPos = directEmitterPosition.current; // Use the ref directly
         worldPos.copy(emissionPoint);
         worldPos.applyMatrix4(groupRef.current.matrixWorld);
-
-        // Update both React state and direct reference
-        setRocketWorldPos(worldPos.clone());
-        directEmitterPosition.current.copy(worldPos);
       }
     }
   }, [isLaunched, findEmissionPoint]);
@@ -108,17 +96,13 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         groupRef.current.position.y = -3; // Reset to initial position
         groupRef.current.rotation.y = 0; // Reset rotation
       }
-      // Reset smoke position state when not launched
-      setRocketWorldPos(new THREE.Vector3(0, -1000, 0));
+      // Reset directEmitterPosition ref when not launched
+      directEmitterPosition.current.set(0, -1000, 0);
     } else {
-      // When launch starts, calculate initial world pos immediately
-      const tempWorldPos = new THREE.Vector3(); // Define tempWorldPos
+      // When launch starts, calculate initial world pos immediately and update ref
       if (groupRef.current) {
-        groupRef.current.localToWorld(
-          smokeEmissionOffset.clone(),
-          tempWorldPos
-        );
-        setRocketWorldPos(tempWorldPos);
+        directEmitterPosition.current.copy(smokeEmissionOffset);
+        directEmitterPosition.current.applyMatrix4(groupRef.current.matrixWorld);
       }
     }
   }, [isLaunched, smokeEmissionOffset]);
@@ -134,14 +118,9 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         groupRef.current.rotation.y =
           Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
 
-        // Always update direct emitter on every frame for perfect synchronization
+        // Always update direct emitter ref on every frame for perfect synchronization
         directEmitterPosition.current.copy(smokeEmissionOffset);
         directEmitterPosition.current.applyMatrix4(groupRef.current.matrixWorld);
-
-        // Only update React state occasionally for debugging (less frequent)
-        if (clock.elapsedTime % 0.5 < delta) {
-          setRocketWorldPos(directEmitterPosition.current.clone());
-        }
 
         // Check if rocket is off-screen
         const exitThreshold = viewport.height / 1.5;
@@ -167,6 +146,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
         <ErrorBoundary
           fallback={
             <FallbackRocket
+              ref={rocketModelRef} // Pass ref to fallback
               position={[0, -4, 0]}
               scale={[0.015, 0.015, 0.015]}
             />
@@ -176,14 +156,12 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
             ref={rocketModelRef} // Attach ref to SaturnV
             position={[0, -4, 0]} // Model position relative to group
             scale={[0.015, 0.015, 0.015]}
-            isLaunched={isLaunched} // Pass prop if SaturnV needs it
           />
         </ErrorBoundary>
       </group>
 
       {/* Pixel Smoke Effect - Renders independently in world space */}
       <PixelSmokeEffect
-        rocketWorldPos={rocketWorldPos}
         directEmitter={directEmitterPosition.current} // Pass direct reference
         isLaunched={isLaunched}
       />
@@ -194,7 +172,7 @@ function SceneContent({ isLaunched, onError, onTransitionComplete }) {
 }
 
 // Main canvas component
-export default React.memo(function RocketCanvas({
+const RocketCanvas = memo(function RocketCanvas({
   isLaunched,
   onError,
   onTransitionComplete,
@@ -210,6 +188,35 @@ export default React.memo(function RocketCanvas({
     },
     [onError]
   );
+
+  const handleContextLost = useCallback((event) => {
+    event.preventDefault();
+    console.warn("WebGL context lost in RocketCanvas.");
+    setContextLost(true);
+    onError?.(new Error("WebGL context lost"));
+  }, [onError]);
+
+  const handleContextRestored = useCallback((scene) => {
+    console.log("WebGL context restored in RocketCanvas.");
+    setContextLost(false);
+    scene.traverse((obj) => {
+      if (obj.material) {
+        const mats = Array.isArray(obj.material)
+          ? obj.material
+          : [obj.material];
+        mats.forEach((mat) => {
+          if (mat) {
+            mat.needsUpdate = true;
+            Object.values(mat).forEach((value) => {
+              if (value && value.isTexture) {
+                value.needsUpdate = true;
+              }
+            });
+          }
+        });
+      }
+    });
+  }, []);
 
   if (hasError || contextLost) {
     return (
@@ -246,41 +253,10 @@ export default React.memo(function RocketCanvas({
         const { gl, scene } = state;
         const domElement = gl.domElement;
 
-        // Add event listener for context loss
-        const handleContextLost = (event) => {
-          event.preventDefault();
-          console.warn("WebGL context lost in RocketCanvas.");
-          setContextLost(true);
-          onError?.(new Error("WebGL context lost"));
-        };
-        // Add event listener for context restoration
-        const handleContextRestored = () => {
-          console.log("WebGL context restored in RocketCanvas.");
-          setContextLost(false);
-          // Mark existing materials/textures as needing update
-          scene.traverse((obj) => {
-            if (obj.material) {
-              const mats = Array.isArray(obj.material)
-                ? obj.material
-                : [obj.material];
-              mats.forEach((mat) => {
-                if (mat) {
-                  mat.needsUpdate = true;
-                  // Also mark textures for update
-                  Object.values(mat).forEach((value) => {
-                    if (value && value.isTexture) {
-                      value.needsUpdate = true;
-                    }
-                  });
-                }
-              });
-            }
-          });
-        };
         domElement.addEventListener('webglcontextlost', handleContextLost, false);
         domElement.addEventListener(
           'webglcontextrestored',
-          handleContextRestored,
+          () => handleContextRestored(scene), // Pass scene to handler
           false
         );
 
@@ -298,6 +274,10 @@ export default React.memo(function RocketCanvas({
     </Canvas>
   );
 });
+RocketCanvas.displayName = 'RocketCanvas'; // Add display name
 
 // Memoize SceneContent for performance
-const MemoSceneContent = React.memo(SceneContent);
+const MemoSceneContent = memo(SceneContent);
+MemoSceneContent.displayName = 'MemoSceneContent'; // Add display name
+
+export default RocketCanvas; // Export the memoized component
