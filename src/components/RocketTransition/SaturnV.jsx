@@ -44,7 +44,7 @@ FallbackRocket.displayName = 'FallbackRocket'; // Add display name
 // You need to generate this file using tools like gltf-pipeline or Blender's Draco exporter
 const MODEL_PATH = '/models/scene-draco.glb'; // ADJUST THIS PATH
 // Ensure the DRACO decoder libraries are available, usually handled by drei if installed correctly
-useGLTF.preload(MODEL_PATH, true); // Preload with Draco flag
+useGLTF.preload(MODEL_PATH, true, true); // 3rd arg: useCreateWorker = true
 
 const SaturnV = forwardRef((props, ref) => { // Use forwardRef
   // Load the GLTF model with Draco enabled

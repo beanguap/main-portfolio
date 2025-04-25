@@ -3,7 +3,14 @@ import ErrorBoundary from './ErrorBoundary';
 import styles from './RocketTransition.module.scss';
 
 // Lazy load the canvas component
-const RocketCanvas = lazy(() => import('./RocketCanvas'));
+// Patch: Preload Draco/HDR before resolving Suspense
+const RocketCanvas = lazy(() =>
+  import('./RocketCanvas').then(mod =>
+    new Promise(res => {
+      mod.preload?.().finally(() => res(mod));
+    })
+  )
+);
 
 export default function RocketTransition({
   startTransition,

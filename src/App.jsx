@@ -38,6 +38,8 @@ function App() {
     });
   }, []);
 
+  // Intentionally omit 'activeSection' from deps to avoid ScrollTrigger/Lenis thrashing on scroll.
+   
   useEffect(() => {
     const lenis = new Lenis();
     lenisRef.current = lenis;
@@ -74,7 +76,6 @@ function App() {
       sectionElements.forEach(el => {
         const id = el.id;
         if (id && id !== 'home') {
-          ScrollTrigger.refresh();
           const startPos = el.offsetTop / (document.documentElement.scrollHeight - window.innerHeight);
           timeline.addLabel(id, Math.max(0, Math.min(1, startPos)));
         }
@@ -174,7 +175,7 @@ function App() {
       lenisRef.current?.destroy();
       lenisRef.current = null;
     };
-  }, [showExperience, startRocketTransition, handleTransitionComplete, activeSection]);
+  }, [showExperience, startRocketTransition, handleTransitionComplete]);
 
   return (
     <div className="app">

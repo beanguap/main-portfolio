@@ -14,13 +14,13 @@ import * as THREE from 'three';
 
 // Hoist reusable THREE objects
 const tempColor = new THREE.Color();
-const tempVec3 = new THREE.Vector3();
 
 // Enhanced particle field with better performance on mobile
 function ParticleField() {
   const particles = useRef();
   const geometryRef = useRef();
   const materialRef = useRef();
+  const frameRef = useRef(0);
   const { isMobile: isMobileDevice, isIPhone12Pro: isIPhone12 } = device;
 
   // Increase particle count for better coverage
@@ -70,11 +70,11 @@ function ParticleField() {
 
   useFrame((state, delta) => {
     if (!particles.current) return;
-    particles.current.rotation.y += delta * (isMobileDevice ? 0.05 : 0.08);
-
+    frameRef.current++;
+    if (frameRef.current % 2 !== 0) return; // Throttle updates to every 2nd frame
     const positions = particles.current.geometry.attributes.position.array;
     const t = state.clock.getElapsedTime();
-
+    let changed = false;
     for (let i = 0; i < particlesCount; i++) {
       const idx = i * 3;
       const x = positions[idx];
@@ -83,12 +83,22 @@ function ParticleField() {
       const rotationSpeed = 0.15 * (1 - distanceFromCenter / 70) * delta;
       const cosR = Math.cos(rotationSpeed);
       const sinR = Math.sin(rotationSpeed);
-      positions[idx] = x * cosR - z * sinR;
-      positions[idx + 2] = z * cosR + x * sinR;
-      positions[idx + 1] += Math.sin(t + i * 0.1) * delta * 0.2;
+      const newX = x * cosR - z * sinR;
+      const newZ = z * cosR + x * sinR;
+      if (positions[idx] !== newX || positions[idx + 2] !== newZ) {
+        positions[idx] = newX;
+        positions[idx + 2] = newZ;
+        changed = true;
+      }
+      const newY = positions[idx + 1] + Math.sin(t + i * 0.1) * delta * 0.2;
+      if (positions[idx + 1] !== newY) {
+        positions[idx + 1] = newY;
+        changed = true;
+      }
     }
-
-    particles.current.geometry.attributes.position.needsUpdate = true;
+    if (changed) {
+      particles.current.geometry.attributes.position.needsUpdate = true;
+    }
     particles.current.position.y = Math.sin(t * 0.2) * 0.5;
   });
 
@@ -207,6 +217,7 @@ function BackgroundGlow() {
 export function Scene3D({ projects = projectsData }) {
   const [isMounted, setIsMounted] = useState(false);
   const { isMobile: isMobileDevice, isIPhone12Pro: isIPhone12 } = device;
+  const glRef = useRef(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -233,6 +244,7 @@ export function Scene3D({ projects = projectsData }) {
           stencil: false,
           depth: true,
         }}
+        onCreated={({ gl }) => { glRef.current = gl; }}
       >
         <color attach="background" args={['#000000']} />
 
@@ -263,11 +275,14 @@ export function Scene3D({ projects = projectsData }) {
 
         <Environment preset="night" />
 
-        <EffectComposer enabled={!isMobileDevice} multisampling={0}>
-          <Bloom luminanceThreshold={0.5} intensity={1} radius={0.4} />
-          <Noise opacity={0.02} />
-          <Vignette darkness={0.5} offset={0.5} eskil={false} />
-        </EffectComposer>
+        {/* Only render EffectComposer if gl is available */}
+        {glRef.current && (
+          <EffectComposer enabled={!isMobileDevice} multisampling={0}>
+            <Bloom luminanceThreshold={0.5} intensity={1} radius={0.4} />
+            <Noise opacity={0.02} />
+            <Vignette darkness={0.5} offset={0.5} eskil={false} />
+          </EffectComposer>
+        )}
       </Canvas>
     </ErrorBoundary>
   );

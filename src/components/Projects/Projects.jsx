@@ -1,15 +1,14 @@
 import projectsData from '@assets/projectsData';
 import { Scene3D } from '@components/Projects/Scene3D';
 import {
-  AnimatePresence,
-  motion,
-  useInView,
-  useScroll,
-  useTransform,
+    AnimatePresence,
+    motion,
+    useInView,
+    useScroll,
+    useTransform,
 } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaAngleDown, FaGithub, FaPlay } from 'react-icons/fa6';
 import styles from './Projects.module.scss';
@@ -91,6 +90,53 @@ const ScrollDownIndicator = () => {
   );
 };
 
+const ProjectsScrollEffects = ({ sectionRef, setBackgroundTransforms }) => {
+  // Only run useScroll if ref is attached
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+    layoutEffect: false,
+  });
+
+  // Enhanced transform values for more dramatic effect
+  const backgroundOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.8, 1],
+    [0, 1, 1, 0],
+    { clamp: true }
+  );
+  const backgroundScale = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.8, 1],
+    [0.85, 1.1, 1.1, 0.85],
+    { clamp: true }
+  );
+  const backgroundRotateY = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [-10, 0, 10],
+    { clamp: true }
+  );
+  const backgroundRotateX = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [5, 0, -5],
+    { clamp: true }
+  );
+
+  // Pass transforms up to parent
+  useEffect(() => {
+    setBackgroundTransforms({
+      backgroundOpacity,
+      backgroundScale,
+      backgroundRotateY,
+      backgroundRotateX,
+    });
+  }, [backgroundOpacity, backgroundScale, backgroundRotateY, backgroundRotateX, setBackgroundTransforms]);
+
+  return null;
+};
+
 const Projects = ({ isActive }) => {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
@@ -99,21 +145,16 @@ const Projects = ({ isActive }) => {
 
   const isHeadingInView = useInView(headingRef, { once: true, amount: 0.8 });
   const [showScene, setShowScene] = useState(false);
+  const [backgroundTransforms, setBackgroundTransforms] = useState({
+    backgroundOpacity: 1,
+    backgroundScale: 1,
+    backgroundRotateY: 0,
+    backgroundRotateX: 0,
+  });
 
   // Initialize smooth scrolling
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      smoothWheel: true,
-    });
-
-    const raf = (time) => {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    // Removed local Lenis and rAF loop for performance. Use root Lenis instance from App if needed.
 
     // Trigger for showing/hiding the scene
     const sceneTrigger = ScrollTrigger.create({
@@ -127,47 +168,9 @@ const Projects = ({ isActive }) => {
     });
 
     return () => {
-      lenis.destroy();
       sceneTrigger.kill();
     };
   }, []);
-
-  // Enhanced scroll-based animations with wider transform range
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-    layoutEffect: false, // Add this line to fix hydration warning
-  });
-
-  // Enhanced transform values for more dramatic effect
-  const backgroundOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [0, 1, 1, 0],
-    { clamp: true }
-  );
-
-  const backgroundScale = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [0.85, 1.1, 1.1, 0.85], // Increased scale range for more dramatic effect
-    { clamp: true }
-  );
-
-  // Add rotation effect
-  const backgroundRotateY = useTransform(
-    scrollYProgress,
-    [0, 0.5, 1],
-    [-10, 0, 10],
-    { clamp: true }
-  );
-
-  const backgroundRotateX = useTransform(
-    scrollYProgress,
-    [0, 0.5, 1],
-    [5, 0, -5],
-    { clamp: true }
-  );
 
   // Enhanced GSAP animations
   useLayoutEffect(() => {
@@ -308,6 +311,8 @@ const Projects = ({ isActive }) => {
           exit="exit"
           style={{ position: 'relative' }}
         >
+          {/* Scroll-based transforms are now managed by ProjectsScrollEffects */}
+          <ProjectsScrollEffects sectionRef={sectionRef} setBackgroundTransforms={setBackgroundTransforms} />
           <div className={styles.projectsIndicator}>
             <motion.div
               className={styles.scrollIndicator}
@@ -321,10 +326,10 @@ const Projects = ({ isActive }) => {
           <motion.div
             className={styles.backgroundScene}
             style={{
-              opacity: backgroundOpacity,
-              scale: backgroundScale,
-              rotateY: backgroundRotateY,
-              rotateX: backgroundRotateX,
+              opacity: backgroundTransforms.backgroundOpacity,
+              scale: backgroundTransforms.backgroundScale,
+              rotateY: backgroundTransforms.backgroundRotateY,
+              rotateX: backgroundTransforms.backgroundRotateX,
               position: 'fixed',
               width: '100%',
               height: '100vh',
