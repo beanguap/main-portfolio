@@ -7,13 +7,9 @@ import {
     useScroll,
     useTransform,
 } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { FaAngleDown, FaGithub, FaPlay } from 'react-icons/fa6';
 import styles from './Projects.module.scss';
-
-gsap.registerPlugin(ScrollTrigger);
 
 // Section transition variants - new for magnetic detaching effect
 const sectionVariants = {
@@ -90,15 +86,14 @@ const ScrollDownIndicator = () => {
   );
 };
 
-const ProjectsScrollEffects = ({ sectionRef, setBackgroundTransforms }) => {
-  // Only run useScroll if ref is attached
+// New Component for Background Effects
+const ProjectBackgroundEffects = ({ targetRef }) => {
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
+    target: targetRef,
     offset: ['start end', 'end start'],
     layoutEffect: false,
   });
 
-  // Enhanced transform values for more dramatic effect
   const backgroundOpacity = useTransform(
     scrollYProgress,
     [0, 0.2, 0.8, 1],
@@ -124,108 +119,46 @@ const ProjectsScrollEffects = ({ sectionRef, setBackgroundTransforms }) => {
     { clamp: true }
   );
 
-  // Pass transforms up to parent
-  useEffect(() => {
-    setBackgroundTransforms({
-      backgroundOpacity,
-      backgroundScale,
-      backgroundRotateY,
-      backgroundRotateX,
-    });
-  }, [backgroundOpacity, backgroundScale, backgroundRotateY, backgroundRotateX, setBackgroundTransforms]);
-
-  return null;
+  return (
+    <motion.div
+      className={styles.backgroundScene}
+      style={{
+        opacity: backgroundOpacity,
+        scale: backgroundScale,
+        rotateY: backgroundRotateY,
+        rotateX: backgroundRotateX,
+        position: 'fixed',
+        width: '100%',
+        height: '100vh',
+        pointerEvents: 'auto',
+        transformPerspective: 1000,
+        transformStyle: 'preserve-3d',
+        zIndex: 1,
+      }}
+    >
+      <div
+        className="scene-container"
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        <Scene3D projects={projectsData} />
+      </div>
+    </motion.div>
+  );
 };
 
 const Projects = ({ isActive }) => {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
-  const sceneContainerRef = useRef(null);
   const projectCardsRef = useRef([]);
 
   const isHeadingInView = useInView(headingRef, { once: true, amount: 0.8 });
-  const [showScene, setShowScene] = useState(false);
-  const [backgroundTransforms, setBackgroundTransforms] = useState({
-    backgroundOpacity: 1,
-    backgroundScale: 1,
-    backgroundRotateY: 0,
-    backgroundRotateX: 0,
-  });
 
-  // Initialize smooth scrolling
-  useEffect(() => {
-    // Removed local Lenis and rAF loop for performance. Use root Lenis instance from App if needed.
-
-    // Trigger for showing/hiding the scene
-    const sceneTrigger = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top bottom',
-      end: 'bottom top',
-      onEnter: () => setShowScene(true),
-      onLeave: () => setShowScene(false),
-      onEnterBack: () => setShowScene(true),
-      onLeaveBack: () => setShowScene(false),
-    });
-
-    return () => {
-      sceneTrigger.kill();
-    };
-  }, []);
-
-  // Enhanced GSAP animations
-  useLayoutEffect(() => {
-    if (showScene && sceneContainerRef.current && projectCardsRef.current.length > 0) {
-      const _ctx = gsap.context(() => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '#projects',
-            start: 'top center',
-            end: 'bottom center',
-            scrub: 1, // Increased scrub time for smoother effect
-            toggleActions: 'play none none reverse',
-          },
-        });
-
-        // Enhanced initial state
-        gsap.set(sceneContainerRef.current, {
-          opacity: 0,
-          scale: 0.85,
-          rotateY: -10,
-          rotateX: 5,
-          z: -100,
-        });
-
-        // Enhanced animation sequence
-        tl.to(sceneContainerRef.current, {
-          opacity: 1,
-          scale: 1.1,
-          rotateY: 0,
-          rotateX: 0,
-          z: 0,
-          duration: 1.2,
-          ease: 'power2.out',
-        }).to(sceneContainerRef.current, {
-          scale: 1,
-          duration: 0.8,
-          ease: 'power1.inOut',
-        });
-
-        // Add floating animation
-        gsap.to(sceneContainerRef.current, {
-          y: '20px',
-          duration: 2,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        });
-      });
-
-      return () => _ctx.revert();
-    }
-  }, [showScene]);
-
-  // Render optimization for project cards
-  const renderProjectCard = React.useCallback(
+  const renderProjectCard = useCallback(
     ({ project, index }) => (
       <motion.div
         key={project.id}
@@ -234,7 +167,7 @@ const Projects = ({ isActive }) => {
         variants={cardVariants}
         custom={index}
         initial="hidden"
-        whileInView="visible" // Change from animate to whileInView
+        whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}
         whileHover="hover"
         whileTap="tap"
@@ -244,15 +177,14 @@ const Projects = ({ isActive }) => {
             src={project.imageUrl}
             alt={`Screenshot of ${project.title} project`}
             loading="lazy"
-            decoding="async" // Add async decoding
+            decoding="async"
           />
           <motion.div
             className={styles.projectLinks}
-            initial={false} // Disable initial animation
+            initial={false}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Simplified link animations */}
             <motion.a
               href={project.links.github}
               target="_blank"
@@ -285,7 +217,7 @@ const Projects = ({ isActive }) => {
                 className={styles.techTag}
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.05 * i }} // Reduced delay
+                transition={{ delay: 0.05 * i }}
                 viewport={{ once: true }}
               >
                 {tech}
@@ -296,7 +228,7 @@ const Projects = ({ isActive }) => {
       </motion.div>
     ),
     []
-  ); // Memoize card render function
+  );
 
   return (
     <AnimatePresence mode="wait">
@@ -311,8 +243,8 @@ const Projects = ({ isActive }) => {
           exit="exit"
           style={{ position: 'relative' }}
         >
-          {/* Scroll-based transforms are now managed by ProjectsScrollEffects */}
-          <ProjectsScrollEffects sectionRef={sectionRef} setBackgroundTransforms={setBackgroundTransforms} />
+          <ProjectBackgroundEffects targetRef={sectionRef} />
+
           <div className={styles.projectsIndicator}>
             <motion.div
               className={styles.scrollIndicator}
@@ -323,41 +255,10 @@ const Projects = ({ isActive }) => {
             </motion.div>
           </div>
 
-          <motion.div
-            className={styles.backgroundScene}
-            style={{
-              opacity: backgroundTransforms.backgroundOpacity,
-              scale: backgroundTransforms.backgroundScale,
-              rotateY: backgroundTransforms.backgroundRotateY,
-              rotateX: backgroundTransforms.backgroundRotateX,
-              position: 'fixed',
-              width: '100%',
-              height: '100vh',
-              pointerEvents: 'auto',
-              transformPerspective: 1000,
-              transformStyle: 'preserve-3d',
-            }}
-          >
-            <div
-              ref={sceneContainerRef}
-              className="scene-container"
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-                transformStyle: 'preserve-3d',
-              }}
-            >
-              <Scene3D projects={projectsData} />
-            </div>
-          </motion.div>
-
           <motion.h2
-            ref={(el) => {
-              headingRef.current = el;
-            }}
+            ref={headingRef}
             className="projects-heading"
-            variants={titleVariants} // Use defined titleVariants
+            variants={titleVariants}
             initial="hidden"
             animate={isHeadingInView ? 'visible' : 'hidden'}
           >
@@ -366,7 +267,8 @@ const Projects = ({ isActive }) => {
 
           <motion.div
             className={styles.projectsGrid}
-            initial={false} // Disable initial animation for container
+            style={{ position: 'relative', zIndex: 2 }}
+            initial={false}
           >
             {projectsData.map((project, index) =>
               renderProjectCard({ project, index })
@@ -380,4 +282,4 @@ const Projects = ({ isActive }) => {
   );
 };
 
-export default React.memo(Projects); // Memoize entire component
+export default React.memo(Projects);

@@ -158,7 +158,7 @@ const skillItemVariants = {
   },
 };
 
-const HeroSection = ({ isActive }) => {
+const HeroSection = ({ isActive, scrollToProjects }) => {
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const sectionRef = useRef(null);
   const isHeroSceneInView = useInView(sectionRef, { once: false, amount: 0.1 });
@@ -295,6 +295,17 @@ const HeroSection = ({ isActive }) => {
               whileTap="tap"
             >
               DOWNLOAD CV
+            </motion.button>
+            <motion.button
+              className={styles.scrollToProjectsBtn}
+              variants={buttonVariants}
+              custom={2}
+              whileHover="hover"
+              whileTap="tap"
+              onClick={scrollToProjects}
+              style={{ marginLeft: '1rem' }}
+            >
+              VIEW PROJECTS
             </motion.button>
           </div>
 

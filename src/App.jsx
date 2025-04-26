@@ -1,7 +1,5 @@
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'; // Add lazy
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 
 // Lazy load components
 const HeroSection = lazy(() => import('@components/HeroSection/HeroSection'));
@@ -13,8 +11,6 @@ const RocketTransition = lazy(() => import('@components/RocketTransition/RocketT
 
 import './App.scss';
 
-gsap.registerPlugin(ScrollTrigger);
-
 function App() {
   const heroRef = useRef(null);
   const projectsRef = useRef(null);
@@ -25,7 +21,12 @@ function App() {
   const [showExperience, setShowExperience] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const lenisRef = useRef(null);
-  const isSnappingRef = useRef(false);
+
+  const scrollToSection = useCallback((ref) => {
+    if (lenisRef.current && ref.current) {
+      lenisRef.current.scrollTo(ref.current, { offset: 0, duration: 1.2 });
+    }
+  }, []);
 
   const handleTransitionComplete = useCallback(() => {
     setShowExperience(true);
@@ -33,14 +34,10 @@ function App() {
       if (lenisRef.current && experienceRef.current) {
         lenisRef.current.scrollTo(experienceRef.current, { immediate: true });
         setActiveSection('experience');
-        ScrollTrigger.refresh();
-        isSnappingRef.current = false;
       }
     });
   }, []);
 
-  // Intentionally omit 'activeSection' from deps to avoid ScrollTrigger/Lenis thrashing on scroll.
-   
   useEffect(() => {
     const lenis = new Lenis();
     lenisRef.current = lenis;
@@ -48,144 +45,84 @@ function App() {
     const updateScroll = (time) => {
       lenis.raf(time * 1000);
     };
-    gsap.ticker.add(updateScroll);
-    gsap.ticker.lagSmoothing(0);
 
-    lenis.on('scroll', ScrollTrigger.update);
+    let rafId;
+    const raf = (time) => {
+      updateScroll(time / 1000);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
 
-    let snapTrigger;
-    let rocketTrigger;
-    let timeline;
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const centerViewport = scrollY + windowHeight / 2;
 
-    const setupScrollTriggers = () => {
-      snapTrigger?.kill();
-      rocketTrigger?.kill();
-      timeline?.kill();
+      // Determine active section
+      let currentSection = 'home'; // Default
+      const heroBounds = heroRef.current?.getBoundingClientRect();
+      const projectsBounds = projectsRef.current?.getBoundingClientRect();
+      const experienceBounds = experienceRef.current?.getBoundingClientRect();
 
-      const sections = [
-        { id: 'home', ref: heroRef },
-        { id: 'projects', ref: projectsRef },
-        ...(showExperience ? [{ id: 'experience', ref: experienceRef }] : []),
-      ];
-      const sectionElements = sections.map(s => s.ref.current).filter(Boolean);
+      // Calculate section midpoints relative to document top
+      const heroMid = heroBounds ? scrollY + heroBounds.top + heroBounds.height / 2 : -Infinity;
+      const projectsMid = projectsBounds ? scrollY + projectsBounds.top + projectsBounds.height / 2 : Infinity;
+      const experienceMid = experienceBounds ? scrollY + experienceBounds.top + experienceBounds.height / 2 : Infinity;
 
-      if (sectionElements.length === 0) return;
+      // Find which section midpoint is closest to the viewport center
+      const distToHero = Math.abs(centerViewport - heroMid);
+      const distToProjects = Math.abs(centerViewport - projectsMid);
+      const distToExperience = showExperience && experienceBounds ? Math.abs(centerViewport - experienceMid) : Infinity;
 
-      timeline = gsap.timeline({ paused: true });
+      if (distToProjects < distToHero && distToProjects <= distToExperience) {
+        currentSection = 'projects';
+      } else if (showExperience && distToExperience < distToHero && distToExperience < distToProjects) {
+        currentSection = 'experience';
+      } else {
+        currentSection = 'home';
+      }
 
-      timeline.addLabel('home', 0);
-      sectionElements.forEach(el => {
-        const id = el.id;
-        if (id && id !== 'home') {
-          const startPos = el.offsetTop / (document.documentElement.scrollHeight - window.innerHeight);
-          timeline.addLabel(id, Math.max(0, Math.min(1, startPos)));
+      // Update state only if it changed
+      setActiveSection(prevSection => {
+        if (prevSection !== currentSection) {
+          // console.log('Active Section:', currentSection); // Debug log
+          return currentSection;
         }
+        return prevSection;
       });
 
-      snapTrigger = ScrollTrigger.create({
-        trigger: document.body,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: false,
-        snap: {
-          snapTo: (value) => {
-            // Safe check to prevent 'Cannot read properties of undefined (reading \'labels\')'
-            if (!timeline || !timeline.labels || Object.keys(timeline.labels).length === 0) {
-              return 0;
-            }
-            // Snap to the closest label position
-            const positions = Object.values(timeline.labels);
-            return positions.reduce((prev, curr) =>
-              Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-            );
-          },
-          duration: { min: 0.4, max: 0.8 },
-          delay: 0.05,
-          ease: 'power3.out',
-          onStart: () => { isSnappingRef.current = true; },
-          onComplete: (self) => {
-            isSnappingRef.current = false;
-            const snappedValue = self.snap;
-            let closestLabel = 'home';
-            let minDist = 1;
-            if (timeline && timeline.labels && Object.keys(timeline.labels).length > 0) {
-              for (const label in timeline.labels) {
-                const dist = Math.abs(snappedValue - timeline.labels[label]);
-                if (dist < minDist) {
-                  minDist = dist;
-                  closestLabel = label;
-                }
-              }
-            }
-            setActiveSection(closestLabel);
-          },
-          enabled: () => !startRocketTransition && timeline && timeline.labels && Object.keys(timeline.labels).length > 0,
-        },
-        onUpdate: self => {
-          if (!isSnappingRef.current && !startRocketTransition && timeline && timeline.labels && Object.keys(timeline.labels).length > 0) {
-            const progress = self.progress;
-            let currentSection = 'home';
-            const labels = timeline.labels;
-            const sortedLabels = Object.entries(labels).sort(([, a], [, b]) => a - b);
-
-            for (let i = 0; i < sortedLabels.length; i++) {
-              const [label, position] = sortedLabels[i];
-              if (progress >= position - 0.01) {
-                currentSection = label;
-              } else {
-                break;
-              }
-            }
-            if (activeSection !== currentSection) {
-              setActiveSection(currentSection);
-            }
-          }
-        },
-      });
-
-      if (projectsRef.current) {
-        rocketTrigger = ScrollTrigger.create({
-          trigger: projectsRef.current,
-          start: 'bottom bottom',
-          onEnter: () => {
-            if (!startRocketTransition && !showExperience) {
-              setStartRocketTransition(true);
-              snapTrigger?.disable();
-            }
-          },
-          onLeaveBack: () => {
-            if (startRocketTransition && !showExperience) {
-              setStartRocketTransition(false);
-              snapTrigger?.enable();
-            }
-          }
-        });
+      // Rocket transition trigger logic (keep existing)
+      if (projectsBounds && !startRocketTransition) {
+        const { bottom } = projectsBounds;
+        const triggerPoint = windowHeight * 0.2;
+        if (bottom < triggerPoint) {
+          console.log('Triggering Rocket Transition');
+          setStartRocketTransition(true);
+        }
       }
     };
 
-    setupScrollTriggers();
-    ScrollTrigger.refresh();
+    // Initial check in case the page loads scrolled down
+    handleScroll();
+
+    lenis.on('scroll', handleScroll);
 
     return () => {
-      gsap.ticker.remove(updateScroll);
-      snapTrigger?.kill();
-      rocketTrigger?.kill();
-      // Kill all ScrollTriggers before killing the timeline to avoid GSAP internal errors
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-      timeline?.kill();
+      lenis.off('scroll', handleScroll);
+      cancelAnimationFrame(rafId);
       lenisRef.current?.destroy();
       lenisRef.current = null;
     };
-  }, [showExperience, startRocketTransition, handleTransitionComplete]);
+    // Add showExperience to dependencies as it affects experience section calculation
+  }, [startRocketTransition, showExperience]);
 
   return (
     <div className="app">
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      {/* Wrap lazy loaded components in Suspense */}
       <Suspense fallback={<div className="navbar-loading"></div>}>
-         <Navbar activeSection={activeSection} />
+        <Navbar activeSection={activeSection} />
       </Suspense>
 
       <Suspense fallback={null}>
@@ -195,11 +132,10 @@ function App() {
         />
       </Suspense>
 
-
       <main id="main-content" ref={mainContentRef}>
         <Suspense fallback={<div className="fullscreen-loading">Loading...</div>}>
           <section ref={heroRef} id="home" aria-labelledby="hero-heading">
-            <HeroSection isActive={activeSection === 'home'} />
+            <HeroSection isActive={activeSection === 'home'} scrollToProjects={() => scrollToSection(projectsRef)} />
           </section>
 
           <section ref={projectsRef} id="projects" aria-labelledby="projects-heading">
