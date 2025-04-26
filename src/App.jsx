@@ -1,14 +1,15 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'; // Add lazy
 
-import HeroSection from '@components/HeroSection/HeroSection';
-import Navbar from '@components/Navbar/Navbar';
-import PageIndicator from '@components/PageIndicator/PageIndicator';
-import Projects from '@components/Projects/Projects';
-import ExperiencePanel from '@components/RocketTransition/ExperiencePanel';
-import RocketTransition from '@components/RocketTransition/RocketTransition';
+// Lazy load components
+const HeroSection = lazy(() => import('@components/HeroSection/HeroSection'));
+const Navbar = lazy(() => import('@components/Navbar/Navbar'));
+const PageIndicator = lazy(() => import('@components/PageIndicator/PageIndicator'));
+const Projects = lazy(() => import('@components/Projects/Projects'));
+const ExperiencePanel = lazy(() => import('@components/RocketTransition/ExperiencePanel'));
+const RocketTransition = lazy(() => import('@components/RocketTransition/RocketTransition'));
 
 import './App.scss';
 
@@ -182,13 +183,18 @@ function App() {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
+      {/* Wrap lazy loaded components in Suspense */}
+      <Suspense fallback={<div className="navbar-loading"></div>}>
+         <Navbar activeSection={activeSection} />
+      </Suspense>
 
-      <Navbar activeSection={activeSection} />
+      <Suspense fallback={null}>
+        <PageIndicator
+          activeSection={activeSection}
+          lenisInstance={lenisRef.current}
+        />
+      </Suspense>
 
-      <PageIndicator
-        activeSection={activeSection}
-        lenisInstance={lenisRef.current}
-      />
 
       <main id="main-content" ref={mainContentRef}>
         <Suspense fallback={<div className="fullscreen-loading">Loading...</div>}>

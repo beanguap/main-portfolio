@@ -16,7 +16,7 @@ import * as THREE from 'three';
 const tempColor = new THREE.Color();
 
 // Enhanced particle field with better performance on mobile
-function ParticleField() {
+function ParticleFieldComponent() {
   const particles = useRef();
   const geometryRef = useRef();
   const materialRef = useRef();
@@ -131,9 +131,10 @@ function ParticleField() {
     </points>
   );
 }
+const ParticleField = React.memo(ParticleFieldComponent); // Memoize
 
 // Enhanced project card component in 3D
-function ProjectCard({ position, rotation, index }) {
+function ProjectCardComponent({ position, rotation, index }) {
   const mesh = useRef();
   const geometryRef = useRef();
   const materialRef = useRef();
@@ -184,9 +185,10 @@ function ProjectCard({ position, rotation, index }) {
     </Float>
   );
 }
+const ProjectCard = React.memo(ProjectCardComponent); // Memoize
 
 // Animated background glow
-function BackgroundGlow() {
+function BackgroundGlowComponent() {
   const geometryRef = useRef();
   const materialRef = useRef();
   const { isMobile: isMobileDevice } = device;
@@ -212,9 +214,10 @@ function BackgroundGlow() {
     </mesh>
   );
 }
+const BackgroundGlow = React.memo(BackgroundGlowComponent); // Memoize
 
 // Main scene component with optimized rendering
-export function Scene3D({ projects = projectsData }) {
+function Scene3DComponent({ projects = projectsData }) {
   const [isMounted, setIsMounted] = useState(false);
   const { isMobile: isMobileDevice, isIPhone12Pro: isIPhone12 } = device;
   const glRef = useRef(null);
@@ -287,3 +290,6 @@ export function Scene3D({ projects = projectsData }) {
     </ErrorBoundary>
   );
 }
+
+// Export memoized version
+export const Scene3D = React.memo(Scene3DComponent);

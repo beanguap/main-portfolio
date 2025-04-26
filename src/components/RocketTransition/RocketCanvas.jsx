@@ -166,6 +166,9 @@ function SceneContent({ isLaunched, _onError, onTransitionComplete }) {
   );
 }
 
+// Memoize SceneContent
+const MemoizedSceneContent = React.memo(SceneContent);
+
 // Main canvas component
 export default React.memo(function RocketCanvas({
   isLaunched,
@@ -187,7 +190,7 @@ export default React.memo(function RocketCanvas({
 
   const handleContextLost = useCallback(
     (event) => {
-      event.preventDefault();
+      event.preventDefault(); // Prevent default browser behavior
       console.warn('WebGL context lost!');
       setContextLost(true);
       _onError?.(new Error('WebGL context lost'));
@@ -273,7 +276,7 @@ export default React.memo(function RocketCanvas({
       style={{ position: 'relative' }}
     >
       <Suspense fallback={null}>
-        <MemoSceneContent
+        <MemoizedSceneContent // Use memoized version
           isLaunched={isLaunched}
           _onError={handleCanvasError}
           onTransitionComplete={onTransitionComplete}
@@ -282,6 +285,3 @@ export default React.memo(function RocketCanvas({
     </Canvas>
   );
 });
-
-// Memoize SceneContent for performance
-const MemoSceneContent = React.memo(SceneContent);

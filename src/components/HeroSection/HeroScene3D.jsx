@@ -2,7 +2,7 @@ import ErrorBoundary from '@components/RocketTransition/ErrorBoundary';
 import { Environment } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { device } from '@utils/device';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; // Import React
 
 // Scene content that uses hooks - must be inside Canvas
 function SceneContent() {
@@ -19,8 +19,11 @@ function SceneContent() {
   );
 }
 
+// Memoize SceneContent
+const MemoizedSceneContent = React.memo(SceneContent);
+
 // Main scene component
-export function HeroScene3D() {
+function HeroScene3DComponent() { // Rename original component
   const [isMounted, setIsMounted] = useState(false);
   const { isMobile: isMobileDevice } = device;
 
@@ -46,14 +49,18 @@ export function HeroScene3D() {
         // Cap DPR
         dpr={Math.min(window.devicePixelRatio || 1, 2)}
         gl={{
+          antialias: !isMobileDevice, // Disable AA on mobile
           alpha: true,
           powerPreference: 'high-performance',
           stencil: false,
           depth: true,
         }}
       >
-        <SceneContent />
+        <MemoizedSceneContent /> {/* Use memoized version */}
       </Canvas>
     </ErrorBoundary>
   );
 }
+
+// Export memoized version
+export const HeroScene3D = React.memo(HeroScene3DComponent);
